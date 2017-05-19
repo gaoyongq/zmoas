@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.system.DistributionDao">
+   <resultMap id="DistributionMap" type="com.zm.mall.domain.system.Distribution">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="distributionCode" property="distributionCode" jdbcType="VARCHAR"/>
+        <result column="smallgroup" property="smallgroup" jdbcType="VARCHAR"/>
+        <result column="person" property="person" jdbcType="VARCHAR"/>
+        <result column="number" property="number" jdbcType="VARCHAR"/>
+        <result column="startTime" property="startTime" jdbcType="VARCHAR"/>
+        <result column="endTime" property="endTime" jdbcType="VARCHAR"/>
+        <result column="money" property="money" jdbcType="VARCHAR"/>
+        <result column="truckFinishTime" property="truckFinishTime" jdbcType="VARCHAR"/>
+        <result column="state" property="state" jdbcType="VARCHAR"/>
+        <result column="allOrderNumber" property="allOrderNumber" jdbcType="VARCHAR"/>
+        <result column="allRealNumber" property="allRealNumber" jdbcType="VARCHAR"/>
+        <result column="allRealWeigth" property="allRealWeigth" jdbcType="VARCHAR"/>
+        <result column="approvePeople" property="approvePeople" jdbcType="VARCHAR"/>
+        <result column="groupLeader" property="groupLeader" jdbcType="VARCHAR"/>
+        <result column="ister" property="ister" jdbcType="VARCHAR"/>
+        <result column="realDistributionMoney" property="realDistributionMoney" jdbcType="DOUBLE"/>
+        <result column="departmentId" property="departmentId" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <sql id="all_column">id, distributionCode,purchaseCode ,smallgroup , person ,number ,startTime , endTime ,money,truckFinishTime,state,allOrderNumber,allRealNumber,allRealWeigth,approvePeople,groupLeader,ister,realDistributionMoney,departmentId </sql>
+
+   <sql id="update_set">
+        <set>
+
+            <if test="smallgroup != null">smallgroup = #{smallgroup},</if>
+            <if test="person != null">person = #{person},</if>
+            <if test="number != null">number = #{number},</if>
+            <if test="money != null">money = #{money},</if>
+            <if test="state != null">state = #{state},</if>
+            <if test="startTime != null">startTime = #{startTime},</if>
+            <if test="endTime != null">endTime = #{endTime},</if>
+            <if test="truckFinishTime != null">truckFinishTime = #{truckFinishTime},</if>
+            <if test="approvePeople != null">approvePeople = #{approvePeople},</if>
+            <if test="realDistributionMoney != null">realDistributionMoney = #{realDistributionMoney},</if>
+            <if test="allOrderNumber != null">allOrderNumber = #{allOrderNumber},</if>
+            <if test="allRealNumber != null">allRealNumber = #{allRealNumber},</if>
+            <if test="allRealWeigth != null">allRealWeigth = #{allRealWeigth},</if>
+            <if test="wipeOffMoney != null">wipeOffMoney = #{wipeOffMoney},</if>
+            <if test="receiveMoney != null">receiveMoney = #{receiveMoney},</if>
+
+        </set>
+    </sql>
+
+
+    <!-- 插入记录 -->
+    <insert id="insertDistribution" parameterType="distribution" >
+        INSERT INTO wl_distribution
+        (distributionCode,purchaseCode,smallgroup, person,number,startTime,endTime,money,truckFinishTime,state,allOrderNumber,allRealNumber,allRealWeigth,groupLeader,ister,departmentId) VALUES
+        (#{distributionCode},#{purchaseCode},#{smallgroup},#{person},#{number},#{startTime},#{endTime},#{money},#{truckFinishTime},#{state},#{allOrderNumber},#{allRealNumber},#{allRealWeigth},#{groupLeader},#{ister},#{departmentId})
+    </insert>
+
+    <!-- 分页 -->
+    <select id="selectByLimit" resultMap="DistributionMap" parameterType="page">
+        SELECT
+        <include refid="all_column"/>
+        FROM wl_distribution
+        WHERE state="1" AND wl_distribution.departmentId=#{departmentId} AND wl_distribution.distributionCode LIKE '%${distribution.distributionCode}%' AND wl_distribution.number LIKE '%${distribution.number}%'
+        Limit #{beginNumber},#{pageSize}
+    </select>
+    <!-- 不同意分页 -->
+    <select id="selectDistributionNoConsent" resultMap="DistributionMap" parameterType="page">
+        SELECT
+        <include refid="all_column"/>
+        FROM wl_distribution
+
+        WHERE state="3"
+        Limit #{beginNumber},#{pageSize}
+    </select>
+     <!-- 同意分页 -->
+    <select id="selectDistributionConsent" resultMap="DistributionMap" parameterType="page">
+        SELECT
+        <include refid="all_column"/>
+        FROM wl_distribution
+        WHERE state="2" AND wl_distribution.departmentId=#{departmentId} AND wl_distribution.distributionCode LIKE '%${distribution.distributionCode}%' AND wl_distribution.number LIKE '%${distribution.number}%'
+        ORDER BY id DESC
+        Limit #{beginNumber},#{pageSize}
+    </select>
+<!-- 同意分页 -->
+    <select id="selectDistributionAllConsent" resultMap="DistributionMap" parameterType="page">
+        SELECT
+        <include refid="all_column"/>
+        FROM wl_distribution
+        WHERE state="2"  AND wl_distribution.distributionCode LIKE '%${distribution.distributionCode}%' AND wl_distribution.number LIKE '%${distribution.number}%'
+        ORDER BY id DESC
+        Limit #{beginNumber},#{pageSize}
+    </select>
+
+
+    <select id="selectAllCount" resultType="int" parameterType="page">
+        SELECT count(*)
+        FROM wl_distribution
+        WHERE state="1" AND wl_distribution.departmentId=#{departmentId} AND wl_distribution.distributionCode LIKE '%${distribution.distributionCode}%' AND wl_distribution.number LIKE '%${distribution.number}%'
+    </select>
+    <!--统计审批不同意数据-->
+    <select id="selectDistributionNoConsentCount" resultType="int" parameterType="page">
+        SELECT count(*)
+        FROM wl_distribution
+        WHERE state="3" AND wl_distribution.departmentId=#{departmentId}
+    </select>
+    <!--统计审批同意数据-->
+    <select id="selectDistributionConsentCount" resultType="int" parameterType="page">
+        SELECT count(*)
+        FROM wl_distribution
+        WHERE state="2" AND wl_distribution.departmentId=#{departmentId} AND wl_distribution.distributionCode LIKE '%${distribution.distributionCode}%' AND wl_distribution.number LIKE '%${distribution.number}%'
+    </select>
+    <!--统计审批同意数据-->
+    <select id="selectDistributionAllConsentCount" resultType="int" parameterType="page">
+        SELECT count(*)
+        FROM wl_distribution
+        WHERE state="2" AND wl_distribution.departmentId=#{departmentId}
+    </select>
+
+
+
+   <select id="selectOneDistribution" resultMap="DistributionMap" parameterType="String">
+        SELECT <include refid="all_column"/>
+        FROM wl_distribution
+        WHERE distributionCode=#{distributionCode}
+    </select>
+
+
+   <update id="updateDistributionState" parameterType="distribution">
+        update wl_distribution
+       <include refid="update_set"/>
+        where distributionCode = #{distributionCode}
+    </update>
+
+    <update id="updateDistributionNoState" parameterType="distribution">
+        update wl_distribution
+        <include refid="update_set"/>
+        where distributionCode = #{distributionCode}
+    </update>
+    <update id="distributionUpdate" parameterType="distribution">
+        update wl_distribution
+        <include refid="update_set"/>
+        where distributionCode = #{distributionCode}
+    </update>
+<update id="distributionAddStartTime" parameterType="distribution">
+        update wl_distribution
+        <include refid="update_set"/>
+        where distributionCode = #{distributionCode}
+    </update>
+  <update id="distributionAddEndTime" parameterType="distribution">
+        update wl_distribution
+        <include refid="update_set"/>
+        where distributionCode = #{distributionCode}
+    </update>
+
+    <!--统计利润的方法-->
+    <select id="selectFinishTask" resultType="distribution" >
+        SELECT <include refid="all_column"/>
+        FROM wl_distribution
+        WHERE state="4"
+    </select>
+    <select id="selectDistributionCar" resultType="distribution" parameterType="String">
+        SELECT <include refid="all_column"/>
+        FROM wl_distribution
+        WHERE purchaseCode=#{purchaseCode}
+    </select>
+
+    <update id="updateDistributionCarState" parameterType="String">
+        update wl_distribution
+        SET  state ="5"
+        where purchaseCode = #{purchaseCode}
+    </update>
+    <update id="distributionSaveLaterData" parameterType="String">
+        update wl_distribution
+        <include refid="update_set"/>
+        where distributionCode = #{distributionCode}
+    </update>
+</mapper>

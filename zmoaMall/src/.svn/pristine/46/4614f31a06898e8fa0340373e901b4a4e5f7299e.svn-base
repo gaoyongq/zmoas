@@ -1,0 +1,53 @@
+#set($layout = "layout/empty.vm")
+<form id="addTypeBrand-fm" method="post" novalidate style="margin:0;padding:20px 50px" enctype="multipart/form-data">
+    <input name="displaySequence" type="hidden" value="1" />
+    <div style="margin-bottom:20px;font-size:14px;border-bottom:1px solid #ccc">新增品牌</div>
+
+    <div style="margin-bottom:10px">
+        <input name="brandName" class="easyui-textbox" data-options="labelPosition:'top',required:true" label="&bull; 品牌名称:" style="width:100%">
+    </div>
+    <div style="margin-bottom:10px">
+        <input name="brandSpell" class="easyui-textbox" data-options="labelPosition:'top',required:true" label="&bull; 检索拼音:" style="width:100%">
+    </div>
+    <div style="margin-bottom:10px">
+        <p>&bull; 品牌图片</p>
+        <input name="file" class="easyui-filebox" style="width:100%" data-options="
+                prompt:'选择图片'
+                ">
+    </div>
+    <div style="margin-bottom:10px">
+        <input name="companyUrl" value="http://" class="easyui-textbox" data-options="labelPosition:'top',required:true" label="&bull; 品牌官方网站:" style="width:100%">
+    </div>
+    #*<div style="margin-bottom:10px">
+        <input name="displaySequence" class="easyui-numberspinner" value="1" style="width:50%;text-align:center" data-options="
+            label:'显示顺序:',
+            labelPosition:'top',
+            spinAlign:'horizontal',
+            required:true
+            ">
+    </div>*#
+    <div style="margin-bottom:10px">
+        <input class="easyui-combobox" name="prodTypeIds" style="width:100%;" data-options="
+                    url:'/business/prodCat/getProdTypeList.action',
+                    method:'get',
+                    valueField:'typeId',
+                    textField:'typeName',
+                    multiple:true,
+                    value:[],
+                    panelHeight:'170px',
+                    label: '关联商品类型:',
+                    labelPosition: 'top',
+                    editable:false
+                    ">
+    </div>
+    <div style="margin-bottom:10px">
+        <input name="metaDescription" class="easyui-textbox" data-options="labelPosition:'top',required:true" label="&bull; 页面描述:" style="width:100%">
+    </div>
+    <div style="margin-bottom:10px">
+        <input name="metaKeywords" class="easyui-textbox" data-options="labelPosition:'top',required:true" label="&bull; 页面关键词:" style="width:100%">
+    </div>
+    <div style="margin-bottom:10px">
+        <input name="description" class="easyui-textbox" data-options="labelPosition:'top',required:true" label="&bull; 品牌介绍:" style="width:100%">
+    </div>
+
+</form>

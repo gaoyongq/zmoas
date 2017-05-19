@@ -1,0 +1,39 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script src="../../js/jquery.js"></script>
+</head>
+<body>
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li><a>部门管理</a></li>
+    </ul>
+</div>
+<table class="table text-center">
+    <tr>
+        <th>菜单名称</th>
+        <th>上级菜单</th>
+        <th>菜单说明</th>
+        <th>相关操作</th>
+    </tr>
+    #foreach($p in $privilegeResults)
+        <tr>
+            <td align="left">$!p.name</td>
+            <td>$!p.privilege.name</td>
+            <td>$!p.cion</td>
+            <td><a href="/privilege/$p.id/delete.action" class="button border-red">
+                <span class="icon-trash-o"></span>删除</a>
+                <a href="/privilege/$p.id/getById.action" class="button border-blue">
+                    <span class="icon-edit"></span>编辑</a>
+            </td>
+        </tr>
+    #end
+</table>
+<a class="button border-blue" href="/privilege/toAddPage.action"><span class="icon-pencil"></span>添加</a>
+</body>
+</html>

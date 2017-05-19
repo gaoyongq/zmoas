@@ -1,0 +1,69 @@
+#set($layout = "layout/empty.vm")
+<html>
+<head>
+    <!-- 导入jquery核心类库 -->
+    <script type="text/javascript"
+            src="../../js/jquery-1.8.3.js"></script>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script src="../../js/jquery.jqprint-0.3.js"></script>
+
+</head>
+<body>
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li><a>签到信息</a></li>
+    </ul>
+</div>
+## 签到主页面 wq
+        <table  class="table text-center">
+            <!-- 表头-->
+            <thead>
+            <tr valign="MIDDLE" id="TableTitle">
+                <th width="100">
+                    编号
+                </th>
+                <th width="100">
+                    姓名
+                </th>
+                <th width="100">
+                    上班时间
+                </th>
+                <th width="100">
+                    下班时间
+                </th>
+                <th width="100">
+                    上班状态
+                </th>
+                <th width="100">
+                    下班状态
+                </th>
+            </tr>
+            </thead>
+            <tbody id="mytbody">
+                #foreach($register in $!registers)
+                <tr align="center">
+                    <td width="100">
+                        $!register.userid &nbsp;
+                    </td>
+                    <td width="100">
+                        $!register.username &nbsp;
+                    </td>
+                    <td width="100">
+                        $!date.format('yyyy-MM-dd HH:mm:ss ',$!register.createtime)
+                    </td>
+                    <td width="100">
+                        $!date.format('yyyy-MM-dd HH:mm:ss ',$!register.updatetime)
+                    </td>
+                    <td width="100">
+                        $!register.mstatus &nbsp;
+                    </td>
+                    <td width="100">
+                        $!register.estatus &nbsp;
+                    </td>
+                #end
+            </tbody>
+        </table>
+</body>
+</html>

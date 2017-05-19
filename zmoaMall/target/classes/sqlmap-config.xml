@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+		PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<settings>
+		<!-- 全局映射器启用缓存 -->
+		<setting name="cacheEnabled" value="true" />
+		<!-- 对于未知的SQL查询，允许返回不同的结果集以达到通用的效果 -->
+		<setting name="multipleResultSetsEnabled" value="true" />
+		<!-- 启用延迟加载 ,需依赖CGLIB <setting name="lazyLoadingEnabled" value="true"/>
+			<setting name="aggressiveLazyLoading" value="false"/> -->
+		<!-- 允许使用列标签代替列名 -->
+		<setting name="useColumnLabel" value="true" />
+		<!-- 数据库超过25000秒仍未响应则超时 -->
+		<setting name="defaultStatementTimeout" value="25000" />
+	</settings>
+
+	<!-- 全局别名设置，在映射文件中只需写别名，而不必写出整个类路径 -->
+	<typeAliases>
+		<typeAlias type="com.zm.mall.domain.business.appointment.AppointmentOrder" alias="appOrder"/>
+		<typeAlias type="com.zm.mall.domain.user.UserInfo" alias="userInfo"/>
+		<typeAlias type="com.zm.mall.domain.system.SystemCode" alias="systemCode"/>
+		<typeAlias type="com.zm.mall.domain.system.Privileges" alias="privileges"/>
+		<typeAlias type="com.zm.mall.domain.system.PrivilegeRole" alias="privilegeRole"/>
+		<typeAlias type="com.zm.mall.domain.system.MoneyManager" alias="moneyManager"/>
+		<typeAlias type="com.zm.mall.domain.system.MoneyItem" alias="moneyItem"/>
+		<typeAlias type="com.zm.mall.domain.system.ActivityTask" alias="activityTask"/>
+		<typeAlias type="com.zm.mall.domain.system.Register" alias="register"/>
+		<typeAlias type="com.zm.mall.domain.system.MallConfig" alias="mallConfig"/>
+		<typeAlias type="com.zm.mall.domain.business.orders.OrderInfo" alias="orderInfo"/>
+		<typeAlias type="com.zm.mall.domain.business.orders.OrderItems" alias="orderItems"/>
+		<typeAlias type="com.zm.mall.common.utils.OrderBySku" alias="orderBySku"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.Users" alias="users"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.ShippingAddress" alias="shippingAddress"/>
+		<typeAlias type="com.zm.mall.domain.business.product.ProductInfo" alias="productInfo"/>
+		<typeAlias type="com.zm.mall.domain.business.product.SKUInfo" alias="skuInfo"/>
+		<typeAlias type="com.zm.mall.domain.business.product.ProductCategories" alias="productCategories"/>
+		<typeAlias type="com.zm.mall.domain.business.product.CategoryInfo" alias="categoryInfo"/>
+		<typeAlias type="com.zm.mall.domain.business.product.ProductType" alias="productType"/>
+		<typeAlias type="com.zm.mall.domain.business.product.BrandInfo" alias="brandInfo"/>
+		<typeAlias type="com.zm.mall.domain.business.product.SupplierInfo" alias="supplierInfo"/>
+		<typeAlias type="com.zm.mall.domain.business.product.AttributeInfo" alias="attributeInfo"/>
+		<typeAlias type="com.zm.mall.domain.business.product.RegionInfo" alias="RegionInfo"/>
+		<typeAlias type="com.zm.mall.domain.business.product.AttributeValue" alias="attributeValue"/>
+		<typeAlias type="com.zm.mall.domain.business.product.ProductAttribute" alias="productAttribute"/>
+		<typeAlias type="com.zm.mall.domain.business.product.SKUItem" alias="skuItem"/>
+		<typeAlias type="com.zm.mall.domain.business.product.SKUItem" alias="skuItems"/>
+		<typeAlias type="com.zm.mall.domain.business.product.SKURelation" alias="skuRelation"/>
+		<typeAlias type="com.zm.mall.domain.business.product.ProductImage" alias="productImage"/>
+		<typeAlias type="com.zm.mall.domain.business.product.ProductStationModes" alias="productStationModes"/>
+		<typeAlias type="com.zm.mall.domain.business.product.ProductPackage" alias="productPackage"/>
+		<typeAlias type="com.zm.mall.domain.business.product.GroupBuy" alias="groupBuy"/>
+		<typeAlias type="com.zm.mall.domain.business.product.FavoriteInfo" alias="favoriteInfo"/>
+		<typeAlias type="com.zm.mall.domain.business.product.ProductStationModes" alias="productStationModes"/>
+		<typeAlias type="com.zm.mall.client.Page" alias="page"/>
+		<typeAlias type="com.zm.mall.domain.business.product.ThumbnailSize" alias="thumbnailSize"/>
+		<typeAlias type="com.zm.mall.client.PageOfRegister" alias="pageofregister"/>
+		<typeAlias type="com.zm.mall.domain.system.User" alias="user"/>
+		<typeAlias type="com.zm.mall.domain.system.Department" alias="department"/>
+		<typeAlias type="com.zm.mall.domain.system.Role" alias="role"/>
+		<typeAlias type="com.zm.mall.domain.system.Privilege" alias="privilege"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.Users" alias="userList" />
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.UsersExp" alias="usersExp" />
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.PointsDetail" alias="pointsDetail" />
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.PointsRule" alias="pointsRule"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.ShippingAddress" alias="address"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.MsRegions" alias="msRegions"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.RegionExpressPrice" alias="regionPrice"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.TradingRecord" alias="tradingRecord"/>
+		<typeAlias type="com.zm.mall.domain.business.product.RelatedProduct" alias="relatedProduct"/>
+		<typeAlias type="com.zm.mall.domain.system.ItemSystemCode" alias="itemSystemCode"/>
+		<typeAlias type="com.zm.mall.domain.system.TruckManage" alias="truckManage"/>
+		<typeAlias type="com.zm.mall.domain.system.Distribution" alias="distribution"/>
+		<typeAlias type="com.zm.mall.domain.system.DistributionSon" alias="distributionSon"/>
+		<typeAlias type="com.zm.mall.domain.business.purchase.PurchaseInfo" alias="purchaseInfo"/>
+		<typeAlias type="com.zm.mall.domain.business.purchase.PurchaseItems" alias="purchaseItems"/>
+		<typeAlias type="com.zm.mall.domain.business.purchase.PurchaseSupplierItems" alias="purchaseSupplierItems"/>
+		<typeAlias type="com.zm.mall.domain.business.orders.OrderItemsAttribute" alias="orderItemsAttribute"/>
+		<typeAlias type="com.zm.mall.domain.business.product.Aaregionpriceimport" alias="aaregionpriceimport"/>
+		<typeAlias type="com.zm.mall.common.utils.OrderBySku" alias="orderBySku"/>
+		<typeAlias type="com.zm.mall.domain.business.orders.OrderByTip" alias="orderByTip"/>
+		<typeAlias type="com.zm.mall.domain.business.product.SupplierProduct" alias="supplierProduct"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.ItemSystemCode" alias="systemCodeItem"/>
+		<typeAlias type="com.zm.mall.domain.business.orders.OrderAction" alias="orderAction"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.SystemCode" alias="codeSystem"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.UserScore" alias="userScore"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.UserRank" alias="userRank"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.UserCard" alias="userCard"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.RankDetail" alias="rankDetail"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.BalanceDetails" alias="balanceDetails"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.UserLog" alias="userLog"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.BalanceDrawRequest" alias="balanceDraw"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.ShopCouponInfo" alias="shopCouponInfo"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.ShopExchangeDetail" alias="shopExchangeDetail"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.ShopCouponClass" alias="couponClass"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.ShopCouponRule" alias="couponRule"/>
+		<typeAlias type="com.zm.mall.domain.system.AlwaysProfit" alias="alwaysProfit"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.ShopCouponHistory" alias="couponHistory"/>
+		<typeAlias type="com.zm.mall.domain.system.AlwaysProfitSon" alias="alwaysProfitSon"/>
+		<typeAlias type="com.zm.mall.domain.business.accountsUsers.ShopSupplierBrands" alias="supplierBrands"/>
+		<typeAlias type="com.zm.mall.domain.business.purchase.PurchasePage" alias="purchasePage"/>
+		<typeAlias type="com.zm.mall.domain.system.ApplyCar" alias="applyCar"/>
+		<typeAlias type="com.zm.mall.domain.system.ApplyCarSon" alias="applyCarSon"/>
+		<typeAlias type="com.zm.mall.domain.system.userPage" alias="userPage"/>
+		<typeAlias type="com.zm.mall.domain.business.shopUser.ShopUser" alias="shopUser"/>
+		<!--wechat-->
+		<typeAlias type="com.zm.mall.domain.wechat.WeChat_cart" alias="cart"/>
+		<typeAlias type="com.zm.mall.domain.business.bank.BankCard" alias="bankCard"/>
+	</typeAliases>
+	<plugins>
+		<plugin interceptor="com.github.pagehelper.PageHelper">
+			<property name="offsetAsPageNum" value="true"/>
+			<property name="rowBoundsWithCount" value="true"/>
+			<property name="reasonable" value="true"/>
+			<property name="supportMethodsArguments" value="false"/>
+			<property name="returnPageInfo" value="none"/>
+		</plugin>
+	</plugins>
+
+	<!-- 映射文件路径 -->
+	<mappers>
+		<mapper resource="sqlmap/user/UserInfo.xml" />
+		<mapper resource="sqlmap/system/SystemCode.xml" />
+		<mapper resource="sqlmap/system/Menus.xml" />
+		<mapper resource="sqlmap/system/MoneyManager.xml" />
+		<mapper resource="sqlmap/system/Register.xml"/>
+		<mapper resource="sqlmap/business/ShippingAddress.xml"/>
+		<mapper resource="sqlmap/business/OrderInfo.xml"/>
+		<mapper resource="sqlmap/business/product/ProductInfo.xml" />
+		<mapper resource="sqlmap/business/product/SKUInfo.xml"/>
+		<mapper resource="sqlmap/business/product/ProductCategories.xml"/>
+		<mapper resource="sqlmap/business/product/CategoryInfo.xml"/>
+		<mapper resource="sqlmap/business/product/ProductType.xml"/>
+		<mapper resource="sqlmap/business/product/BrandInfo.xml"/>
+		<mapper resource="sqlmap/business/product/SupplierInfo.xml"/>
+		<mapper resource="sqlmap/business/product/AttributeInfo.xml"/>
+		<mapper resource="sqlmap/business/product/RegionInfo.xml"/>
+		<mapper resource="sqlmap/business/product/AttributeValue.xml"/>
+		<mapper resource="sqlmap/business/product/ProductAttribute.xml"/>
+		<mapper resource="sqlmap/business/product/SKUItem.xml"/>
+		<mapper resource="sqlmap/business/product/SKURelation.xml"/>
+		<mapper resource="sqlmap/business/product/RelatedProduct.xml"/>
+		<mapper resource="sqlmap/business/product/ProductImage.xml"/>
+		<mapper resource="sqlmap/business/product/FavoriteInfo.xml"/>
+		<mapper resource="sqlmap/business/product/ProductStationModes.xml"/>
+		<mapper resource="sqlmap/business/TradingRecord.xml"/>
+		<mapper resource="sqlmap/system/User.xml"/>
+		<mapper resource="sqlmap/business/product/ThumbnailSize.xml"/>
+		<mapper resource="sqlmap/user/UserInfo.xml" />
+		<mapper resource="sqlmap/system/Role.xml" />
+		<mapper resource="sqlmap/system/Department.xml"/>
+		<mapper resource="sqlmap/system/Privilege.xml"/>
+		<mapper resource="sqlmap/system/ItemSystemCode.xml" />
+		<mapper resource="sqlmap/system/TruckManage.xml" />
+		<mapper resource="sqlmap/system/Distribution.xml" />
+		<mapper resource="sqlmap/system/DistributionSon.xml" />
+		<mapper resource="sqlmap/system/AlwaysProfit.xml" />
+		<mapper resource="sqlmap/system/AlwaysProfitSon.xml" />
+		<mapper resource="sqlmap/business/UsersList.xml" />
+		<mapper resource="sqlmap/business/product/SupplierProduct.xml"/>
+		<mapper resource="sqlmap/business/purchase/purchase.xml" />
+		<mapper resource="sqlmap/business/product/SupplierProduct.xml"/>
+		<mapper resource="sqlmap/system/ApplyCar.xml" />
+		<mapper resource="sqlmap/system/ApplyCarSon.xml" />
+		<mapper resource="sqlmap/system/MallConfig.xml"/>
+		<mapper resource="sqlmap/business/shopUser/ShopUser.xml"/>
+		<!--wechat-->
+		<mapper resource="sqlmap/wechat/Cart.xml"/>
+		<mapper resource="sqlmap/system/systemCode/DeptSystemCodeMapper.xml" />
+		<mapper resource="sqlmap/system/CouponMapper.xml" />
+		<mapper resource="sqlmap/system/AdMapper.xml" />
+		<mapper resource="sqlmap/business/product/ProductCategoryMapper.xml" />
+		<mapper resource="sqlmap/business/shop/ShopInfoMapper.xml" />
+		<mapper resource="sqlmap/business/bankCard/BankCard.xml" />
+		<mapper resource="sqlmap/business/appointmentOrder/AppointmentOrder.xml" />
+	</mappers>
+</configuration>

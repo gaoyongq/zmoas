@@ -1,0 +1,27 @@
+#set($layout = "layout/empty.vm")
+
+<table class="easyui-datagrid" data-options="
+        fit: true,
+        border: false,
+        singleSelect:true
+        ">
+    <thead>
+        <tr>
+            <th data-options="field:'usersName'" width="50%" align="center">用户名</th>
+            <th data-options="field:'usersNameValue'" width="50%" align="center">$!userName</th>
+        </tr>
+        <tr>
+            <th data-options="field:'month'" width="50%" align="center">月份</th>
+            <th data-options="field:'money'" width="50%" align="center">月交易金额</th>
+        </tr>
+    </thead>
+    <tbody>
+        #foreach($moneys in $list)
+            #set($velocityCounter =$loopCounter+1)
+            <tr>
+                <td>$velocityCounter</td>
+                <td>$moneys</td>
+            </tr>
+        #end
+    </tbody>
+</table>

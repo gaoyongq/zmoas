@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.system.TruckManageDao">
+
+    <resultMap id="TruckManageMap" type="com.zm.mall.domain.system.TruckManage">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="number" property="number" jdbcType="VARCHAR"/>
+        <result column="capacity" property="capacity" jdbcType="VARCHAR"/>
+        <result column="life" property="life" jdbcType="DATE"/>
+        <result column="driver" property="driver" jdbcType="VARCHAR"/>
+        <result column="deliveryman" property="deliveryman" jdbcType="VARCHAR"/>
+        <result column="sortTime" property="sortTime" jdbcType="VARCHAR"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="state" property="state" jdbcType="VARCHAR"/>
+
+    </resultMap>
+
+    <sql id="all_column">id ,number,capacity , life ,driver ,deliveryman ,sortTime ,remark ,state </sql>
+
+    <sql id="condition">
+        <if test="id != null  and id > 0">
+            AND id = #{id}
+        </if>
+        <if test="number != null and number !=''">
+            AND number = #{number}
+        </if>
+        <if test="capacity != null and capacity !=''">
+            AND capacity = #{capacity}
+        </if>
+        <if test="life != null and life !=''">
+            AND life = #{life}
+        </if>
+        <if test="state != null and state !=''">
+            AND state = #{state}
+        </if>
+        <if test="driver != null and driver !=''">
+            AND driver = #{driver}
+        </if>
+        <if test="deliveryman != null and deliveryman !=''">
+            AND deliveryman = #{deliveryman}
+        </if>
+        <if test="sortTime != null  and sortTime > 0">
+            AND sortTime = #{sortTime}
+        </if>
+        <if test="remark != null and remark !=''">
+            AND remark = #{remark}
+        </if>
+    </sql>
+    <sql id="condition2">
+        <if test="truckManage.id != null  and truckManage.id > 0">
+            AND id = #{truckManage.id}
+        </if>
+        <if test="truckManage.number != null and truckManage.number !=''">
+            AND number = #{truckManage.number}
+        </if>
+        <if test="truckManage.capacity != null and truckManage.capacity !=''">
+            AND capacity = #{truckManage.capacity}
+        </if>
+        <if test="truckManage.life != null and truckManage.life !=''">
+            AND life = #{truckManage.life}
+        </if>
+        <if test="truckManage.state != null and truckManage.state !=''">
+            AND state = #{truckManage.state}
+        </if>
+    </sql>
+
+    <sql id="update_set">
+        <set>
+            <if test="number != null">number = #{number},</if>
+            <if test="capacity != null">capacity = #{capacity},</if>
+            <if test="life != null">life = #{life},</if>
+            <if test="state != null">state = #{state},</if>
+            <if test="driver != null">driver = #{driver},</if>
+            <if test="deliveryman != null">deliveryman = #{deliveryman},</if>
+            <if test="sortTime != null">sortTime = #{sortTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+
+        </set>
+    </sql>
+
+    <!--<select id="selectAllByContion" resultMap="PrivilegeMap">
+        SELECT
+        <include refid="all_column"/>
+        FROM privilege
+
+        <include refid="condition"/>
+    </select>-->
+    <select id="selectAllByContion" resultMap="TruckManageMap">
+        SELECT
+        *
+        FROM TruckManage
+
+
+    </select>
+
+    <insert id="insertTruckManage" parameterType="truckManage" >
+        INSERT INTO wl_truckmanage
+        (  number, capacity,life,driver,state) VALUES
+        (  #{number}, #{capacity} , #{life} ,#{driver} , #{state}  )
+    </insert>
+
+    <update id="updateTruckManage" parameterType="truckManage">
+        update wl_truckmanage
+        <include refid="update_set"/>
+        WHERE id = #{id}
+    </update>
+    <update id="deleteTruckManage" parameterType="truckManage">
+        update wl_truckmanage
+        <include refid="update_set"/>
+        WHERE id = #{id}
+    </update>
+    <update id="truckSort" parameterType="truckManage">
+        update wl_truckmanage
+        <include refid="update_set"/>
+        WHERE number = #{number}
+    </update>
+    <update id="truckLeave" parameterType="truckManage">
+        update wl_truckmanage
+        <include refid="update_set"/>
+        WHERE number = #{number}
+    </update>
+
+    <!-- 分页 -->
+    <select id="selectByLimit" resultMap="TruckManageMap" parameterType="page">
+        SELECT
+        <include refid="all_column"/>
+        FROM wl_truckmanage
+        WHERE state=#{truckManage.state} AND number LIKE '%${truckManage.number}%' AND driver LIKE '%${truckManage.driver}%'ORDER BY sortTime ASC
+        Limit #{beginNumber},#{pageSize}
+    </select>
+    <select id="selectAllCount" resultType="int" parameterType="page">
+        SELECT count(*)
+        FROM wl_truckmanage
+        WHERE state=#{truckManage.state} AND number LIKE '%${truckManage.number}%' AND driver LIKE '%${truckManage.driver}%'
+    </select>
+    <select id="selectAllNoEmploy" resultMap="TruckManageMap">
+        SELECT
+        <include refid="all_column"/>
+        FROM TruckManage
+        WHERE state="2"
+    </select>
+    <!--根据id查询车辆-->
+    <select id="selectOneTruckManage" resultMap="TruckManageMap" parameterType="Integer">
+        SELECT
+        <include refid="all_column"/>
+        FROM wl_truckmanage
+        WHERE id=#{id}
+    </select>
+   <!-- 查询等待的车辆-->
+    <select id="selectCar" resultMap="TruckManageMap" parameterType="String">
+        SELECT
+        <include refid="all_column"/>
+        FROM wl_truckmanage
+        WHERE state=#{state} ORDER BY sortTime ASC
+    </select>
+
+    <update id="updateTruckState" parameterType="truckManage">
+        update wl_truckmanage
+        <include refid="update_set"/>
+        WHERE number = #{number}
+    </update>
+</mapper>

@@ -1,0 +1,582 @@
+#set($layout = "layout/decoration-show.vm")
+<br/>
+## 报销主页面 wq
+
+<script type="text/javascript">
+    $(function(){
+
+
+        var currentPage = document.getElementById("currentPage").value;
+
+        //上一页
+        $("#upPage").click(function(){
+            if (currentPage == 1) {
+                alert("当前已经是第一页");
+            } else {
+                currentPage = currentPage-1;
+                window.location.href ="/system/moneyManagerAction_list.action?currentPage="+currentPage;
+                return false;
+            }
+        });
+        //下一页
+        $("#downPage").click(function () {
+            var totalPages = $!totalPages;
+            if (currentPage == totalPages) {
+                alert("当前已经是最后一页");
+            }else {
+                currentPage=parseInt(currentPage)+1;
+                window.location.href = "/system/moneyManagerAction_list.action?currentPage=" + currentPage;
+                return false;
+            }
+        });
+
+    ##删除报销单
+        $("#delete").click(function(){
+
+            if( $('input:checkbox[name=moneyid]:checked').length==0){
+                alert("请选择需要删除的记录！");
+                return false;
+            }else{
+                if(confirm("确定要删除吗？")){
+                    var ids = "";
+                    $('input:checkbox[name=moneyid]:checked').each(function(){
+
+
+                        ids += $(this).val()+",";
+                        window.location.href ="/system/moneyManager_delete.action?ids="+ids;
+
+                    });
+                    return false;
+                }else{
+                    return false;
+                }
+            }
+        });
+
+    ##修改报销单
+        $("#update").click(function(){
+            if( $('input:checkbox[name=moneyid]:checked').length==1){
+                var statusCode = $('input:checkbox[name=moneyid]:checked').closest("tr").children('td').eq(6).text();
+                if(statusCode == "未审批"){
+                    var ids = $('input:checkbox[name=moneyid]:checked').attr('value');
+                    window.location.href ="/system/moneyManager_update.action?ids="+ids;
+                }else{
+                    alert('已经审核，不能修改！');
+                }
+            }else{
+                alert("请选择需要修改的单个记录！");
+            }
+            return false;
+        });
+//        审核
+        $("#check").click(function(){
+           var results = document.getElementById("roleids").value;
+
+//            if(results>10){
+//                alert("权限不足！");
+//                return false;
+//            }else
+            if(results>=3 && results<=10){
+                var statusCode = $('input:checkbox[name=moneyid]:checked').closest("tr").children('td').eq(6).text();
+                var substr = statusCode.substr(0,2);
+                if(substr == "部门" || substr == "经理" ){
+                    alert('已经审核，不能再审核！');
+                    return false;
+                }
+            }else if(results>=1 && results<=2){
+                var statusCode = $('input:checkbox[name=moneyid]:checked').closest("tr").children('td').eq(6).text();
+                var substr = statusCode.substr(0,2);
+                if(substr == "经理"){
+                    alert('已经审核，不能再审核！');
+                    return false;
+                }
+            }
+            if( $('input:checkbox[name=moneyid]:checked').length==1){
+                var ids = $("input[type='checkbox']:checked").attr('value');
+                window.location.href ="/system/moneyManager_check.action?ids="+ids;
+
+            }else{
+                alert("请选择需要审核的单个记录！");
+            }
+            return false;
+        });
+//新增
+        $("#insert").click(function(){
+            var ids = "";
+            window.location.href ="/system/moneyManager_null.action?ids="+ids;
+            return false;
+        });
+    });
+</script>
+<script type="text/javascript">
+    $(function(){
+        $(".tree").treeview();
+
+    });
+</script>
+
+
+##表格样式
+##<style type="text/css">
+##    li ul {margin:0px;padding:0px;list-style:none;}
+##    .t1
+##    {
+##        clear: both;
+##        border: 1px solid #c9dae4;
+##    }
+##    .t1 tr th
+##    {
+##        color: #0d487b;
+##        background: #f2f4f8 url(../CSS/Table/images/sj_title_pp.jpg) repeat-x left bottom;
+##        line-height: 28px;
+##        border-bottom: 1px solid #9cb6cf;
+##        border-top: 1px solid #e9edf3;
+##        font-weight: normal;
+##        text-shadow: #e6ecf3 1px 1px 0px;
+##        /*padding-left: 5px;*/
+##        /*padding-right: 5px;*/
+##    }
+##    .t1 tr td
+##    {
+##        border-bottom: 1px solid #e9e9e9;
+##        /*padding-bottom: 5px;*/
+##        /*padding-top: 5px;*/
+##        color: #444;
+##        border-top: 1px solid #FFFFFF;
+##        /*padding-left: 5px;*/
+##        /*padding-right: 5px;*/
+##        word-break: break-all;
+##    }
+##    /* white-space:nowrap; text-overflow:ellipsis; */
+##    tr.alt td
+##    {
+##        background: #ecf6fc; /*这行将给所有的tr加上背景色*/
+##    }
+##    tr.over td
+##    {
+##        background: #bcd4ec; /*这个将是鼠标高亮行的背景色*/
+##    }
+##</style>
+
+<script type="text/javascript">
+    $(document).ready(function () { //这个就是传说的ready
+        $(".t1 tr").mouseover(function () {
+            //如果鼠标移到class为stripe的表格的tr上时，执行函数
+            $(this).addClass("over");
+        }).mouseout(function () {
+            //给这行添加class值为over，并且当鼠标一出该行时执行函数
+            $(this).removeClass("over");
+        }) //移除该行的class
+        $(".t1 tr:even").addClass("alt");
+        //给class为stripe的表格的偶数行添加class值为alt
+    });
+</script>
+
+<div>
+    #foreach($roless in $!userrole)
+        <input type="hidden"  id="roleids" name="roleids" value="$!roless.id" />
+    #end
+    <input type="hidden"  id="currentPage" name="currentPage" value="$!currentPage" />
+</div>
+##<form action="/system/moneyManagerAction_lists.action" method="post">
+##    <div   style="float:left;">
+##        <label >报销名称：</label>
+##        <input type="text" id="name" name="name" cssClass="SelectInputStyle" />
+##        <label cssClass="selecStyple">报销部门：</label>
+##        <select id="departmentName" name="departmentName">
+##            <option value="">--请选择--</option>
+##            <option >销售部</option>
+##            <option >财务部</option>
+##            <option >电商部</option>
+##            <option >技术部</option>
+##        </select>
+##        #*<s:select name="departmentCode" cssClass="SelectStyle"
+##                  list="#departmentList" listKey="id" listValue="name" headerKey=""
+##                  headerValue="--请选择--"></s:select>*#
+##        <label cssClass="selecStyple">申请类型：</label>
+##        <select id="moneyType" name="moneyType" >
+##            <option value="">--请选择--</option>
+##            <option value="1">申请</option>
+##            <option value="2">预支</option>
+##        </select>
+##        #*<s:select name="moneyType" cssClass="SelectStyle" list="#applyTepy"
+##                  listKey="id" listValue="name" headerKey="" headerValue="--请选择--"></s:select>*#
+##
+##        <label cssClass="selecStyple">单据状态：</label>
+##        <select id="statusCode" name="statusCode">
+##            <option value="">--请选择--</option>
+##            <option >未审批</option>
+##            <option value="不通过">未通过</option>
+##            <option >部门审核通过</option>
+##            <option >经理审核通过</option>
+##        </select>
+##
+##        #*<s:select name="statusCode" cssClass="SelectStyle"
+##                  list="#applyStatus" listKey="id" listValue="name" headerKey=""
+##                  headerValue="--请选择--"></s:select>
+##        <s:hidden name='fileName'></s:hidden>
+##        <s:hidden name='fileValue'></s:hidden>
+##        <s:hidden name='fileType'></s:hidden>*#
+##        <input type="submit" value="查询"/>
+##        <input type="reset" value="重置"/>
+##    </div>
+##
+##
+##</form>
+##        <div  style="float:right; margin-right:20px;">
+##            #vela("/system/register.action?id=1" "暂停" "name" "names" )
+##            <input type="submit" id="insert" value="新增"/>
+##            <input type="submit" id="update" value="修改"/>
+##            <input type="submit" id="delete" value="删除"/>
+####            <input type="submit" id="check" value="审核"/>
+##            #vela("/system/moneyManager_check.action" "审核" "check" "check")
+##        </div>
+####        <table cellspacing="0" cellpadding="0" class="TableStyle" border="1" frame="rules=cols" >
+##            <table width="100%" id="ListArea" border="0" class="t1" align="center" cellpadding="0"
+##                   cellspacing="0">
+##            <!-- 表头-->
+##            <thead>
+##            <tr  valign="MIDDLE" id="TableTitle">
+##                <th width="25"align="right">
+##                    选择
+##                </th>
+##                <th width="100">
+##                    报销单名称
+##                </th>
+##                <th width="100">
+##                    申请部门
+##                </th>
+##                <th width="100">
+##                    申请人
+##                </th>
+##                <th width="100">
+##                    申请类型
+##                </th>
+##                <th width="100">
+##                    申请金额
+##                </th>
+##                <th width="100">
+##                    单据状态
+##                </th>
+##
+##                <th width="100">
+##                    附件
+##                </th>
+##                <th width="200">
+##                    备注
+##                </th>
+##            </tr>
+##            </thead>
+##        </table>
+##        <!-- 进行展示的修改 -->
+##        <!--修改成层级展示数据的效果-->
+####        <s:iterator value="list">
+##        #foreach($moneyManagers in $!moneyManager)
+##            <ul class="tree">
+##                <li class="closed">
+##
+####                    <table cellspacing="0" cellpadding="1" class="TableStyle" frame="rules=rows">
+##                        <table  id="MoneyManager" border="0" class="t1" align="center" cellpadding="0"
+##                               cellspacing="0">
+##                        <!-- 表头-->
+##                        <thead>
+####                        <tr align="center" class="TableDetail1 template">
+##                          <tr align="center" id="TableTitle">
+##                            <td width="20">
+##                                <input type="checkbox" name="moneyid" value="${moneyManagers.id}"/>
+##                            </td>
+##                            <td width="100">
+##                                $!moneyManagers.name &nbsp;
+##                            </td>
+##                            <td width="100">
+##                                $!moneyManagers.departmentName &nbsp;
+##                            </td>
+##                            <td width="100">
+##                                $!{moneyManagers.userName} &nbsp;
+##
+##                            </td>
+##
+##                            <td width="100">
+##                                #if($!moneyManagers.moneyType == '1' )
+##                                    申请&nbsp;
+##                                #else
+##                                    预支&nbsp;
+##                                #end
+##                                &nbsp;
+##                            </td>
+##                            <td width="100">
+##                                $!{moneyManagers.money}&nbsp;
+##                            </td>
+####                              <input type="text" align="center" style="border: 0;" id="statusCodes" value="$!{moneyManagers.statusCode}" />
+##                            <td width="100"  id="statusCodes">$!{moneyManagers.statusCode}</td>
+##                            <td width="100">
+##                                #if($!{moneyManagers.fileURL}=="")
+##                                #else
+##                                    <a  href="/system/moneyManager_download.action?fileName=$!{moneyManagers.fileURL}">查看附件</a>
+##                                #end
+##                            </td>
+##                            <td width="200">
+##                                $!{moneyManagers.description}&nbsp;
+##                            </td>
+##
+##                        </tr>
+##                        </thead>
+##                    </table>
+##
+##
+##                        <ul class="tree">
+##                            <li class="closed">
+##                                <table cellspacing="0" cellpadding="0" id="moneyItem">
+##
+##                                    <!-- 表头-->
+##                                    <thead  >
+##                                    <tr valign="MIDDLE" id="MenuTitle" class="t1">
+##                                        <td width="200px" class="t1">
+##                                            明细名称&nbsp;
+##                                        </td>
+##                                        <td width="200px" class="t1">
+##                                            申请说明&nbsp;
+##                                        </td>
+##                                        <td width="300px" class="t1">
+##                                            金额&nbsp;
+##                                        </td>
+##                                    </tr>
+##                                    </thead>
+##                                    <tbody>
+####                                    <s:iterator value="%{itemSet}" var="item">
+##                                    #foreach($itemSet in $moneyManagers.itemSet)
+##                                        <tr valign="MIDDLE" id="MenuTitle">
+##                                            <td width="200px">
+##                                                $!itemSet.moneyName &nbsp;
+##                                            </td>
+##                                            <td width="200px">
+##                                                ${itemSet.description}&nbsp;
+##                                            </td>
+##                                            <td width="300px">
+##                                                ${itemSet.money}&nbsp;
+##                                            </td>
+##                                        </tr>
+##                                     #end
+##                                    </tbody>
+##                                </table>
+##                            </li>
+##                        </ul>
+####                    #end
+##                </li>
+##
+##            </ul>
+##
+##        #end
+##
+##    <div align="right" style="margin-right: 50px;">
+##        <tr><td colspan="7" align="right"><input type="button" name="btn" id="btn" value="查询"><font id="page">$!currentPage/$!totalPages</font> &nbsp;&nbsp;<a href="#" id="upPage">上一页</a>&nbsp;&nbsp;<a href="#" id="downPage">下一页</a></td></tr>
+##    </div>
+##
+##    </div>
+<div>
+    <form action="/system/moneyManagerAction_lists.action" method="post">
+        <div   style="float:left;">
+            <label >报销名称：</label>
+            <input type="text" id="name" name="name" cssClass="SelectInputStyle" />
+            <label cssClass="selecStyple">报销部门：</label>
+            <select id="departmentName" name="departmentName">
+                <option value="">--请选择--</option>
+                <option >销售部</option>
+                <option >财务部</option>
+                <option >电商部</option>
+                <option >技术部</option>
+            </select>
+        #*<s:select name="departmentCode" cssClass="SelectStyle"
+                  list="#departmentList" listKey="id" listValue="name" headerKey=""
+                  headerValue="--请选择--"></s:select>*#
+            <label cssClass="selecStyple">申请类型：</label>
+            <select id="moneyType" name="moneyType" >
+                <option value="">--请选择--</option>
+                <option value="1">申请</option>
+                <option value="2">预支</option>
+            </select>
+        #*<s:select name="moneyType" cssClass="SelectStyle" list="#applyTepy"
+                  listKey="id" listValue="name" headerKey="" headerValue="--请选择--"></s:select>*#
+
+            <label cssClass="selecStyple">单据状态：</label>
+            <select id="statusCode" name="statusCode">
+                <option value="">--请选择--</option>
+                <option >未审批</option>
+                <option value="不通过">未通过</option>
+                <option >部门审核通过</option>
+                <option >经理审核通过</option>
+            </select>
+
+        #*<s:select name="statusCode" cssClass="SelectStyle"
+                  list="#applyStatus" listKey="id" listValue="name" headerKey=""
+                  headerValue="--请选择--"></s:select>
+        <s:hidden name='fileName'></s:hidden>
+        <s:hidden name='fileValue'></s:hidden>
+        <s:hidden name='fileType'></s:hidden>*#
+
+##            <input type="submit" value="查询"/>
+##            <input type="reset" value="重置"/>
+            &nbsp;
+            <button class="button border-yellow" id="form"><span class="icon-search">查询</span></button> &nbsp;
+##            <button class="button border-blue" id="form"><span>重置</span></button>
+            <input type="reset" class="button border-blue" value="重置"/>
+        </div>
+    </form>
+    <div  style="float:right; margin-right:20px;">
+##        #vela("/system/register.action?id=1" "暂停" "name" "names" )
+##        <input type="submit" id="insert" value="新增"/>
+##        <input type="submit" id="update" value="修改"/>
+##        <input type="submit" id="delete" value="删除"/>
+    #vela("/system/moneyManager_check.action" "<span class='icon-check'>审核</span>" "check" "button border-green")
+    <button class="button border-blue" id="insert"><span class="icon-pencil">添加</span></button>
+    <button class="button border-blue" id="update"><span class="icon-edit">修改</span></button>
+    <button class="button border-red" id="delete"><span class="icon-trash-o">删除</span></button>
+    ##            <input type="submit" id="check" value="审核"/>
+    </div>
+</div>
+<div style="clear: both; height: 10px"></div>
+<div>
+##        <table cellspacing="0" cellpadding="0" class="TableStyle" border="1" frame="rules=cols" >
+<table  id="ListArea" class="table text-center">
+    <!-- 表头-->
+    <thead>
+    <tr id="TableTitle">
+        <th>
+        </th>
+        <th style="width: 10%">
+            选择
+        </th>
+        <th style="width: 10%">
+            报销单名称
+        </th>
+        <th style="width: 10%">
+            申请部门
+        </th>
+        <th style="width: 10%">
+            申请人
+        </th>
+        <th style="width: 10%">
+            申请类型
+        </th>
+        <th style="width: 10%">
+            申请金额
+        </th>
+        <th style="width: 10%">
+            单据状态
+        </th>
+
+        <th style="width: 10%">
+            附件
+        </th>
+        <th style="width:20%">
+            备注
+        </th>
+    </tr>
+    </thead>
+</table>
+<!-- 进行展示的修改 -->
+<!--修改成层级展示数据的效果-->
+##        <s:iterator value="list">
+#foreach($moneyManagers in $!moneyManager)
+<ul class="tree">
+    <li class="closed">
+
+    ##                    <table cellspacing="0" cellpadding="1" class="TableStyle" frame="rules=rows">
+        <table  id="MoneyManager"  class="table text-center" style="border-bottom: none;border-top:none ">
+            <!-- 表头-->
+            <thead>
+            ##                        <tr align="center" class="TableDetail1 template">
+            <tr align="center" id="TableTitle">
+                <td style="width: 10%">
+                    <input type="checkbox" name="moneyid" value="${moneyManagers.id}"/>
+                </td>
+                <td style="width: 10%">
+                    $!moneyManagers.name &nbsp;
+                </td>
+                <td style="width: 10%">
+                    $!moneyManagers.departmentName &nbsp;
+                </td>
+                <td style="width: 10%">
+                    $!{moneyManagers.userName} &nbsp;
+
+                </td>
+
+                <td style="width: 10%">
+                    #if($!moneyManagers.moneyType == '1' )
+                        申请&nbsp;
+                    #else
+                        预支&nbsp;
+                    #end
+                    &nbsp;
+                </td>
+                <td style="width: 10%">
+                    $!{moneyManagers.money}&nbsp;
+                </td>
+            ##                              <input type="text" align="center" style="border: 0;" id="statusCodes" value="$!{moneyManagers.statusCode}" />
+                <td style="width: 10%" id="statusCodes">$!{moneyManagers.statusCode}</td>
+                <td style="width: 10%">
+                    #if($!{moneyManagers.fileURL}=="")
+                    #else
+                        <a  href="/system/moneyManager_download.action?fileName=$!{moneyManagers.fileURL}">查看附件</a>
+                    #end
+                </td>
+                <td style="width: 20%">
+                    $!{moneyManagers.description}&nbsp;
+                </td>
+
+            </tr>
+            </thead>
+        </table>
+
+
+        <ul class="tree">
+            <li class="closed">
+                <table class="tableson" border="1" id="moneyItem" >
+
+                    <!-- 表头-->
+                    <thead  >
+                    <tr valign="MIDDLE" id="MenuTitle" class="t1">
+                        <td width="200px" class="t1">
+                            明细名称&nbsp;
+                        </td>
+                        <td width="200px" class="t1">
+                            申请说明&nbsp;
+                        </td>
+                        <td width="300px" class="t1">
+                            金额&nbsp;
+                        </td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    ##                                    <s:iterator value="%{itemSet}" var="item">
+                        #foreach($itemSet in $moneyManagers.itemSet)
+                        <tr valign="MIDDLE" id="MenuTitle" >
+                            <td width="200px">
+                                $!itemSet.moneyName &nbsp;
+                            </td>
+                            <td width="200px">
+                                ${itemSet.description}&nbsp;
+                            </td>
+                            <td width="300px">
+                                ${itemSet.money}&nbsp;
+                            </td>
+                        </tr>
+                        #end
+                    </tbody>
+                </table>
+            </li>
+        </ul>
+    ##                    #end
+    </li>
+
+</ul>
+
+#end
+
+<div align="right" style="margin-right: 50px;">
+    <tr><td colspan="7" align="right"><font id="page">$!currentPage/$!totalPages</font> &nbsp;&nbsp;<a href="#" id="upPage">上一页</a>&nbsp;&nbsp;<a href="#" id="downPage">下一页</a></td></tr>
+</div>
+</div>
+
+
+

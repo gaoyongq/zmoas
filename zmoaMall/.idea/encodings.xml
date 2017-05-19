@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false" defaultCharsetForPropertiesFiles="UTF-8">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/zm/mall/dao/business/orders/impl/OrderInfoDaoImpl.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/zm/mall/dao/business/product/RegionInfoDao.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/zm/mall/dao/resources/sqlmap/business/product/AttributeInfo.xml" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/zm/mall/dao/resources/sqlmap/business/product/ProductImage.xml" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/zm/mall/dao/resources/sqlmap/business/product/ProductType.xml" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/zm/mall/dao/resources/sqlmap/business/product/RegionInfo.xml" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/zm/mall/dao/resources/sqlmap/business/product/SKUItem.xml" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/zm/mall/dao/resources/sqlmap/business/product/SupplierInfo.xml" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/zm/mall/dao/system/impl/ApplyCarSonDaoImpl.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/zm/mall/dao/system/impl/UserDaoImpl.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/zm/mall/domain/business/product/RelatedProduct.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/webapp/My97DatePicker/lang/zh-tw.js" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/vm/business/productCat/updateProdTypeDlg.vm" charset="UTF-8" />
+    <file url="PROJECT" charset="UTF-8" />
+  </component>
+</project>

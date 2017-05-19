@@ -1,0 +1,17 @@
+#set($layout = "layout/empty.vm")
+
+<!-- 添加文字规格对话框 -->
+<form id="spec-char-fm" method="post" novalidate style="margin:0;padding:20px 50px">
+    <input name="typeId" value="$!typeId" type="hidden">
+    <input name="useAttributeImage" value="0" type="hidden">
+    <input name="usageMode" value="3" type="hidden">
+    <div style="margin-bottom:20px;font-size:14px;border-bottom:1px solid #ccc">填写活动分类信息</div>
+    <div style="margin-bottom:10px">
+        <p>&bull; 规格名称：</p>
+        <input id="attributeName" name="attributeName" class="easyui-textbox" data-options="required:true" style="width:100%">
+    </div>
+    <div style="margin-bottom:10px">
+        <p>&bull; 规格值：</p>
+        <input id="valueStr" name="valueStr" class="easyui-textbox" data-options="required:true" style="width:100%">
+    </div>
+</form>

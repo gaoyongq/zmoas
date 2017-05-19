@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.system.ItemSystemCodeDao">
+
+    <resultMap id="ItemSystemCodeMap" type="com.zm.mall.domain.system.ItemSystemCode">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="fid" property="fid" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="value" property="value" jdbcType="DOUBLE"/>
+        <result property="pluteformid" column="pluteformid"/>
+    </resultMap>
+
+    <sql id="all_column">id, fid,code ,name , description ,value </sql>
+
+    <sql id="condition">
+        <if test="itemSystemCode.id != null and itemSystemCode.id >0">
+            AND id = #{itemSystemCode.id}
+        </if>
+        <if test="itemSystemCode.fid != null and itemSystemCode.fid >0">
+            AND fid = #{itemSystemCode.fid}
+        </if>
+        <if test="itemSystemCode.code != null and itemSystemCode.code !=''">
+            AND code LIKE '%${itemSystemCode.code}%'
+        </if>
+        <if test="itemSystemCode.name != null and itemSystemCode.name !=''">
+            AND name LIKE '%${itemSystemCode.name}%'
+        </if>
+
+        <if test="itemSystemCode.description != null and itemSystemCode.description !=''">
+            AND description LIKE '%${itemSystemCode.description}%'
+        </if>
+        <if test="itemSystemCode.value != null and itemSystemCode.value >0">
+            AND value = #{itemSystemCode.value}
+        </if>
+    </sql>
+
+    <!-- 通过fid查询 -->
+    <select id="selectByFid" resultMap="ItemSystemCodeMap" parameterType="itemSystemCode">
+        SELECT
+        <include refid="all_column"/>
+        FROM b2c_item_system_code
+        WHERE pluteformid=#{pluteformid}
+        <include refid="condition"/>
+    </select>
+
+
+    <sql id="update_set">
+        <set>
+            <if test="code != null">code = #{code},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="value != null">value = #{value},</if>
+
+        </set>
+    </sql>
+
+    <!-- 分页 -->
+   <select id="selectByLimit" resultMap="ItemSystemCodeMap" parameterType="page">
+        SELECT
+       <include refid="all_column"/>
+        FROM b2c_item_system_code
+        WHERE 1=1 AND pluteformid=#{itemSystemCode.pluteformid}
+       <include refid="condition"/>
+        Limit #{beginNumber},#{pageSize}
+    </select>
+    <select id="selectAllCount" resultType="int" parameterType="page">
+        SELECT count(*)
+        FROM b2c_item_system_code
+        WHERE 1=1 AND pluteformid=#{itemSystemCode.pluteformid}
+        <include refid="condition"/>
+    </select>
+    <!-- 插入记录 -->
+    <insert id="insertItemSystemCode" parameterType="itemSystemCode" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO b2c_item_system_code
+        ( fid , code, name,description,value,pluteformid) VALUES
+        ( #{fid} , #{code}, #{name}, #{description}, #{value} ,#{pluteformid} )
+    </insert>
+    <!-- 通过主键更新 -->
+    <update id="updateItemSystemCode" parameterType="itemSystemCode">
+        update b2c_item_system_code
+        <include refid="update_set"/>
+        WHERE id = #{id} AND pluteformid=#{pluteformid}
+    </update>
+</mapper>

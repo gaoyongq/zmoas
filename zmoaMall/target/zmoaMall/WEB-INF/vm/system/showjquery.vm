@@ -1,0 +1,184 @@
+#set($layout = "layout/empty.vm")
+<html>
+<head>
+    <script type="text/javascript" src="../../js/jquery-1.8.3.js"></script>
+    <script type="text/javascript" src="/layer/layer.js"></script>
+</head>
+<script type="text/javascript">
+    //                closeBtn: 0, //不显示关闭按钮
+    //                btn: ['确定', '取消'] //按钮
+    //            }, function(index){
+    //                window.location.href = "/purchase/"+ids+"/updatePurstate.action"
+    //                layer.close(index);
+    //            }, function(index){
+    //                layer.close(index);
+    //            });
+    //ajax
+        //修改用户
+    $(document).ready(function(){
+        $("#createBtn").click(function(){
+            var ids ='';
+            $("input[attr='check']").each(function(i,v){
+                if($(v).is(":checked")){
+                    if(ids){
+                        ids+=',';
+                    }
+                    ids=ids+$(v).val();
+                }
+
+            });
+
+            if(!ids){
+                layer.msg("你没选中任何记录");
+                return false;
+            }
+
+            if(ids.indexOf(',') != -1){
+                layer.msg("你只能选择一条记录");
+                return false;
+            }
+
+            //$(this).attr('href',"/user/"+ids+"/getById.action");
+           window.location.href = "/system/getById.action?ids="+ids;
+            return true;
+        });
+        //删除代码：
+        $("#deleteBtn").click(function(){
+            var ids ='';
+            $("input[attr='check']").each(function(i,v){
+                if($(v).is(":checked")){
+                    if(ids){
+                        ids+=',';
+                    }
+                    ids=ids+$(v).val();
+                }
+            });
+
+            if(!ids){
+                layer.msg("你没选中任何记录");
+                return false;
+            }else{
+                layer.confirm('您确定要删除这条数据', {
+                    closeBtn: 0, //不显示关闭按钮
+                    btn: ['确定','取消'] //按钮
+                }, function(index){
+                    window.location.href = "/system/updateSte.action?ids="+ids;
+                    layer.close(index);
+                }, function(index){
+                    layer.close(index);
+                });
+            }
+            return false;
+
+    });
+        //初始化密码代码：
+        $("#initializeBtn").click(function(){
+            var ids ='';
+            $("input[attr='check']").each(function(i,v){
+                if($(v).is(":checked")){
+                    if(ids){
+                        ids+=',';
+                    }
+                    ids=ids+$(v).val();
+                }
+
+            });
+
+            if(!ids){
+                layer.msg("你没选中任何记录");
+                return false;
+            }
+            layer.confirm('您确定初始化密码为1234吗', {
+                closeBtn: 0, //不显示关闭按钮
+                btn: ['确定','取消'] //按钮
+            }, function(index){
+                window.location.href = "/system/updatePass.action?ids="+ids;
+                layer.close(index);
+            }, function(index){
+                layer.close(index);
+            });
+            return false;
+        });
+        //采购单的审核功能
+        $("#updateState").click(function(){
+            var ids ='';
+            $("input[attr='check']").each(function(i,v){
+                if($(v).is(":checked")){
+                    if(ids){
+                        ids+=',';
+                    }
+                    ids=ids+$(v).val();
+                }
+
+            });
+            if(!ids){
+                layer.msg("你没选中任何记录");
+                return false;
+            }
+            jQuery.ajax({
+                url: "/purchase/updatePurstate.action",
+                type: "post",
+                data: {ids:ids},
+                dataType: 'json',
+                success:function(data){
+                    //window.location.href="/purchase/showPurchase.action";
+                }
+            })
+            //layer.confirm('您确定该采购单审核通过!!')
+            return true;
+        });
+        //开启商户
+//        $("#updateShopState").click(function(){
+//            var ids ='';
+//            $("input[attr='check']").each(function(i,v){
+//                if($(v).is(":checked")){
+//                    if(ids){
+//                        ids+=',';
+//                    }
+//                    ids=ids+$(v).val();
+//                }
+//            });
+//            if(!ids){
+//                layer.msg("你没选中任何记录");
+//                return false;
+//            }
+//            if(ids.indexOf(',') != -1){
+//                layer.msg("你只能选择一条记录");
+//                return false;
+//            }
+//            //$(this).attr('href',"/user/"+ids+"/getById.action");
+//            window.location.href ="/user/updateShopState.action?ids="+ids;
+//            alert("成功开启商户");
+//            return true;
+//        });
+        $("#updateShopState").click(function(){
+            if( $('input:checkbox[name=check]:checked').length==1){
+                var depatdmentName = $('input:checkbox[name=check]:checked').closest("tr").children('td').eq(4).text();
+                var stateId = $('input:checkbox[name=check]:checked').closest("tr").children('td').eq(5).text();
+                if(depatdmentName == "商户"){
+                    var ids = $('input:checkbox[name=check]:checked').attr('value');
+                    window.location.href ="/system/updateShopState.action?ids="+ids;
+                }else{
+                    layer.msg('只有商户部门才能开启！');
+                }if(stateId==1){
+                    if(depatdmentName == "商户"){
+                    layer.msg('该商户已经开启不需再次开启！');
+                    }
+                }
+            }else{
+                if( $('input:checkbox[name=check]:checked').length==0) {
+                    layer.msg("您没有选中任何记录!");
+                }else{
+                    layer.msg("你只能选择一条记录!");
+                }
+            }
+            return false;
+        });
+    });
+</script>
+<body>
+<div id="content">
+    $screen_content
+</div>
+</body>
+</html>

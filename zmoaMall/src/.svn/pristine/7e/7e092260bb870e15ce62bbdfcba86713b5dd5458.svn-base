@@ -1,0 +1,1133 @@
+#set($layout = "layout/empty.vm")
+
+<link href="/css/jquery.autocomplete.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="../../css/zmoaStyle.css">
+<link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+<script type="text/javascript" src="../../../js/jquery-1.8.3.js"></script>
+<script type="text/javascript" src="../../../js/zooming.js"></script>
+<script type="text/javascript" src="/js/jquery.autocomplete.js"></script>
+<script type="text/javascript" src="/layer/layer.js"></script><style>
+
+    /*弹出框居中*/
+    html {
+        border: 0 none;
+        height: 100%;
+        overflow: auto;
+    }
+    .readonly, input[readonly], input[disabled], textarea[readonly], textarea[disabled] {
+        background-color: #E8E8E8;
+        color: #555555;
+    }
+
+</style>
+<script type="text/javascript">
+    $(function(){
+        var currentPage = "1";
+        var totalPages;
+        var cate = "";//分类路径
+        $("#buyerName").ready(function(){
+            jQuery.ajax({
+                url:"/business/autoCompleteOrderInfo.action?key=buyerName",
+                dataType:"json",
+                type:"post",
+                success:function(data){
+                    $("#buyerName").autocomplete(data,{
+                        max:10,
+                        formatItem:function(row){
+                            return row["userName"];
+                        },
+                        formatMatch:function(row){
+                            return row["userName"];
+                        }
+
+                    });
+                }
+            });
+        });
+        var skuData;
+        jQuery.fn.extend({
+            center:function(width,height)
+            {
+                return $(this).css("left", ($(window).width()-width)/2+$(window).scrollLeft()).
+                        css("top", ($(window).height()-height)/2+$(window).scrollTop()).
+                        css("width",width).
+                        css("height",height);
+            }
+        });
+
+//  ----------------根据输入的用户名获取对应的收货人，地址等信息---------------------
+        //回车事件
+        $(document).keyup(function(event){
+            if(event.keyCode ==13){
+                var buyerName = $("#buyerName").val();
+                //当输入不为空时触发ajax
+                if (buyerName.trim() != "") {
+                    getShipInfo(buyerName);
+                }
+            }
+        });
+        //点击事件
+        $("#btnName").click(function(){
+            var buyerName = $("#buyerName").val();
+            //当输入不为空时触发ajax
+            if (buyerName.trim() != "") {
+                getShipInfo(buyerName);
+            }
+           });
+        //方法
+        function getShipInfo(buyerName) {
+            $("#regionId").val("");
+            $("#checkShip").html("<option value=''>无<option>");
+            $("#shipName").val("");
+            $("#shipAddress").val("");
+            $("#shipCelPhone").val("");
+            jQuery.ajax({
+                url: "/business/shipInfo.action",
+                type: "post",
+                data: {buyerName: buyerName},
+                dataType: 'json',
+                success: function (data) {
+                    var list = data.shippingAddress;
+                    $("#buyerID").val(data.userId);
+                    $("#buyerEmail").val(data.email);
+                    $("#buyerCellPhone").val(data.phone);
+                    //先将缓存的下拉框数据删除
+                    $("#checkShip").children().remove();
+                    //判定返回数据唯一时默认收货信息
+                    if( list.length==0){
+                       layer.msg("请为该用户名添加收货地址");
+                    }else if (list.length == 1) {
+                        //获取用户名下的收货信息集合
+                        $("#checkShip").append('<option>收货人：' + list[0].shipName + '； 收货地址：' + list[0].address + '； 联系方式：' + list[0].celPhone + '</option>');
+                        $("#shipName").val(list[0].shipName);
+                        $("#shipAddress").val(list[0].address);
+                        $("#shipCelPhone").val(list[0].celPhone);
+                        var regionId =list[0].regionId;
+                        $("#regionId").val(regionId);
+//                        //根据收货地址regionId获取运费
+//                        jQuery.ajax({
+//                            url:"/business/getYunFei.action",
+//                            type:'post',
+//                            data:{"regionId":regionId},
+//                            dataType:'json',
+//                            success:function(data){
+//                                var yunFei = data.price;
+//                                $("#yunFei").val(yunFei);
+//                            }
+//                        })
+                    } else if (list.length > 1) {
+                        //将收货信息遍历在下拉框
+                        $("#checkShip").append("<option value=''>请选择<option>");
+                        for (var i = 0; i < list.length; i++) {
+                            $("#checkShip").append('<option class="ships" value=' + i + '>收货人：' + list[i].shipName + '； 收货地址：' + list[i].address + '； 联系方式：' + list[i].celPhone + '</option>');
+                        }
+                        //根据点击事件获得选中的收货信息
+                        $("#checkShip").change(function () {
+                            var an = $(this).attr('value');
+                            $("#shipName").val(list[an].shipName);
+                            $("#shipAddress").val(list[an].address);
+                            $("#shipCelPhone").val(list[an].celPhone);
+                            var regionId =list[an].regionId;
+                            $("#regionId").val(regionId);
+//                            //根据收货地址regionId获取运费
+//                            jQuery.ajax({
+//                                url:"/business/getYunFei.action",
+//                                type:'post',
+//                                data:{"regionId":regionId},
+//                                dataType:'json',
+//                                success:function(data){
+//                                    var yunFei = data.price;
+//                                    $("#yunFei").val(yunFei);
+//                                }
+//                            })
+                        })
+
+                    }
+                }
+            })
+        }
+// ------------------插入城市3级联动-----------------------
+        $("#Regionfirst").change(function(){
+            var select = "<option  id='0'  checked='checked'>请选择</option>";
+            var fatherId = $("#Regionfirst option:selected").attr('id');
+            var depath = 2;
+            if(fatherId != null && fatherId !=''){
+                jQuery.post("/business/selRegionInfo.action",{"fatherId":fatherId,"depath":depath},function(data){
+                    for(var r = 0;r<data.length;r++) {
+                        select += "<option id='" + data[r].regionId + "'>" + data[r].regionName + "</option>"
+                    }
+                    $("#Regionsecond option").remove();
+                    $("#Regionthree option").remove();
+                    $("#Regionsecond").append(select);
+                    $("#Regionthree").append("<option  id='0'  checked='checked'>请选择</option>");
+                });
+            }else{
+                $("#Regionsecond option").remove();
+                $("#Regionsecond").append(select);
+                $("#Regionthree option").remove();
+                $("#Regionthree").append("<option  id='0'  checked='checked'>请选择</option>");
+            }
+        });
+        //二级
+        $("#Regionsecond").change(function(){
+            var select = "<option id='0' checked='checked'>请选择</option>";
+            var fatherId = $("#Regionsecond option:selected").attr('id');
+            var depath = 3;
+            if(fatherId != null && fatherId !=''){
+                jQuery.post("/business/selRegionInfo.action",{"fatherId":fatherId,"depath":depath},function(data){
+                    for(var r = 0;r<data.length;r++) {
+                        select += "<option id='" + data[r].regionId + "'>" + data[r].regionName + "</option>"
+                    }
+                    $("#Regionthree option").remove();
+                    $("#Regionthree").append(select);
+                });
+            }else{
+                $("#Regionthree option").remove();
+                $("#Regionthree").append(select);
+            }
+        });
+
+        //地址
+        function regio(){
+            var regio = '';
+            if($("#Regionthree").val()!=0){
+                regio = $("#Regionthree option:selected").val();
+            }else if($("#Regionsecond").val()!=0){
+                regio = $("#Regionsecond option:selected").val();
+            }else if($("#Regionfirst").val()!=0){
+                regio = $("#Regionfirst option:selected").val();
+            }
+        }
+
+
+        //动态插入分类
+        jQuery.post("/business/selCategory.action",function(data){
+            var select = "<option value='' checked='checked'>全部</option>";
+            for(var i = 0;i<data.length;i++){
+                select +="<option value='"+data[i].categoryId+"' checked='checked'>"+data[i].name+"</option>";
+            }
+            $("#categoryId").append(select);
+        });
+        //获得二级分类
+        $("#categoryId").change(function(){
+            var select = "<option value='' checked='checked'>全部</option>";
+            var fatherId = $("#categoryId option:selected").val();
+            var depath = "2";
+            cate ="";
+            if(fatherId != null && fatherId !=''){
+                jQuery.post("/business/selCategory.action",{"fatherId":fatherId,"depath":depath},function(data){
+                    for(var s = 0;s<data.length;s++){
+                        select +="<option value='"+data[s].categoryId+"' checked='checked'>"+data[s].name+"</option>"
+                    }
+                    $("#second option").remove();
+                    $("#three option").remove();
+                    $("#second").append(select);
+                    $("#three").append(select);
+                });
+            }else{
+                $("#second option").remove();
+                $("#second").append(select);
+                $("#three option").remove();
+                $("#three").append(select);
+            }
+        });
+        //获得三级分类
+        $("#second").change(function(){
+            var select = "<option value='' checked='checked'>全部</option>";
+            var fatherId = $("#second option:selected").val();
+            var depath = "3";
+            if(fatherId != null && fatherId !=''){
+                jQuery.post("/business/selCategory.action",{"fatherId":fatherId,"depath":depath},function(data){
+                    for(var s = 0;s<data.length;s++){
+                        select +="<option value='"+data[s].categoryId+"' checked='checked'>"+data[s].name+"</option>"
+                    }
+                    $("#three option").remove();
+                    $("#three").append(select);
+                });
+            }else{
+                $("#three option").remove();
+                $("#three").append(select);
+            }
+        });
+        //获得分类路径
+        function cateUrl(){
+            if($("#categoryId option:selected").val()!=null && $("#categoryId option:selected").val() != ""){
+                cate ="";
+                cate += $("#categoryId option:selected").val()+"|";
+            }
+            if($("#second option:selected").val()!=null && $("#second option:selected").val() != ""){
+                cate +=$("#second option:selected").val()+"|";
+            }
+            if($("#three option:selected").val()!=null && $("#three option:selected").val() != ""){
+                cate +=$("#three option:selected").val();
+            }
+            return cate;
+        }
+
+        // -------------------产品类型确定查询对应的规格属性值------------------------------------------
+        $("#productType").live('change',function(){
+            var type = $(this).attr('value');
+            var types = type.split(",");
+            var typeId = types[0];
+            if(typeId==-1){
+                $("#typeId").val("");
+            }else{
+                $("#typeId").val(typeId);
+            }
+            var typeName = types[1];
+            //根据类型名称匹配白玻，有白玻就是白破，没有就是艺玻
+            if(typeName.indexOf("白玻")!=-1){
+               typeName = "白玻";
+            }else{
+                typeName="艺玻";
+            }
+            $("#typeName").val(typeName);
+            if(typeId==-1){
+                $("#typeId").val("");
+            }else{
+                $("#typeId").val(typeId);
+            }
+            //获得规格的属性，根据typeId和attributeName查询版面属性值
+            var appearence = $("#app").attr('value');
+            jQuery.ajax({
+                url:"/business/selectAttributeValue.action",
+                type:'post',
+                data:{"typeId":typeId,"attributeName":appearence},
+                dataType:'json',
+                success:function(data){
+                    //先将以前数据删除
+                    $("#appearence").children().remove();
+                    $("#appearence").append('<option>请选择</option>');
+                    if(data.length>0){
+                        var listValues = data[0].listAttributeValues;
+                        for(var i=0;i<listValues.length;i++){
+                            $("#appearence").append('<option id='+listValues[i].attributeId+'|'+listValues[i].valueId+'>'+listValues[i].valueStr+'</option>');
+                        }
+                    }
+                }
+
+            })
+            //获得规格的属性，根据typeId和attributeName查询厚度属性值
+            var thick = $("#hou").attr('value');
+            jQuery.ajax({
+                url:"/business/selectAttributeValue.action",
+                type:'post',
+                data:{"typeId":typeId,"attributeName":thick},
+                dataType:'json',
+                success:function(data){
+                    //先将以前数据删除
+                    $("#thick").children().remove();
+                    $("#thick").append('<option>请选择</option>');
+                    if(data.length>0){
+                        var listValues = data[0].listAttributeValues;
+                        for(var i=0;i<listValues.length;i++){
+                            $("#thick").append('<option id='+listValues[i].attributeId+'|'+listValues[i].valueId+'>'+listValues[i].valueStr+'</option>');
+                        }
+                    }
+                }
+
+            })
+
+
+        })
+
+
+// ----------------------点击查询----------------------------------
+        $("#btn").click(function(){
+            var regionId = $("#regionId").val();
+            //先根据regionId判断是否选中收货地址
+            if(regionId==null | regionId==""){
+                layer.msg("请选中收货地址");
+                $("#skuInfo").hide();
+                return;
+            }
+            selData();
+
+        });
+        function selData(){
+            //获得产品分类信息
+            var cate = cateUrl();
+            var productName = $("#productNameByGiven").val();
+            var productCode = $("#productCodeByGiven").val();
+            var typeId = $("#typeId").val();
+            //将关于版面和厚度的信息拼成字符串
+            var appearence =$("#appearence").children("option:selected").attr('id');
+            var thick = $("#thick").children("option:selected").attr('id');
+            var index = layer.load(1, {
+                shade: [0.1,'#fff'] //0.1透明度的白色背景
+            });            jQuery.ajax({
+                url:"/business/selProductBySku.action",
+                type:'post',
+                data:{"cate":cate,"productName":productName,"productCode":productCode,"typeId":typeId,"appearence":appearence,"thick":thick,"currentPage":currentPage},
+                dataType:'json',
+                success:function(data){
+                    var page = "";
+                    var products = data.resultProductInfo;
+                    if(products.length == 0){
+                       layer.msg("没有您要求的产品");
+                       layer.close(index);
+                    }else{
+                        for(var i=0;i<products.length;i++){
+
+                            page +="<tr class='product' id="+products[i].productId+">";
+                            page +="<td><input type='checkbox' class='check' id="+products[i].productId+" name="+products[i].productName+" code="+products[i].productCode+" picture="+products[i].thumbnailUrl1+"></td>";
+                            page +="<td><img src=http://www.zhongguozhaomei.com" + products[i].thumbnailUrl1 + " data-action='zoom' data-original=http://www.zhongguozhaomei.com"+products[i].thumbnailUrl1+" width='20px' height='30px' ></td>"
+                            page +="<td> <label  title='"+products[i].productName+"' style='cursor: pointer;'>" + cutstr(products[i].productName,4) + "</td>";
+                            page +="<td>"+products[i].productCode+"</td>";
+                            page +="<td>"+products[i].lowestSalePrice+"</td>";
+                            page +="</tr>";
+                        }
+                        $(".product").remove();
+                        $("#productI").after(page);
+                        $("#pageNum").show();
+                        currentPage = data.currentPage;
+                        totalPages = data.totalPages;
+                        $("#page").html("" + currentPage + " / " + data.totalCount + "");
+                        layer.close(index);                    }
+
+
+                }
+            })
+        }
+
+        //截取字符串
+        function cutstr(str, len) {
+            var str_length = 0;
+            var str_len = 0;
+            if (!str) {
+                return "";
+            }
+            var str_cut = new String();
+            str_len = str.length;
+            for (var i = 0; i < str_len; i++) {
+                var a = str.charAt(i);
+                str_length++;
+                if (escape(a).length > 4) {
+                    //中文字符的长度经编码之后大于4
+                    str_length++;
+                }
+                str_cut = str_cut.concat(a);
+                if (str_length >= len) {
+                    str_cut = str_cut.concat("...");
+                    return str_cut;
+                }
+            }
+            //如果给定字符串小于指定长度，则返回源字符串；
+            if (str_length < len) {
+                return str;
+            }
+        }
+        //--------------------------------点击一个产品的ceckbox开启规格选择----------------------
+        $(".check").live('click',function(){
+
+            //判定该产品是否被选中
+//            $(".productDInfo").each(function(){
+//                var productId = $(this).attr('id');
+//            })
+//            $(".product").find('input').each(function(){
+//                var id = $(this).attr('id');
+//                if(productId==id){
+//                    $(this).attr('checked',true);
+//                }else{
+//                    $(this).attr('checked',false);
+//                }
+//            })
+//            $(this).attr('checked',true);
+            var boolean = $(this).prop("checked");
+            if (boolean) {
+                var productId = $(this).attr('id');
+                $("#productId").val(productId);
+                var productName = $(this).attr('name');
+                $("#productName").val(productName);
+                $("#productCode").val($(this).attr('code'));
+                $("#picture").val($(this).attr('picture'));
+//                //根据productId查询对应的运费率
+//                jQuery.ajax({
+//                    url:"/business/getYunFei.action",
+//                    type:'POST',
+//                    data:{"productId":productId},
+//                    dataType:'json',
+//                    success:function(data){
+//                    if(data==null){
+//
+//                    }else{
+//                        $("#yunFei").val(data.price);
+//                    }
+//                    }
+//                })
+                //根据产品Id查询相应的售价拼成json数据，前台根据规格属性值匹配获得售价
+                jQuery.ajax({
+                    url: "/business/selectSalePrice.action",
+                    type: 'post',
+                    data: {"productId": productId},
+                    dataType: 'json',
+                    success: function (data) {
+                        skuData = data;
+                    }
+                })
+
+            //查询产品的规格
+            jQuery.ajax({
+                url:"/business/selectAttribute.action",
+                type:'post',
+                data:{productId:productId},
+                dataType:'json',
+                success:function(data){
+                    $("#rules").remove();
+                    var rule = "";
+                    rule +="<div id='rules' align='left'>";
+                    rule +="<table id='skuT'>";
+                    var attributeInfo = data.attributeInfoList;
+                    //展示规格属性和对应的值
+                    for(var a=0;a<attributeInfo.length;a++){
+                        rule +="<tr id='rule"+a+"' id="+attributeInfo[a].attributeId+" class='ruleTr'>";
+                        rule += "<td width='20%' align='center'>" + attributeInfo[a].attributeName + ":</td>";
+                        var attributeValues = attributeInfo[a].listAttributeValues;
+                            rule += "<td><ul>";
+                            for (var b = 0; b < attributeValues.length; b++) {
+                                rule += "<li style='float: left;width: 150px;display: block;line-height: 30px;vertical-align: middle;'><input type='radio' class='valueStr' id=" + attributeValues[b].valueId + " value='"+attributeValues[b].valueStr+"' name='valueStr" + a + "'><label title='" + attributeValues[b].valueStr + "' style='cursor: pointer;'>" + cutstr(attributeValues[b].valueStr, 10) + "</li>";
+                            }
+                            rule += "</td>";
+                            rule += "</tr>";
+                        }
+                        rule += "</table>";
+                        if(productName.indexOf("白玻")!=-1){
+                         rule += "<table id='table_quality'>";
+                         rule += "<tr >";
+                         rule += "<td>质量标识</td>";
+                         rule += "<td><ul>";
+                         rule += "<li style='float: left;width: 150px;display: block;line-height: 30px;vertical-align: middle;'><input type='radio'  value='1'  name='quality'><label title='一等品' style='cursor: pointer;'>一等品</li>";
+                         rule += "<li style='float: left;width: 150px;display: block;line-height: 30px;vertical-align: middle;'><input type='radio'  value='2' name='quality'><label title='合格品' style='cursor: pointer;'>合格品</li>";
+                         rule += "<li style='float: left;width: 150px;display: block;line-height: 30px;vertical-align: middle;'><input type='radio'  value='3' name='quality'><label title='协议品' style='cursor: pointer;'>协议品</li>";
+                         rule += "</td>";
+                         rule += "</tr>";
+                         rule += "</table>";
+                        }
+                        rule += "</div>";
+                        $("#divbody").append(rule);
+                        $("#skuInfo").show().center(550, 400);
+                        $("#number").val("1");
+                        $("#salePrice").val(0);
+                    }
+                })
+            }
+        })
+        $(".labelSku").live("click",function(){
+            var ids ="";
+            $("#skuT tr").find('input:radio:checked').each(function(){
+                var id = $(this).attr('id');
+                ids +=id;
+                ids +=",";
+            })
+            ids = ids.substring(0,ids.length-1);
+            for(var a=0;a<skuData.length;a++){
+                var key = skuData[a].key;
+                if(key.indexOf(ids)!=-1){
+                    var sku = skuData[a].skuInfo.sku;
+                    var weight = skuData[a].skuInfo.weight;
+                    var salePrice = skuData[a].skuInfo.salePrice;
+                    $("#sku").val(sku);
+                    $("#weight").val(weight);
+                    $("#salePrice").val(salePrice);
+
+                }else{
+
+                }
+            }
+            if($("#number").val()==1){
+                checkPrice();
+            }
+           $(this).prev().attr("checked",true);
+        });
+        //----------------------根据选中的所有规格属性组合来获取售价-------------------------------
+
+        $("#skuT").live('click',function(){
+            $("#squarePrice").val("");
+            var ids ="";
+            $("#skuT tr").find('input:radio:checked').each(function(){
+                var id = $(this).attr('id');
+                ids +=id;
+                ids +=",";
+            })
+            ids = ids.substring(0,ids.length-1);
+            for(var a=0;a<skuData.length;a++){
+                var key = skuData[a].key;
+                if(key.indexOf(ids)!=-1){
+                    var sku = skuData[a].skuInfo.sku;
+                    var weight = skuData[a].skuInfo.weight;
+                    var salePrice = skuData[a].skuInfo.salePrice;
+                    $("#sku").val(sku);
+                    $("#weight").val(weight);
+                    //产品的售价应该包含运费
+//                    var yunFei = $("#yunFei").val();
+//                    var yun = yunFei*weight/1000;
+//                    var Price =Number(yun+salePrice);
+//                    $("#salePrice").val(Price.toFixed(2));
+                    $("#salePrice").val(salePrice);
+                }else{
+
+                }
+            }
+            if($("#number").val()==1){
+                checkPrice();
+            }
+
+        })
+//----------------------------白玻选择品质------------------------
+        $("#table_quality").live('click',function(){
+            var quality = $("#table_quality").find('input:radio:checked').attr('value');
+            $("#quality").val(quality);
+        })
+
+
+//-----------------------------产品数量-----------------------------------------
+        //获得文本框对象
+        var t = $("#number");
+        //初始化数量为1,并失效减
+        $('#min').attr('disabled',true);
+        //数量增加操作
+        $("#add").click(function(){
+            t.val(parseInt(t.val())+1)
+            if (parseInt(t.val())!=1){
+                $('#min').attr('disabled',false);
+            }
+          checkPrice();
+        })
+        //数量减少操作
+        $("#min").click(function(){
+            t.val(parseInt(t.val())-1);
+            checkPrice();
+            if (parseInt(t.val())==1){
+                $('#min').attr('disabled',true);
+            }
+
+        })
+        //在文本框输入时进行计算价格
+       $("#number").keyup(function(){
+          checkPrice();
+
+       })
+
+//-----------------------选中产品表格中对数量进行操作---------------------------------
+        $(".plus").live('click',function(){
+            var q=$(this).prev();
+            q.val(parseInt(q.val())+1);
+            if (parseInt(q.val())!=1){
+                q.prev().attr('disabled',false);
+            }
+            anewPrice(q);
+        })
+        //数量减少操作
+        $(".sub").live('click',function(){
+            var q = $(this).next();
+            q.val(parseInt(q.val())-1);
+            anewPrice(q);
+            if (parseInt(q.val())==1){
+                q.prev().attr('disabled',true);
+            }
+        })
+
+//---------------------更改某个产品数量时对该产品进行价格重新计算----------------------
+        function anewPrice(q){
+            //对这行的产品信息进行重新计算
+            var quantity = q.val();
+            var salePrice = q.parent().prev().text();
+            var weight = q.parent().prev().prev().text();
+            var totalW = weight*quantity;
+            q.parent().next().text(totalW);
+            var totalP = salePrice*quantity;
+            q.parent().next().next().text(totalP.toFixed(2));
+            checkedPrice();
+
+        }
+
+
+        //上一页
+        $("#upPage").click(function(){
+            if(currentPage==1){
+                layer.msg("当前已经是第一页")
+            }else{
+                currentPage = currentPage-1;
+                selData();
+            }
+        });
+
+        //下一页
+        $("#downPage").click(function () {
+            if(currentPage==totalPages){
+                layer.msg("已经是最后一页")
+            }else{
+                currentPage=currentPage+1;
+                selData();
+            }
+        });
+//————————取消------------------------------
+        $("#cloose").click(function(){
+            //取消产品复选框的选中状态
+            var productId = $("#productId").val();
+            $(".product").find('input').each(function(){
+                var id = $(this).attr('id');
+                if(productId==id){
+                    $(this).attr('checked',false);
+                }
+            })
+
+            $("#number").val("1");
+            $("#squarePrice").val("");
+            $("#skuInfo").hide();
+        });
+//-----------------计算价格----------------------------------------------
+        function checkPrice(){
+            var oldWeight = 0;
+            var oldTotalPrice = 0;
+            $(".productDInfo").each(function(){
+                var tds = $(this).children();
+                oldWeight += Number(tds.eq(13).html());
+                oldTotalPrice += Number(tds.eq(14).html());
+            })
+
+            //产品的数量
+            var number = $("#number").val()
+            //选中产品的单个重量
+            var weight = $("#weight").val();
+            //选中产品的售价
+            var price = $("#salePrice").val();
+            //该产品重量小计
+            var xWeight = number*weight;
+            $("#xWeight").val(xWeight);
+            var xPrice = number*price;
+            $("#xPrice").val(xPrice.toFixed(2));
+            //计算订单的价钱，重量，运费
+            var totalW = Number(number*weight)+Number(oldWeight);
+            $("#totalWeight").val(totalW);
+            var total = Number(xPrice+oldTotalPrice);
+            $("#total").val(total.toFixed(2));
+
+        }
+// -------------点击确认按钮将选中的产品信息放到右侧表格中---------------------
+        $("#sure").live('click',function(){
+            //判定产品规格是否全选
+            var an = 0;
+            $("#skuT tr").find('input:radio:checked').each(function(){
+                an +=parseInt(1);
+            });
+            var rows = $("#skuT tr").length;
+            if(an != rows){
+                layer.msg("请选中产品规格");
+                return;
+            }
+
+            //获取选中的规格属性名和值
+            var attribute ="";
+            $("#skuT tr").each(function(){
+               var name =  $(this).find("td:first-child").text();
+                attribute +=name;
+                var value = $(this).find('input:radio:checked').attr('value');
+                attribute +=value;
+                attribute +=";";
+            })
+            attribute = attribute.substring(0,attribute.length-1);
+            $("#attribute").val(attribute);
+            $("#skuInfo").hide();
+
+            var page ="";
+            //将选中的产品详细信息拼接到右边表格中
+            page += "<tr class='productDInfo' style='cursor: pointer' id="+$("#productId").val()+">";
+            page += "<input type='hidden' id='quality' value="+$("#quality").val()+">";
+            page +="<input type='hidden' id='typeName' value="+$("#typeName").val()+">";
+            page +="<input type='hidden'  id='picture' value="+$("#picture").val()+">";
+            page += "<input type='hidden' id='productId' value="+$("#productId").val()+">";
+            page += "<input type='hidden' id='productNames' value="+$("#productName").val()+">";
+            page += "<input type='hidden' id='orderItemsAttributes' value="+$("#attribute").val()+">";
+            page += "<td><label title='" + $("#productName").val() + "' style='cursor: pointer;'>"+cutstr($("#productName").val(),4)+"</td>";
+            page += "<td><input type='text' style='display: none' id='productCode' value="+$("#productCode").val()+">"+$("#productCode").val()+"</td>";
+            page += "<input type='hidden' id='sku' value="+$("#sku").val()+">"
+            page += "<td>"+$("#sku").val()+"</td>"
+            page += "<td><input type='text' style='display: none' id='weight' value="+$("#weight").val()+">"+$("#weight").val()+"</td>";
+            page += "<td><input type='text' style='display: none' id='sellPrice' value="+$("#salePrice").val()+">"+$("#salePrice").val()+"</td>";
+            if($("#number").val()==1){
+            page += "<th style='width: 80px' name='quantity'><input class='sub' disabled='disabled' style='width: 20px' type='button' value='-' /><input type='text' readonly='readonly' style='width: 35px' name='quantity' value="+$("#number").val()+"><input class='plus'  type='button' style='width: 20px' value='+' /></th>";
+            }else{
+                page += "<th style='width: 80px' name='quantity'><input class='sub' style='width: 20px' type='button' value='-' /><input type='text' readonly='readonly' style='width: 35px' name='quantity' value="+$("#number").val()+"><input class='plus'  type='button' style='width: 20px' value='+' /></th>";
+            }
+            page += "<td>"+$("#xWeight").val()+"</td>";
+            page += "<td>"+$("#xPrice").val()+"</td>";
+            page += "</tr>";
+            $("#pros").after(page);
+        })
+// --------------------取消选中产品功能--------------------------------------
+        $(".productDInfo").find("td").live('dblclick',function(){
+
+            //同时将左表的checkbox改为未选中
+            var productId = $(this).parent().attr('id');
+           $(".product").each(function(){
+               if($(this).attr('id')==productId){
+                  $(this).find("td:first-child").children().attr("checked",false);
+               }
+           })
+            $(this).parent().remove();
+            checkedPrice();
+
+
+        })
+//--------------------------计算已选中产品进行操作后的价格-------------------
+        function checkedPrice(){
+            var oldWeight = 0;
+            var oldTotalPrice = 0;
+            $(".productDInfo").each(function(){
+                var tds = $(this).children();
+                oldWeight += Number(tds.eq(13).html());
+                oldTotalPrice += Number(tds.eq(14).html());
+            })
+            $("#totalWeight").val(oldWeight);
+            $("#total").val(oldTotalPrice.toFixed(2));
+        }
+
+//--------------------将产品信息表转换成json数据传到后台-----------------------
+        $("#add1").live('click',function() {
+            //判断选中了产品才能提交
+            if ($(".productDInfo td").text() == null | $(".productDInfo td").text() == "") {
+                layer.msg("请选中产品才能添加");
+                return;
+            }
+
+            var dataJson = "[";
+            var quality ="";
+            var productId = "";
+            var productName = "";
+            var orderItemsAttributes = "";
+            var productCode = "";
+            var sku = "";
+            var weight = "";
+            var sellPrice = "";
+            var quantity = "";
+            var thumbnailsUrl = "";
+            var goodsType = "";
+
+            $(".productDInfo").each(function () {
+                var quality ="";
+                var productId = "";
+                var productName = "";
+                var orderItemsAttributes = "";
+                var productCode = "";
+                var sku = "";
+                var weight = "";
+                var sellPrice = "";
+                var quantity = "";
+                var thumbnailsUrl = "";
+                var goodsType = "";
+
+                $(this).find("input").each(function (index, data) {
+                    //dataJson += "{"+"\"productId\":\""+$(data[0]).val()+"\","+"\"sku\":\""+$(data[1]).val()+"\","+"\"thumbnailsUrl\":\""+$(data[2]).val()+"\","+"\"productName\":\""+$(data[3]).val()+"\","+"\"productCode\":\""+$(data[4]).val()+"\","+"\"attribute\":\""+$(data[5]).val()+"\","+"\"weight\":\""+$(data[6]).val()+"\","+"\"sellPrice\":\""+$(data[7]).val()+"\","+"\"quantity\":\""+$(data[8]).val()+"\"}";
+                    if(index==0){
+                        quality = $(data).val();
+                    }
+                    if(index==1){
+                        goodsType = $(data).val();
+                    }
+                    else if (index == 2) {
+                        thumbnailsUrl = $(data).val();
+                    }
+                    else if (index == 3) {
+                        productId = $(data).val();
+                    }
+                    else if (index == 4) {
+                        productName = $(data).val();
+                    }
+                    else if (index == 5) {
+                        orderItemsAttributes = $(data).val();
+                    }
+                    else if (index == 6) {
+                        productCode = $(data).val();
+                    }
+                    else if (index == 7) {
+                        sku = $(data).val();
+                    }
+                    else if (index == 8) {
+                        weight = $(data).val();
+                    }
+                    else if (index == 9) {
+                        sellPrice = $(data).val();
+                    }
+                    else if (index == 10) {
+
+                    }
+                    else if (index == 11) {
+                        quantity = $(data).val();
+                    } else if (index == 12) {
+
+                    }
+                    else {
+                    }
+                })
+                dataJson += "{" + "\"quality\":\"" + quality + "\"," + "\"productId\":\"" + productId + "\"," + "\"productName\":\"" + productName + "\"," + "\"orderItemsAttributes\":\"" + orderItemsAttributes + "\"," + "\"productCode\":\"" + productCode + "\"," + "\"sku\":\"" + sku + "\"," + "\"weight\":\"" + weight + "\"," + "\"sellPrice\":\"" + sellPrice + "\"," + "\"quantity\":\"" + quantity + "\"," + "\"thumbnailsUrl\":\"" + thumbnailsUrl + "\"," + "\"goodsType\":\"" + goodsType + "\"}";
+            })
+
+            dataJson += "]";
+            $("#json").val(dataJson);
+            $("#form").submit();
+        })
+//-------------------返回按钮---------------------------
+        $("#back").live('click',function(){
+            window.location.href ="/business/orderManagerAction_list.action";
+        })
+//-------------------手工修改售价------------------------------------------
+        $("#salePrice").keyup(function(){
+            checkPrice();
+        })
+        //根据平方米算价格
+        $("#squarePrice").keyup(function(){
+            //获得价格
+            var price = $("#squarePrice").val();
+            if(price==""){
+                layer.msg("请输入价格！！");
+                $("#squarePrice").select();
+                return false;
+            }
+            if(isNaN(price)){
+                layer.msg("请输入正确格式的价格！！");
+                $("#squarePrice").select();
+                return false;
+            }
+            //获得版面
+            var sku = $("#divbody").find("tr")
+            jQuery.each(sku,function(){
+                var skutext = $(this).find("td").eq(0).text();
+                if(!skutext.indexOf("版面")){
+                    var layouts = $(this).find("input:radio:checked");
+                    if(layouts.length==0){
+                        layer.msg("请选择版面！！");
+                        return false;
+                    }
+                    //版面
+                    var layout = layouts.val();
+
+                    var weight = $("#weight").val();
+                    //运费率
+                    var yunFei = $("#yunFei").val();
+                    jQuery.ajax({
+                        url : '/business/layoutPrice.action',
+                        type : 'POST',
+                        data: {layout:layout,price:price},
+                        dataType : 'text',
+                        async: 'true',
+                        success : function(data) {
+                            var yun = (yunFei*weight/1000);
+                            var Price =parseFloat(yun)+parseFloat(data);
+                            $("#salePrice").val(Price.toFixed(2));
+                        }
+                    });
+                }
+            });
+        })
+    });
+</script>
+<body>
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li><a>添加</a></li>
+    </ul>
+</div><form action="/business/insertOrder.action" id="form" method="post">
+    <div class="formbody">
+        <div class="formtitle"><span>订单信息</span></div>    <div id="orderInfo" align="left" border="1">
+        <!-- 隐藏域放置需要的数据-->
+        <input type="hidden" id="productId">
+        <input type="hidden" id="picture">
+        <input type="hidden" id="productCode">
+        <input type="hidden" id="productName">
+        <input type="hidden" id="weight">
+        <input type="hidden" id="yunFei" name="freight">
+        <input type="hidden" id="xWeight">
+        <input type="hidden" id="xPrice">
+        <input type="hidden" id="sku">
+        <input type="hidden" id="typeId">
+        <input type="hidden" id="typeName">
+        <input type="hidden" id="attribute">
+        <input type="hidden" id="quality">
+
+
+            订单号：<input type="text" readonly="readonly" name="orderCode" value="$orderCode" style="width: 15%"/>
+            订单重量：<input type="text" readonly="readonly" name="weight" id="totalWeight" value="0" style="width: 10%"/>
+            订单总额：<input type="text" readonly="readonly" name="orderTotal" id="total" value="0" style="width: 10%"/>
+            <h style="display: none">商品总计：<input type="text" readonly="readonly" name="productTotal" id="products" value="0" style="width: 10%"/></h>
+            <h  style="display: none">总运费 ：<input type="text" readonly="readonly" name="freight" id="feight" value="0" style="width: 10%"/></h>
+             车辆申请：<select id="vehicle" name="applyVehicleStatus">
+                       <option value="0">不申请</option>
+                       <option value="1">申请车辆</option>
+                    </select>
+
+    </div >
+    </div>
+    <div class="formbody">
+        <div class="formtitle"><span>用户信息</span></div>    
+      <div id="shipInfo" align="left">
+            <input type="hidden" id="buyerID" name="buyerID">
+            <input type="hidden" id="buyerEmail" name="buyerEmail">
+            <input type="hidden" id="buyerCellPhone" name="buyerCellPhone">
+            <table width="100%"  class="formtable">
+                <tr>
+                    <td width="25%">
+                        <div style='float:left;width:30%;'>
+                            用户名：
+                        </div>
+                        <input type="text" id="buyerName" name="buyerName"/>
+                        <input type="button" id="btnName" value="搜索">
+                    </td>
+                    <td  width="45%">
+                        <div style='float:left;width:35%;'>
+                            请选择收货信息：
+                        </div>
+                        <select id="checkShip" style="width: 300px">
+                        </select>
+                        <input type="hidden" id="regionId" name="regionId">
+                    </td>
+                    <td  width="30%">
+                        <div style='float:left;width:35%;'>
+                            收货人：
+                        </div>
+                        <input type="text" id="shipName" name="shipName" readonly="readonly">
+                    </td>
+                </tr>
+                <tr>
+                    <td  width="30%">
+                        <div style='float:left;width:30%;'>
+                            联系方式：
+                        </div>
+                        <input type="text" id="shipCelPhone" name="shipCellPhone" readonly="readonly">
+                    </td  width="60%">
+                    <td colspan="2">
+                        <div style='float:left;width:22%;'>
+                            收货地址：
+                        </div>
+                        <select id="Regionfirst" name="shipProvince">
+                        <option id="0">请选择</option>
+                            #foreach($RegionInfo in $list)
+                          <option id="$RegionInfo.regionId">$RegionInfo.regionName</option>
+                        #end
+                     </select>
+                     <select id="Regionsecond" name="shipCity" >
+                         <option id="0">请选择</option>
+                     </select>
+                     <select id="Regionthree" name="shipCounty">
+                         <option id="0">请选择</option>
+                     </select>
+            <input type="text" name="shipAddress" id="shipAddress" readonly="readonly">
+                    </td>
+                </tr>
+            </table>
+    </div>
+    </div>
+    <div class="formbody">
+        <div class="formtitle"><span>产品信息</span></div>
+        <div id="content" align="left">
+            <table width="90%" class="formtable" >
+                <tr>
+                    <td width="20%">
+                        <div style='float:left;width:35%;'>
+                            商品类型：
+                        </div>
+                        <select id="productType">
+                        <option value="-1">请选择</option>
+                        #foreach($type in $types)
+                            <option value=$type.typeId,$type.typeName class="type" >$type.typeName</option>
+                        #end
+                        </select>
+                    </td>
+                    <td width="30%" align="left">
+                        商品分类:
+                        <select id="categoryId" name="category">
+                        </select>
+                        <select id="second" name="second">
+                            <option value="">全部</option>
+                        </select>
+                        <select id="three" name="three">
+                            <option value="">全部</option>
+                        </select>
+                    </td>
+                    <td width="25%">
+                        <div style='float:left;width:35%;'>
+                            商品名称:
+                        </div>
+                        <input type="text" id="productNameByGiven" name="productN"/>
+                    </td>
+                    <td width="25%">
+##                        <div style='float:left;width:35%;'>
+##                            商品编码:
+##                        </div>
+                              商品编码:
+                          <input type="text" id="productCodeByGiven" name="productC">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div>
+                            <div style="float: left;width: 12%">
+                                商品规格：
+                            </div>
+                            <div  width="35%">
+                                <h id="app" value="版面">(版面)</h><select id="appearence" style="width: 15%"><option>请选择</option></select>
+                                &nbsp;&nbsp;&nbsp;
+                                <h id="hou" value="厚度">(厚度)</h><select id="thick" style="width: 15%"><option>请选择</option></select>
+                                &nbsp;&nbsp;<input type="button" value="搜索" id="btn">
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <hr/>
+        <div>
+            <div style="float: left;width:35%;border-right:solid 1px black; " >
+                <table class="table" >
+                    <tr id="productI">
+                        <td>选择</td>
+                        <td>图片</td>
+                        <td>产品名</td>
+                        <td>产品编码</td>
+                        <td>最低价</td>
+                    </tr>
+                    <tr style="display: none" id="pageNum"><td colspan="10" align="right"><font id="page"></font> &nbsp;&nbsp;<a href="#" id="upPage">上一页</a>&nbsp;&nbsp;<a href="#" id="downPage">下一页</a></td></tr>
+                </table>
+            </div>
+            <div >
+                <table class="table" style="width: 64%" id="productI">
+                    <tr id="pros">
+                        <td width="10%">名称</td>
+                        <td width="15%">编码</td>
+                        <td width="20%">规格编码</td>
+                        <td width="10%">重量</td>
+                        <td width="10%">售价</td>
+                        <td width="15%">数量</td>
+                        <td width="10%">总重量</td>
+                        <td width="10%">总价格</td>
+                    </tr>
+                </table>
+                <input type="hidden" id="json" name="data">
+            </div>
+        </div>
+    <!--产品规格弹出框 -->
+        <div id="skuInfo" style="display: none;position: absolute;z-index: 9999;border: 1px;background-color: #d9e1ec;border-radius:10px;border:1px solid #95B8E7">
+            <div style="height: 17px;background-color: #d9e1ec" align="center"><h3>选择规格</h3></div>
+            <div style="background-color: #f7f5f5;margin: auto;margin-top: 5px;border-radius: 5px;overflow:scroll;overflow-x:hidden;margin-left: 5px;height: 350px;margin-right: 5px;border:1px solid #95B8E7"">
+                <div style="height: 10px"></div>
+                <input id="skuData" type="hidden">
+                <div align="center">每平方米价格：<input type="text" style="width:75px" id="squarePrice">&nbsp;&nbsp;&nbsp;&nbsp;<d1 id="price" align="left">售价：<input  type="text" id="salePrice"></d1></div>
+                <br/>
+                <div align="center" id="divbody"></div>
+                <br/>
+                <div align="center">
+                    <input id="min"  type="button" value="-" />
+                    <input id="number" name="" type="text" value="1"style="width:35px;"/>
+                    <input id="add"  type="button" value="+" />
+                </div>
+                <br/>
+                <div align="center" style="padding-bottom: 15px"><input type="button" value="确定" id="sure">&nbsp;&nbsp;<input type="button" value="取消" id="cloose"></div>
+                <div style="height: 10px"></div>
+            </div>
+        </div>
+    </div>
+##    <div  align="center" style="padding-bottom: 20px;margin:15px;clear:both;" class = "orderComit"><input type="button" class="button" value="提交" id="add1"></div>
+    <div  align="center" style="padding-bottom: 20px;margin:15px;clear:both;" class = "orderComit"><a type="button" class="button border-green icon-check"  id="add1">提交</a>&nbsp;&nbsp;<a type="button" class="button border-blue icon-check"  id="back">返回</a></div>
+</form>
+</body>

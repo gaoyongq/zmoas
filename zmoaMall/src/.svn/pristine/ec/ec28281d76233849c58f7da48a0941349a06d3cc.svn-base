@@ -1,0 +1,184 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>产品类型管理</title>
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/default/easyui.css">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script type="text/javascript" src="/js/jeasyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-filter.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-detailview.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+
+<table id="typeBrand-dg" class="easyui-datagrid" data-options="
+        toolbar:'#tb',
+        title:'品牌列表',
+        fit:true,
+        singleSelect:true,
+        fitColumns:true,
+        rownumbers:true,
+        url:'/business/prodCat/getTypeBrandList.action',
+        idField: 'brandId',
+        pagination:true,
+        pageSize:20,
+        onLoadSuccess:function(data){
+            $('.edit').linkbutton({text:'修改',plain:true,iconCls:'icon-edit'});
+            $('.remove').linkbutton({text:'删除',plain:true,iconCls:'icon-remove'});
+        }
+        ">
+    <thead>
+    <tr>
+        <th field="brandId" width="20%">Id</th>
+        <th field="brandName" width="30%">名称</th>
+        <th field="description" width="30%">描述</th>
+        <th data-options="field:'_operate',formatter:operateFormatter" width="20%">操作</th>
+    </tr>
+    </thead>
+</table>
+
+<!-- toolbar -->
+<div id="tb" style="padding:2px 5px;">
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true" style="width:100px;" onclick="addTypeBrandDlg();">新增品牌</a>
+</div>
+
+
+<div id="addTypeBrand-dlg" style="width:500px"></div>
+<div id="updateTypeBrand-dlg" style="width:500px"></div>
+
+
+<script>
+
+    function operateFormatter(value, row, index) {
+        var str = '<a href="#" onclick="updateTypeBrandDlg('+row.brandId+')" class="edit" class="easyui-linkbutton"></a>';
+        str += '<a href="#" onclick="deleteTypeBrand('+row.brandId+')" class="remove" class="easyui-linkbutton"></a>';
+        return str;
+    }
+
+    function addTypeBrand() {
+        $('#addTypeBrand-fm').form('submit', {
+            url:'/business/prodCat/addTypeBrand.action',
+            success: function(data) {
+                var data = eval('(' + data + ')');  // change the JSON string to javascript object
+                if (data.success) {
+                    $('#addTypeBrand-dlg').dialog('close');
+                    $('#typeBrand-dg').datagrid('reload');
+                    jQuery.messager.show({
+                        title:'数据修改成功提示！',
+                        msg: '您在 ' + new Date().toLocaleString() + ' 成功更新了一条数据',
+                        showType:'show'
+                    });
+                }
+            },
+            error: function() {
+                jQuery.messager.show({
+                    title:'请求失败！',
+                    msg: new Date().toLocaleString() + ' 请求服务器失败',
+                    showType:'show'
+                });
+            }
+        });
+    }
+
+    function addTypeBrandDlg() {
+        $('#addTypeBrand-dlg').dialog({
+            title: '新增品牌',
+            width: 700,
+            height: 400,
+            href: '/business/prodCat/addTypeBrandDlg',
+            buttons:[{
+                text:'增加',
+                iconCls:'icon-ok',
+                handler:function() {
+                    addTypeBrand();
+                }
+            },{
+                text:'取消',
+                iconCls:'icon-cancel',
+                handler:function() {
+                    $('#addTypeBrand-dlg').dialog('close');
+                }
+            }]
+        });
+    }
+
+    function updateTypeBrand() {
+        $('#updateTypeBrand-fm').form('submit', {
+            url:'/business/prodCat/updateTypeBrand.action',
+            success: function(data) {
+                var data = eval('(' + data + ')');  // change the JSON string to javascript object
+                if (data.success) {
+                    $('#updateTypeBrand-dlg').dialog('close');
+                    $('#typeBrand-dg').datagrid('reload');
+                    jQuery.messager.show({
+                        title:'数据修改成功提示！',
+                        msg: '您在 ' + new Date().toLocaleString() + ' 成功更新了一条数据',
+                        showType:'show'
+                    });
+                }
+            },
+            error: function() {
+                jQuery.messager.show({
+                    title:'请求失败！',
+                    msg: new Date().toLocaleString() + ' 请求服务器失败',
+                    showType:'show'
+                });
+            }
+        });
+    }
+
+    function updateTypeBrandDlg(brandId) {
+        $('#updateTypeBrand-dlg').dialog({
+            title: '修改品牌',
+            width: 700,
+            height: 400,
+            href: '/business/prodCat/updateTypeBrandDlg?brandId='+brandId,
+            buttons:[{
+                text:'修改',
+                iconCls:'icon-ok',
+                handler:function() {
+                    updateTypeBrand();
+                }
+            },{
+                text:'取消',
+                iconCls:'icon-cancel',
+                handler:function() {
+                    $('#updateTypeBrand-dlg').dialog('close');
+                }
+            }]
+        });
+    }
+
+    function deleteTypeBrand(brandId) {
+        if (brandId == null) {
+            return;
+        }
+        jQuery.messager.confirm('提示', '你确定要删除吗？', function(r){
+            if (r){
+                jQuery.ajax({
+                    url: "/business/prodCat/deleteTypeBrand?brandId="+brandId,
+                    type: "get",
+                    dataType: "json",
+                    success: function (data) {
+                        $('#typeBrand-dg').datagrid('reload');
+                        jQuery.messager.show({
+                            title:'数据更新提示！',
+                            msg:'删除成功',
+                            timeout:3000,
+                            showType:'slide'
+                        });
+                    }
+                });
+            }
+        });
+
+    }
+
+</script>
+</body>
+</html>

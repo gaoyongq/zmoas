@@ -1,0 +1,211 @@
+#set($layout = "layout/empty.vm")
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>产品分类管理</title>
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/default/easyui.css">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script type="text/javascript" src="/js/jeasyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-filter.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-detailview.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+
+
+<table id="tg" class="easyui-treegrid" data-options="
+        url: '/business/prodCat/getPageProdCatListByParentId.action',
+        toolbar:'#tb',
+        fitColumns:true,
+        border:false,
+        fit:true,
+        rownumbers: true,
+        idField: 'categoryId',
+        treeField: 'name'
+    ">
+
+    <thead>
+    <tr>
+        <th data-options="field:'name',align:'left'" width="30%">分类名称</th>
+        <th data-options="field:'categoryId',align:'left'" width="20%">分类编码</th>
+        <th data-options="field:'priceChange',align:'left'" width="20%">价格调整（平方米/元）</th>
+        #*<th data-options="field:'seoUrl',align:'left'" width="20%">URL重写名称</th>*#
+        <th data-options="field:'status',align:'left',formatter:statusFormatter" width="10%">状态</th>
+    </tr>
+    </thead>
+</table>
+
+<!-- toolbar -->
+<div id="tb" style="padding:2px 5px;">
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" style="width:100px" onclick="addDlg();">添加</a>
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'" style="width:100px" onclick="updateDlg();">修改</a>
+    #*<a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" onclick="updateStatus(-1);">删除</a>
+    &nbsp;&nbsp;
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-reload'" onclick="updateStatus(1);">启用</a>
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-remove'" onclick="updateStatus(0);">禁用</a>*#
+</div>
+
+
+<div id="add-dlg" style="width:500px"></div>
+<div id="update-dlg" style="width:500px"></div>
+
+<script>
+
+    function updateStatus(status) {
+        var row = $('#tt').datagrid('getSelected');
+        if (row) {
+            jQuery.ajax({
+                url: '/business/ad/updateAdStatus',
+                type: 'post',
+                data: 'id='+row.id+'&status='+status,
+                dataType: 'json',
+                success: function(data) {
+                    if (data.success) {
+                        $('#tt').datagrid('reload');
+                        jQuery.messager.show({
+                            title:'数据修改成功提示！',
+                            msg: '您在 ' + new Date().toLocaleString() + ' 成功更新了一条数据',
+                            showType:'show'
+                        });
+                    }
+                }
+            });
+        } else {
+            //TODO 操作提示
+        }
+    }
+
+    function updateDlg() {
+        var row = $('#tg').datagrid('getSelected');
+        console.log(row);
+        if (row) {
+            $('#update-dlg').dialog({
+                title: '修改产品分类',
+                width: 700,
+                height: 400,
+                href: '/business/prodCat/updateProdCatDlg?categoryId='+row.categoryId,
+                buttons:[{
+                    text:'修改',
+                    iconCls:'icon-ok',
+                    handler:function() {
+                        update();
+                    }
+                },{
+                    text:'取消',
+                    iconCls:'icon-cancel',
+                    handler:function(){
+                        $('#update-dlg').dialog('close');
+                    }
+                }]
+            });
+            $('#update-fm').form('load',row);
+        } else {
+            jQuery.messager.show({
+                title:'提示！',
+                msg:'请先选中一条记录！',
+                showType:'show',
+                style:{
+                    left:'',
+                    right:0,
+                    top:document.body.scrollTop+document.documentElement.scrollTop,
+                    bottom:''
+                }
+            });
+        }
+    }
+
+    function addDlg() {
+        //$('#dlg').dialog('open').dialog('center').dialog('setTitle','新增活动');
+        $('#add-dlg').dialog({
+            title: '新增产品分类',
+            width: 700,
+            height: 400,
+            href: '/business/prodCat/addProdCatDlg',
+            buttons:[{
+                text:'增加',
+                iconCls:'icon-ok',
+                handler:function() {
+                    add();
+                }
+            },{
+                text:'取消',
+                iconCls:'icon-cancel',
+                handler:function(){
+                    $('#add-dlg').dialog('close');
+                }
+            }]
+        });
+        //$('#add-fm').form('clear');
+    }
+
+    function update() {
+        //提交form表单
+        $('#cat-update-fm').form('submit', {
+            url:'/business/prodCat/updateProdCat.action',
+            success: function(data) {
+                var data = eval('(' + data + ')');  // change the JSON string to javascript object
+                if (data.success) {
+                    $('#update-dlg').dialog('close');
+                    $('#tg').treegrid('reload');
+                    jQuery.messager.show({
+                        title:'数据修改成功提示！',
+                        msg: '您在 ' + new Date().toLocaleString() + ' 成功更新了一条数据',
+                        showType:'show'
+                    });
+                }
+            },
+            error: function() {
+                jQuery.messager.show({
+                    title:'请求失败！',
+                    msg: new Date().toLocaleString() + ' 请求服务器失败',
+                    showType:'show'
+                });
+            }
+        });
+
+    }
+
+
+    function add() {
+        //提交form表单
+        $('#add-fm').form('submit', {
+            url:'/business/prodCat/addProdCat.action',
+            success: function(data) {
+                var data = eval('(' + data + ')');  // change the JSON string to javascript object
+                if (data.success) {
+                    $('#add-dlg').dialog('close');
+                    $('#tg').treegrid('reload');
+                    jQuery.messager.show({
+                        title:'数据修改成功提示！',
+                        msg: '您在 ' + new Date().toLocaleString() + ' 成功更新了一条数据',
+                        showType:'show'
+                    });
+                }
+            },
+            error: function() {
+                jQuery.messager.show({
+                    title:'请求失败！',
+                    msg: new Date().toLocaleString() + ' 请求服务器失败',
+                    showType:'show'
+                });
+            }
+        });
+    }
+
+    function statusFormatter(value, row, index) {
+        if (value == true) {
+            return '<i style="color:limegreen;" class="fa fa-check-circle-o fa-lg"></i>';
+        } else {
+            return '<i style="color:red;" class="fa fa-ban fa-lg"></i>';
+        }
+    }
+</script>
+
+
+</body>
+</html>

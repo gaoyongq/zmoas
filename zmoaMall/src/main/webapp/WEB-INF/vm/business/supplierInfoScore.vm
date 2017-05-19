@@ -1,0 +1,94 @@
+#set($layout = "layout/user_layout.vm")
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>添加商家</title>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script type="text/javascript" src="/js/jquery-1.8.3.min.js"></script>
+</head>
+<body>
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li><a>供应商的评分</a></li>
+    </ul>
+</div>
+    <table class="table text-center">
+        <tr>
+            <th>类型</th>
+            <th>上次输入的值</th>
+            <th>实际的分数</th>
+            <th>百分比</th>
+        </tr>
+        #foreach($info in $list)
+            <tr class="prop_01">
+                <td>$!info.name</td>
+                <td><input type="text" value="$!info.userScore.inputScore" placeholder="请输入1-100分数" class="code" style="color: red">分</td>
+                <td>$!info.userScore.score</td>
+                <td class="percentage">$!info.value</td>
+                <input type="hidden" value="$!info.id" class="codeId">
+            </tr>
+        #end
+    </table>
+<div style="text-align: center">
+    <h2>目前实际得分:<p class="actualScore" style="color: red;"></h2>
+##    <input type="submit" value="提交" id="sub" style="font-size: 20px;margin-top: 15px;">
+##    <input type="submit" value="返回" id="back" style="font-size: 20px;" onclick="javascript:history.back(-1)">
+    <button class="button border-green icon-check" id="sub" type="submit"> 提交</button>&nbsp;
+    <input type="button" class="button border-blue" id="back" value="返回" class="input-button" onclick="history.back(-1);" />
+</div>
+
+<script>
+   /* 进入页面读取*/
+    $(function(){
+        var bb=0;
+        $(".code").each(function(){//输入通过值*百分比来获取得到的值
+            var a= $(this).val();//输入的值
+            var b=$(this).parents().siblings(".percentage").text();//所占的百分比
+            bb+=a*b;
+        })
+        $(".actualScore").text(bb);
+    })
+   /*调用事件读取*/
+    $(function(){
+        $(".code").blur(function(){
+            var c=0;
+            $(".code").each(function(){//输入通过值*百分比来获取得到的值
+                var a= $(this).val();
+                var b=$(this).parents().siblings(".percentage").text();
+                c+=a*b;
+            })
+            $(".actualScore").text(c);
+        })
+        $("#sub").click(function(){
+            var a="";
+            var b="";
+            var c="";
+            var f="";
+            var i="";
+            $(".percentage").each(function(){//遍历的分数
+                a+=$(this).text()+",";//百分比
+            })
+            var reg=/^(100|[1-9]\d|\d)$/;;//验证100以内是Int类型的
+            $(".code").each(function(){//输入的分数
+                f=$(this).val();//输入的Input值
+                if(reg.test(f)!=true){
+                    alert("请输入100以内的整数!!!")
+                    i=1;
+                    return false;
+                }
+                b+=$(this).val()+",";//写的值
+            })
+            $(".codeId").each(function(){
+                c+=$(this).val()+",";//写的Id
+            })
+            if(i!=1){
+                window.location.href="/supplierInfo/supplierUpdateScore.action?pid_01=$!pid&supplierId=$!supplierId&listSize=$!listSize&codeId="+c+"&percentage="+a+"&scoreVal="+b;
+            }
+        })
+    })
+
+</script>
+</body>
+</html>

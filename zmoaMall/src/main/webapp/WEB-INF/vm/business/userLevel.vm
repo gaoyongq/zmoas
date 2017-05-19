@@ -1,0 +1,100 @@
+#set($layout = "layout/decoration-layout.vm")
+<style>
+    ##     table
+    ##     {
+    ##         text-align: center;
+    ##     }
+    .img span span{
+        text-align: center;
+        display: inline-block;
+        height: 10px;
+        width: 26px;
+        font-size: 0px;
+        /* background:#ccc url(/images/level.png) no-repeat 0 -140px ;*/
+        margin-top: 10px;
+        /*/border: 1px solid #000000;*/
+    }
+    ##
+</style>
+<div style="margin: auto;">
+    <div class="divtbs">
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        等级名称:<input type="text" value="$!name" id="subName">&nbsp;
+    ##    <input type="submit" value="搜索" id="subName_01">
+        <button class="button border-yellow "  id="subName_01"><span class="icon-search"></span>搜索</button>&nbsp;
+    ##    <a href="/shopItemRank/addUser.action?name=$!name" style="float: left;text-decoration: none;color: #ccc;font-size: 25px;">添加</a>
+        <a href="/business/addUser.action?name=$!name" class="button border-green icon-pencil">添加</a>&nbsp;
+    </div>
+    <table class="table text-center">
+        <tr>
+            <th>等级</th>
+            <th>等级名称</th>
+            <th>等级图标</th>
+            <th>成长值下限</th>
+            <th>成长值上限</th>
+            <th>等级类型</th>
+            <th>描述</th>
+            <th>编辑</th>
+            <th>删除</th>
+
+        </tr>
+        #foreach($info in $userLevel)
+            <tr class="" id="">
+                <td>$info.rankLevel</td>
+                <td>$info.name</td>
+                <td class="img">
+                <span>
+                    #if($info.rankLevel==0)
+                        <span class="img_00" style="background: #ccc url(/images/level.png) no-repeat 0 -120px  "></span>
+                    #end
+                    #if($info.rankLevel==1)
+                        <span class="img_01" style="background: #ccc url(/images/level.png) no-repeat 0 -130px  "></span>
+                    #end
+                    #if($info.rankLevel>=2&&$info.rankLevel<8)
+                        <span class="img_02" style="background: #ccc url(/images/level.png) no-repeat 0 calc( -130px - $!info.rankLevel*10*1px )  "></span>
+                    #end
+                    #if($info.rankLevel>=8&&$info.rankLevel<=14)
+                        <span class="img_03" style="background: #ccc url(/images/level.png) no-repeat 0 calc( -140px - $!info.rankLevel*10*1px )  "></span>
+                    #end
+                    #if($info.rankLevel>14)
+                        <span class="img_04" style="background: #ccc url(/images/level.png) no-repeat 0 calc( -150px - $!info.rankLevel*10*1px )  "></span>
+                    #end
+
+                </span>
+                <td>
+                    $!info.scoreMin
+                </td>
+                <td>$info.scoreMax</td>
+                <td>
+                    #if($info.rankType==0)
+                        普通会员
+                    #end
+                    #if($info.rankType==1)
+                        供应商
+                    #end
+                </td>
+                <td>$info.description</td>
+                <td>
+                    <a  class="button border-blue" href="/business/updateUserLevel.action?rankId=$!info.rankId&name=$!name">
+                        <span class="icon-edit"></span>编辑
+                    </a>
+                </td>
+                <td>
+                    <a class="button border-red" href="/business/deleteUser.action?rankId=$!info.rankId&name=$!name" onclick='return confirm("确认删除??")'>
+                        <span class="icon-trash-o"></span> 删除
+                    </a>
+                </td>
+            </tr>
+        #end
+
+    </table>
+</div>
+<script>
+
+    $(function(){
+        $("#subName_01").click(function(){
+            var name=$("#subName").val();
+            window.location.href="/business/UserLevel.action?name="+name;
+        })
+    })
+</script>

@@ -1,0 +1,44 @@
+#set($layout = "layout/empty.vm")
+
+<form id="attr-add-fm" method="post" novalidate style="margin:0;padding:20px 50px">
+    <input name="typeId" value="$!typeId" type="hidden">
+    <input name="useAttributeImage" value="0" type="hidden">
+    <input name="usageMode" value="$!usageMode" type="hidden">
+    <div style="margin-bottom:20px;font-size:14px;border-bottom:1px solid #ccc">填写类型属性基本信息</div>
+
+    <div style="margin-bottom:10px">
+        <input name="usageMode" class="easyui-combobox" style="width:100%;" data-options="
+                valueField: 'value',
+                textField: 'label',
+                labelPosition:'top',
+                disabled: true,
+                required:true,
+                value: '$!usageMode',
+                panelHeight:'auto',
+                editable:false,
+                label:'&bull; 展现模式:',
+                data: [{
+                    label: '单选',
+                    value: '0'
+                },{
+                    label: '多选',
+                    value: '1'
+                },{
+                    label: '直接填写',
+                    value: '2'
+                }]" />
+    </div>
+
+    <div style="margin-bottom:10px">
+        <p>&bull; 属性名称：</p>
+        <input id="attributeName" name="attributeName" class="easyui-textbox" data-options="required:true" style="width:100%">
+    </div>
+
+    #if($!usageMode != 2)
+    <div style="margin-bottom:10px">
+        <p>&bull; 属性值：</p>
+        <input id="valueStr" name="valueStr" class="easyui-textbox" data-options="required:true" style="width:100%">
+    </div>
+    #end
+
+</form>

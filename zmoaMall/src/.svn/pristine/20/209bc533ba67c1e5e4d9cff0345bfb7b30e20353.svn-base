@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.system.AlwaysProfitSonDao">
+
+    <resultMap id="AlwaysProfitSonMap" type="com.zm.mall.domain.system.AlwaysProfitSon">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="alwaysProfitSonCode" property="alwaysProfitSonCode" jdbcType="VARCHAR"/>
+        <result column="alwaysProfitCode" property="alwaysProfitCode" jdbcType="VARCHAR"/>
+        <result column="purchaseCode" property="purchaseCode" jdbcType="VARCHAR"/>
+        <result column="orderCode" property="orderCode" jdbcType="VARCHAR"/>
+        <result column="orderNumber" property="orderNumber" jdbcType="VARCHAR"/>
+        <result column="orderWeight" property="orderWeight" jdbcType="VARCHAR"/>
+
+        <result column="purchaseNumber" property="purchaseNumber" jdbcType="VARCHAR"/>
+        <result column="purchaseWeight" property="purchaseWeight" jdbcType="VARCHAR"/>
+        <result column="orderPrice" property="orderPrice" jdbcType="DOUBLE"/>
+        <result column="purchasePrice" property="purchasePrice" jdbcType="DOUBLE"/>
+        <result column="grossProfit" property="grossProfit" jdbcType="DOUBLE"/>
+
+    </resultMap>
+
+    <sql id="all_column">id ,alwaysProfitSonCode,alwaysProfitCode,purchaseCode,orderCode,orderNumber,orderWeight,purchaseNumber,purchaseWeight,orderPrice,purchasePrice,grossProfit</sql>
+
+    <sql id="update_set">
+        <set>
+
+            <if test="alwaysProfitSonCode != null">alwaysProfitSonCode = #{alwaysProfitSonCode},</if>
+            <if test="purchaseCode != null">purchaseCode = #{purchaseCode},</if>
+            <if test="alwaysProfitCode != null">alwaysProfitCode = #{alwaysProfitCode},</if>
+            <if test="orderCode != null">orderCode = #{orderCode},</if>
+            <if test="orderNumber != orderNumber">orderNumber = #{orderNumber},</if>
+            <if test="orderWeight != null">orderWeight = #{orderWeight},</if>
+            <if test="purchaseNumber != null">purchaseNumber = #{purchaseNumber},</if>
+            <if test="purchaseWeight != null">purchaseWeight = #{purchaseWeight},</if>
+            <if test="orderPrice != null">orderPrice = #{orderPrice},</if>
+            <if test="purchasePrice != null">purchasePrice = #{purchasePrice},</if>
+            <if test="grossProfit != null">grossProfit = #{grossProfit},</if>
+
+        </set>
+
+    </sql>
+    <sql id="condition">
+        <if test="id != null and id !=''">
+            AND id = #{id}
+        </if>
+        <if test="alwaysProfitSonCode != null and alwaysProfitSonCode !=''">
+            AND alwaysProfitSonCode = #{alwaysProfitSonCode}
+        </if>
+        <if test="purchaseCode != null and purchaseCode !=''">
+            AND purchaseCode = #{purchaseCode}
+        </if>
+        <if test="alwaysProfitCode != null and alwaysProfitCode !=''">
+            AND alwaysProfitCode = #{alwaysProfitCode}
+        </if>
+        <if test="orderCode != null and orderCode !=''">
+            AND orderCode = #{orderCode}
+        </if>
+        <if test="orderNumber != null and orderNumber !=''">
+            AND orderNumber = #{orderNumber}
+        </if>
+        <if test="orderWeight != null and orderWeight !=''">
+            AND orderWeight = #{orderWeight}
+        </if>
+        <if test="purchaseNumber != null and purchaseNumber !=''">
+            AND purchaseNumber = #{purchaseNumber}
+        </if>
+        <if test="purchaseWeight != null and purchaseWeight !=''">
+            AND purchaseWeight = #{purchaseWeight}
+        </if>
+        <if test="orderPrice != null and orderPrice !=''">
+            AND orderPrice = #{orderPrice}
+        </if>
+        <if test="purchasePrice != null and purchasePrice !=''">
+            AND purchasePrice = #{purchasePrice}
+        </if>
+        <if test="grossProfit != null and grossProfit !=''">
+            AND grossProfit = #{grossProfit}
+        </if>
+    </sql>
+
+
+    <!-- 插入记录 -->
+    <insert id="saveAlwaysProfitSon" parameterType="alwaysProfitSon" >
+        INSERT INTO alwaysProfitSon
+        (alwaysProfitSonCode,alwaysProfitCode,purchaseCode,orderCode,orderNumber,orderWeight,purchaseNumber,purchaseWeight,orderPrice,purchasePrice,grossProfit) VALUES
+        (#{alwaysProfitSonCode},#{alwaysProfitCode},#{purchaseCode},#{orderCode},#{orderNumber},#{orderWeight},#{purchaseNumber},#{purchaseWeight},#{orderPrice},#{purchasePrice},#{grossProfit})
+    </insert>
+    <!-- 分页 -->
+    <select id="selectAlwaysProfitByAlwaysProfitCode" resultMap="AlwaysProfitSonMap" parameterType="String">
+        SELECT
+        <include refid="all_column"/>
+        FROM alwaysProfitSon
+        WHERE alwaysProfitCode=#{alwaysProfitCode}
+
+    </select>
+
+    <update id="updateAlwaysSonProfit" parameterType="alwaysProfitSon">
+        update alwaysProfitSon
+        <include refid="update_set"/>
+        where alwaysProfitSonCode = #{alwaysProfitSonCode}
+    </update>
+</mapper>

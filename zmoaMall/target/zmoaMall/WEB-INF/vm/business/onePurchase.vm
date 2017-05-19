@@ -1,0 +1,373 @@
+#set($layout = "layout/empty.vm")
+#set($a=$currentPage)
+#set($b=$a - 1)
+#set($c=$a + 1)
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script type="text/javascript" src="../../../js/jquery-1.8.3.js"></script>
+    <script type="text/javascript" src="../../My97DatePicker/WdatePicker.js"></script>
+    <link rel="stylesheet" href="../../css/print.css" type="text/css" media="print">
+    <script src="../../js/jquery.jqprint-0.3.js"></script>
+    <input type="hidden" id="currentPage" value="$!currentPage">
+    <input type="hidden" id="totalPage" value="$!totalPage">
+    <input type="hidden" id="state" value="$!state">
+    <script type="text/javascript">
+        $(function () {
+            //主子列表
+            $(".Purchase td").click(function () {
+                var id = $(this).parent().attr("id")
+                //如果珠子列表打开关闭
+                if ($("tr").hasClass("s" + id + "")) {
+//                    $("tr").remove(".s" + id + "");
+                    $("tr").remove(".s");
+                    return false;
+                }
+                jQuery.post("/business/getPurchaseById.action", {"purchaseId":id}, function (message) {
+                    var str = "<tr align='center' class='s'><td></td><td colspan='7'><table class='tableson' border='1'><tr><th>订单编码</th><th>产品名称</th><th>产品编码</th><th>采购总金额</th><th>采购总数量</th><th>采购价</th><th>供应商名称</th><th>采购数量</th><th>采购金额</th><th>采购重量</th></tr>"
+//                    for (var i = 0; i < message.purchaseInfos.length; i++) { " + id + "
+//                        str += "<tr class='s" + id + "'>"
+//                        str += "<td>" + message.purchaseInfos[i].productName +"</td>"
+//                        str += "<td>" + message.purchaseInfos[i].sku +"</td>"
+//                        str += "<td>" + message.purchaseInfos[i].purchasePrice + "</td>"
+//                        str += "<td>" + message.purchaseInfos[i].purchaseN + "</td>"
+//                        for(var j=0; j<message.purchaseInfos[i].purchaseItems.length;j++){
+//                            if(j>0){
+//                                str += "<tr><td colspan='4'></td>"
+//                                str += "<td style='text-align: left'>" + message.purchaseInfos[i].purchaseItems[j].costPrice + "</td>"
+//                                str += "<td style='text-align: left'>" + message.purchaseInfos[i].purchaseItems[j].supplierName + "</td>"
+//                                str += "<td style='text-align: left'>" + message.purchaseInfos[i].purchaseItems[j].numbers + "</td>"
+//                                str += "<td style='text-align: left'>" + message.purchaseInfos[i].purchaseItems[j].prices + "</td>"
+//                                str += "<td style='text-align: left'>" + message.purchaseInfos[i].purchaseItems[j].totalWeight + "</td> </tr>"
+//                            }else{
+//                                str += "<td style='text-align: left'>" + message.purchaseInfos[i].purchaseItems[j].costPrice + "</td>"
+//                                str += "<td style='text-align: left'>" + message.purchaseInfos[i].purchaseItems[j].supplierName + "</td>"
+//                                str += "<td style='text-align: left'>" + message.purchaseInfos[i].purchaseItems[j].numbers + "</td>"
+//                                str += "<td style='text-align: left'>" + message.purchaseInfos[i].purchaseItems[j].prices + "</td>"
+//                                str += "<td style='text-align: left'>" + message.purchaseInfos[i].purchaseItems[j].totalWeight + "</td> </tr>"
+//                            }
+//
+//                        }
+//                    }
+
+                    for (var i = 0; i < message.purchaseInfos.length; i++) {
+                        str += "<tr class='s" + id + "'>"
+                        var index = message.purchaseInfos[i].purchaseItems.length;
+                        if(index>1){
+                            str += "<td style='vertical-align:middle' rowspan='"+index+"'>" + message.purchaseInfos[i].orderCode +"</td>"
+                            str += "<td style='vertical-align:middle' rowspan='"+index+"'>" + message.purchaseInfos[i].productName +"</td>"
+                            str += "<td style='vertical-align:middle' rowspan='"+index+"'>" + message.purchaseInfos[i].sku +"</td>"
+                            str += "<td style='vertical-align:middle' rowspan='"+index+"'>" + message.purchaseInfos[i].purchasePrice + "</td>"
+                            str += "<td style='vertical-align:middle' rowspan='"+index+"'>" + message.purchaseInfos[i].purchaseN + "</td>"
+                        }else{
+                            str += "<td>" + message.purchaseInfos[i].orderCode +"</td>"
+                            str += "<td>" + message.purchaseInfos[i].productName +"</td>"
+                            str += "<td>" + message.purchaseInfos[i].sku +"</td>"
+                            str += "<td>" + message.purchaseInfos[i].purchasePrice + "</td>"
+                            str += "<td>" + message.purchaseInfos[i].purchaseN + "</td>"
+                        }
+                        for(var j=0; j<message.purchaseInfos[i].purchaseItems.length;j++){
+                            str += "<td style='text-align: left'>" + message.purchaseInfos[i].purchaseItems[j].costPrice + "</td>"
+                            str += "<td style='text-align: left'>" + message.purchaseInfos[i].purchaseItems[j].supplierName + "</td>"
+                            str += "<td style='text-align: left'>" + message.purchaseInfos[i].purchaseItems[j].numbers + "</td>"
+                            str += "<td style='text-align: left'>" + message.purchaseInfos[i].purchaseItems[j].prices + "</td>"
+                            str += "<td style='text-align: left'>" + (message.purchaseInfos[j].purchaseItems[j].totalWeight/1000000).toFixed(2) + "</td> </tr>"
+                        }
+                    }
+                    str += "</td></table></td></tr>"
+                    $(".s").remove()
+                    $("#" + id + "").after(str)
+                })
+            });
+            //打印
+            $("#print").click(function(){
+                var ids ='';
+                $("input[attr='check']").each(function(i,v){
+                    if($(v).is(":checked")){
+                        if(ids){
+                            ids+=',';
+                        }
+                        ids=ids+$(v).val();
+                    }
+                });
+                if(!ids){
+                    alert("你没选中任何记录");
+                    return false;
+                }
+//                jQuery.post("/print/purchase.action",{"ids":ids},function(data){
+                jQuery.post("/print/purchase.action",{"ids":ids},function(data){
+                    for(var i=0;i<data.length;i++){
+                        var str="";
+                        str+="<h2 align='center'><font size='5px'>兆美商城采购单(信息部)</font></h2><br>"
+                        str+="<table  border='1' cellspacing='0' cellpadding='0' width='100%'><tr><td>采购单编号</td><td colspan='2'>"+data[i].purchaseCode+"</td>"
+                        str+="<td>部门采购人</td><td>"+data[i].user.realName+"</td>"
+                        str+="<td>采购总数</td><td>"+data[i].totalnumber+"</td>"
+                        str+="<td>采购总金额</td><td>"+data[i].totalmoney+"</td>"
+                        var weight=(data[i].totalweights/1000000).toFixed(2)
+                        str+="<td>采购总重量</td><td>"+weight+"t</td>"
+                        str+="<tr><td>序号</td><td>产品名称</td><td>编号</td><td>规格</td><td>摘要</td><td>元/m²</td>"
+                        str+="<td>数量</td><td>单价/片</td><td>总价</td><td>单位</td><td>地址</td></tr>"
+                        for(var j=0;j<data[i].purchaseInfos.length;j++){
+                            str+="<tr><td>"+(j+1)+"</td>"
+                            str+="<td>"+data[i].purchaseInfos[j].productName+"</td>"
+                            str+="<td>"+data[i].purchaseInfos[j].sku+"</td>"
+                            str+="<td></td><td></td>"
+                            str+="<td></td><td>"+data[i].purchaseInfos[j].purchaseN+"</td>"
+                            str+="<td></td><td>"+data[i].purchaseInfos[j].purchasePrice+"</td><td></td><td></td></tr>"
+                            for(var k=0;k<data[i].purchaseInfos[j].purchaseItems.length;k++) {
+                                str += "<tr><td></td><td></td><td>供应商名称</td>"
+                                str += "<td>" + data[i].purchaseInfos[j].purchaseItems[k].supplierName + "</td>"
+                                str += "<td>采购数量</td>"
+                                str += "<td>" + data[i].purchaseInfos[j].purchaseItems[k].numbers + "</td>"
+                                str += "<td>采购金额</td>"
+                                str += "<td>" + data[i].purchaseInfos[j].purchaseItems[k].prices + "</td>"
+                                var w=(data[i].purchaseInfos[j].purchaseItems[k].totalWeight/1000000).toFixed(2)
+                                str += "<td>采购重量</td>"
+                                str += "<td>" +w + "t</td><td></td></tr>"
+
+                            }
+                        }
+                        str+="</table>"
+                        alert(str)
+                        $("#printShow").append(str);
+                    }
+                    $("#printShow").jqprint({});
+//                    打印完成后清空div
+                    $('#printShow').html("");
+                })
+                return true;
+            });
+
+            //------------------------分页--------------------
+            //上一页
+            $("#upPage").live('click',function(){
+                var currentPage = Number($("#currentPage").val()-1);
+                if(currentPage < 1){
+                    alert("当前第一页");
+                }else{
+                    var href="/business/showPurchase.action?currentPage=$b&state=$!state&purchaseCode=$!purchaseCode&numMoney=$!numMoney&bigMoney=$!bigMoney&beginTime=$!beginTime&endTime=$!endTime";
+                    $("#upPage").attr("href",href);
+                    //search(currentPage);
+                }
+
+            })
+            //下一页
+            $("#downPage").live('click',function(){
+                var currentPage = Number($("#currentPage").val())+1;
+                var totalPage = Number($("#totalPage").val());
+                if(currentPage>totalPage){
+                    alert("当前最后一页");
+                }else{
+                    var href="/business/showPurchase.action?currentPage=$c&state=$!state&purchaseCode=$!purchaseCode&numMoney=$!numMoney&bigMoney=$!bigMoney&beginTime=$!beginTime&endTime=$!endTime";
+                    $("#downPage").attr("href",href);
+                    // search(currentPage);
+                }
+            })
+
+            function getPurchaseIds(){
+                var ids ="";
+                $("#purchaseTables").find("input:checkbox:checked").each(function(){
+                    ids +=$(this).attr('value');
+                    ids +=",";
+                })
+                ids = ids.substring(0,ids.length-1);
+                return ids;
+            }
+            //审核通过
+            $("#yes").live('click',function(){
+                var ids = getPurchaseIds();
+                if(!ids){
+                    alert("你没选中任何记录");
+                    return false;
+                }if(ids==0){
+                    alert("采购单已审核");
+                    $("#purchaseTables").find("input:checkbox").each(function () {
+                        $(this).attr('checked', false);
+                    })
+                    return false;
+                }
+                jQuery.ajax({
+                    url:"/business/updatePurstate.action",
+                    type:'POST',
+                    data:{"message":"yes","ids":ids},
+                    dataType:'json',
+                    success:function(data){
+                        if(data>0){
+                            window.location.reload("/business/showPurchase.action");
+                        }else{
+                            alert("审核失败");
+                            $("#purchaseTables").find("input:checkbox").each(function () {
+                                $(this).attr('checked', false);
+                            })
+                            return false;
+                        }
+                    }
+                })
+                return false;
+            })
+            //审核不通过
+            $("#no").live('click',function(){
+                var ids = getPurchaseIds();
+                if(!ids){
+                    alert("你没选中任何记录");
+                    return false;
+                }if(ids==0){
+                    alert("采购单已审核");
+                    $("#purchaseTables").find("input:checkbox").each(function () {
+                        $(this).attr('checked', false);
+                    })
+                    return false;
+                }
+                jQuery.ajax({
+                    url:"/business/updatePurstate.action",
+                    type:'POST',
+                    data:{"message":"no","ids":ids},
+                    dataType:'json',
+                    success:function(data){
+                        if(data>0){
+                            window.location.reload("/business/showPurchase.action");
+                        }else{
+                            alert("审核失败");
+                            $("#purchaseTables").find("input:checkbox").each(function () {
+                                $(this).attr('checked', false);
+                            })
+                            return false;
+                        }
+                    }
+                })
+                return false;
+            })
+            //页面跳转时保存状态下拉框数据
+            var state = $("#state").val();
+            $("#check").find("option[value='"+state+"']").attr("selected",true);
+        })
+    </script>
+
+    <script type="text/javascript">
+        $(function() {
+//            $("#checkall").click(function() {
+//                $("#purchaseTables").find("input:checkbox").each(function () {
+//                    $(this).attr("checked", true);
+//                });
+//            });
+            //查询全部
+            $("#selAll").click(function(){
+                document.forms[0].action="/business/showPurchase.action?status=1";
+                document.forms[0].submit();
+                return false;
+            });
+            //全选按钮
+            $("#checkall").live('click',function() {
+                var statue = $(this).attr('statue');
+                if (statue == 0) {
+                    $(this).attr('statue', 1);
+                    $("#purchaseTables").find("input:checkbox").each(function () {
+                        $(this).attr('checked', true);
+                    })
+                }
+                else {
+                    $(this).attr('statue', 0);
+                    $("#purchaseTables").find("input:checkbox").each(function () {
+                        $(this).attr('checked', false);
+                    })
+
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+##<div id="printShow"></div>
+##    <a class="button border-main" id="updateState" href="" ><span class="icon-edit"></span>审核</a>
+##    <input type="button" value="打印" id="print">
+<div class="divtbs">
+    <form action="/business/showPurchase.action" method="post" id="forms">
+        <table width="100%"><tr>
+            <td width="14%">采购单号：<input type="text" name="purchaseCode" value="$!purchaseCode"/></td>
+            <td width="24%">采购金额：<input type="text" name="numMoney" value="$!numMoney" />--<input type="text" name="bigMoney" value="$!bigMoney" /></td>
+            <td width="24%">采购时间：<input type="text" name="beginTime" value="$!beginTime" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})">--<input type="text" name="endTime" value="$!endTime" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})"></td>
+            <td width="13%">审核状态：
+                <select id="check" name="state">
+                    <option  value="0">等待审核</option>
+                    <option  value="1">审核通过</option>
+                    <option  value="-1">审核未通过</option>
+                    <option  value="4">配送完成</option>
+                </select>
+            </td>
+            <td width="38%">
+                <button class="button border-yellow  btn" id="f33orms"><span class="icon-search">查询</span></button>
+                #vela("/business/showPurchase.action" "<span class='icon-search'>查询全部</span>" "selAll" "button border-yellow")
+                #vela("/business/updatePurstate.action" "<span class='icon-check'>审核通过</span>" "yes" "button border-green")
+                #vela("/business/updatePurstate.action" "<span class='icon-check'>审核未通过</span>" "no" "button border-red")
+            ##                <button class="button border-green" id="yes" href="" ><span class="icon-check"></span>审核通过</button>
+            ##                <button class="button border-red" id="no" href="" ><span class="icon-check"></span>审核不通过</button>
+                <input id="currentPage1" type="hidden" name="currentPage">
+                <a class="button border-blue" id="print">打印</a>&nbsp;</td></tr>
+        </table>
+    </form>
+</div>
+<div id="printShow"></div>
+
+<table class="table text-center"  id="purchaseTables" >
+    <tr>
+        <th width="5%"><input type="button" id="checkall" name="checkall" value="全选" state="0"/></th>
+        <th>采购单编码</th>
+        <th>采购人</th>
+        <th>总金额</th>
+        <th>总重量</th>
+        <th>总数量</th>
+        <th>玻璃架</th>
+        <th>创建时间</th>
+        <th>审核状态</th>
+    </tr>
+    #foreach($pp in $PurchaseInfo)
+        <tr class="Purchase" id="$pp.purchaseId">
+            <th>
+                <input type="checkbox"  attr='check'  value="$pp.purchaseId ">
+            </th>
+            <td>$pp.purchaseCode</td>
+            <td>$pp.user.realName</td>
+            <td>$pp.totalmoney</td>
+            <td>$pp.totalweights</td>
+            <td>$pp.totalnumber</td>
+            <td>$pp.rackMoney</td>
+            <td> $!date.format('yyyy-MM-dd HH:mm:ss ',$!pp.procurementTime)</td>
+            <td style="display: none">$pp.purchaseId</td>
+            <td>
+                #if($pp.state==0)
+                    等待审核
+                #end
+                #if($pp.state==1)
+                    审核通过
+                #end
+                #if($pp.state==-1)
+                    审核未通过
+                #end
+                #if($pp.state==4)
+                    配送完毕
+                #end
+            </td>
+        </tr>
+    #end
+</table>
+<tbody id="mytbody"></tbody>
+##    <tr><td colspan="11" align="right"><font id="page"></font> &nbsp;&nbsp;<a href="#" id="upPage">上一页</a>&nbsp;&nbsp;<a href="#" id="downPage">下一页</a></td></tr>
+</div>
+<div style="height: 10px"></div>
+<div>
+    <table width="100%" align="" >
+        <div id="fenYe" align="right">
+            共$!totalPage页&nbsp;当前第$!currentPage页&nbsp;&nbsp;
+            <a href="/business/showPurchase.action?currentPage=1&state=$!state&purchaseCode=$!purchaseCode&numMoney=$!numMoney&bigMoney=$!bigMoney&beginTime=$!beginTime&endTime=$!endTime">首页</a>&nbsp;
+            <a href="#" id="upPage">上一页</a>&nbsp;&nbsp;<a href="#" id="downPage">下一页</a>
+            <a href="/business/showPurchase.action?currentPage=$!totalPage&state=$!state&purchaseCode=$!purchaseCode&numMoney=$!numMoney&bigMoney=$!bigMoney&beginTime=$!beginTime&endTime=$!endTime">末页</a>&nbsp;
+        </div>
+    </table>
+</div>
+<div style="height: 10px"></div>
+
+</body>
+</html>

@@ -1,0 +1,1136 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.orders.OrderInfoDao">
+    <!--订单基本信息查询结果集-->
+    <resultMap id="OrderInfoBaseMap" type="com.zm.mall.domain.business.orders.OrderInfo">
+        <result column="OrderId" property="orderId" jdbcType="VARCHAR" />
+		<result column="orderCostPrice" property="orderCostPrice" jdbcType="DOUBLE"></result>
+        <result column="OrderCode" property="orderCode" jdbcType="VARCHAR"/>
+        <result column="OrderTotal" property="orderTotal" jdbcType="BIGINT"/>
+        <result column="CreatedDate" property="createdDate" jdbcType="TIMESTAMP"/>
+        <result column="BuyerID" property="buyerID" jdbcType="BIGINT"/>
+        <result column="BuyerName" property="buyerName" jdbcType="VARCHAR"/>
+        <result column="BuyerCellPhone" property="buyerCellPhone" jdbcType="VARCHAR"/>
+        <result column="BuyerEmail" property="buyerEmail" jdbcType="VARCHAR"/>
+        <result column="ShipName" property="shipName" jdbcType="VARCHAR"/>
+        <result column="ShipRegion" property="shipRegion" jdbcType="VARCHAR"/>
+        <result column="ShipAddress" property="shipAddress" jdbcType="VARCHAR"/>
+        <result column="ShipCellPhone" property="shipCellPhone" jdbcType="VARCHAR"/>
+        <result column="ShipZipCode" property="shipZipCode" jdbcType="VARCHAR"/>
+        <result column="ShippingStatus" property="shippingStatus" jdbcType="BIGINT"/>
+        <result column="Weight" property="weight" jdbcType="BIGINT"/>
+        <result column="RealShippingModeName" property="realShippingModeName" jdbcType="VARCHAR"/>
+        <result column="PaymentTypeName" property="paymentTypeName" jdbcType="VARCHAR"/>
+        <result column="PaymentTypeId" property="paymentTypeId" />
+        <result column="RealShippingModeName" property="realShippingModeName" jdbcType="VARCHAR"/>
+        <result column="OrderStatus" property="orderStatus" jdbcType="BIGINT"/>
+        <result column="Quantity" property="quantity" jdbcType="BIGINT"/>
+        <result column="Weight" property="weight" jdbcType="INTEGER"/>
+        <result column="OrderCheckStatus" property="orderCheckStatus" jdbcType="BIGINT"/>
+        <result column="ApplyVehicleStatus" property="applyVehicleStatus" jdbcType="BIGINT"/>
+        <result column="PurchasingStatus" property="purchasingStatus" jdbcType="BIGINT"/>
+        <result column="DepartmentName" property="departmentName" jdbcType="VARCHAR"/>
+        <result column="RealName" property="realName" jdbcType="VARCHAR"/>
+        <result column="DepartmentId" property="departmentId" jdbcType="BIGINT"/>
+        <result property="pluteformid" column="pluteformid" jdbcType="VARCHAR"/>
+        <collection property="orderItems" ofType="com.zm.mall.domain.business.orders.OrderItems">
+            <result column="ItemId" property="itemId" jdbcType="BIGINT"/>
+            <result column="ThumbnailsUrl" property="thumbnailsUrl" jdbcType="VARCHAR"/>
+            <result column="Name" property="name" jdbcType="VARCHAR"/>
+            <result column="SKU" property="sku" jdbcType="VARCHAR"/>
+            <result column="Attribute" property="attribute" jdbcType="VARCHAR"/>
+            <result column="ShipmentQuantity" property="shipmentQuantity" jdbcType="BIGINT"/>
+            <result column="SellPrice" property="sellPrice" jdbcType="BIGINT"/>
+            <result column="AdjustedPrice" property="adjustedPrice" jdbcType="BIGINT"/>
+            <result column="SupplierName" property="supplierName" jdbcType="VARCHAR"/>
+            <result column="BrandName" property="brandName" jdbcType="VARCHAR"/>
+            <result column="ProductId" property="productId" jdbcType="BIGINT"/>
+            <result column="ProductCode" property="productCode" jdbcType="VARCHAR"/>
+            <result column="Quantity" property="quantity" jdbcType="INTEGER"/>
+            <result column="Weight" property="weight" jdbcType="INTEGER"/>
+            <result column="GoodsType" property="goodsType" jdbcType="VARCHAR"/>
+            <collection property="orderItemsAttributes" ofType="orderItemsAttribute">
+                <id column="Id" property="id" jdbcType="BIGINT"/>
+                <result column="ItemId" property="itemId" jdbcType="BIGINT"/>
+                <result column="Name" property="name" jdbcType="VARCHAR"/>
+                <result column="Value" property="value" jdbcType="VARCHAR"/>
+            </collection>
+        </collection>
+    </resultMap>
+    <resultMap id="OrderInfo" type="com.zm.mall.domain.business.orders.OrderInfo">
+        <result column="OrderId" property="orderId" jdbcType="VARCHAR" />
+        <result column="OrderCode" property="orderCode" jdbcType="VARCHAR"/>
+        <result column="OrderTotal" property="orderTotal" jdbcType="BIGINT"/>
+        <result column="CreatedDate" property="createdDate" jdbcType="TIMESTAMP"/>
+        <result column="BuyerName" property="buyerName" jdbcType="VARCHAR"/>
+        <result column="BuyerCellPhone" property="buyerCellPhone" jdbcType="VARCHAR"/>
+        <result column="BuyerEmail" property="buyerEmail" jdbcType="VARCHAR"/>
+        <result column="ShipName" property="shipName" jdbcType="VARCHAR"/>
+        <result column="ShipRegion" property="shipRegion" jdbcType="VARCHAR"/>
+        <result column="ShipAddress" property="shipAddress" jdbcType="VARCHAR"/>
+        <result column="ShipCellPhone" property="shipCellPhone" jdbcType="VARCHAR"/>
+        <result column="ShipZipCode" property="shipZipCode" jdbcType="VARCHAR"/>
+        <result column="ShippingStatus" property="shippingStatus" jdbcType="BIGINT"/>
+        <result column="Weight" property="weight" jdbcType="BIGINT"/>
+        <result column="RealShippingModeName" property="realShippingModeName" jdbcType="VARCHAR"/>
+        <result column="PaymentTypeName" property="paymentTypeName" jdbcType="VARCHAR"/>
+        <result column="OrderStatus" property="orderStatus" jdbcType="BIGINT"/>
+        <result column="Quantity" property="quantity" jdbcType="BIGINT"/>
+        <result column="Weight" property="weight" jdbcType="INTEGER"/>
+        <result column="OrderCheckStatus" property="orderCheckStatus" jdbcType="BIGINT"/>
+        <result column="ApplyVehicleStatus" property="applyVehicleStatus" jdbcType="BIGINT"/>
+        <result column="DepartmentName" property="departmentName" jdbcType="VARCHAR"/>
+        <result column="RealName" property="realName" jdbcType="VARCHAR"/>
+        <result column="DepartmentId" property="departmentId" jdbcType="BIGINT"/>
+        <result property="pluteformid" column="pluteformid" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--判断平台Id-->
+    <sql id="b2c_condition">
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND pluteformid=#{pluteformid}
+        </if>
+    </sql>
+
+    <sql id="all_column">OrderId,OrderCode,OrderTotal,CreatedDate,BuyerID,BuyerName,BuyerCellPhone,ShipName,ShippingStatus,RealShippingModeName,PaymentTypeName,OrderStatus,OrderCheckStatus,DepartmentId</sql>
+    <!--分页-查询订单数量-->
+    <select id="selectCount" resultType="int" parameterType="orderByTip">
+        SELECT COUNT(DISTINCT OrderCode) FROM b2c_shop_orders
+        WHERE OrderCheckStatus = #{orderCheckStatus}
+        <if test="orderCode!='' and orderCode!=null">
+            AND  OrderCode = #{orderCode}
+        </if>
+        <if test="buyerName!='' and buyerName!=null">
+            AND BuyerName LIKE CONCAT(CONCAT('%', #{buyerName}), '%')
+        </if>
+        <if test="shipName!=''and shipName!=null">
+            AND ShipName LIKE CONCAT(CONCAT('%', #{shipName}), '%')
+        </if>
+        <if test="beginTime!='' and beginTime!=null or endTime !='' and endTime !=null" >
+            AND CreatedDate BETWEEN #{beginTime} AND #{endTime}
+        </if>
+        <if test="buyerCellPhone!=''and buyerCellPhone!=null">
+            AND BuyerCellPhone = #{buyerCellPhone}
+        </if>
+        <!--<if test="orderCheckStatus!='' and orderCheckStatus!=null">-->
+        AND DepartmentId = #{departmentId}
+    </select>
+    <!--全部查询展示到页面-->
+    <select id="selectAllOrders" resultMap="OrderInfoBaseMap" parameterType="orderInfo">
+        SELECT
+        <include refid="all_column"/>
+        FROM b2c_shop_orders
+        WHERE 1=1
+        <if test="departmentId!='' and departmentId!=null">
+            AND   DepartmentId = #{departmentId}
+        </if>
+        <if test="orderCode!='' and orderCode!=null">
+            AND  OrderCode = #{orderCode}
+        </if>
+        <if test="buyerName!='' and buyerName!=null">
+            AND BuyerName LIKE CONCAT(CONCAT('%', #{buyerName}), '%')
+        </if>
+        <if test="shipName!=''and shipName!=null">
+            AND ShipName LIKE CONCAT(CONCAT('%', #{shipName}), '%')
+        </if>
+        <if test="beginTime!='' and beginTime!=null or endTime !='' and endTime !=null" >
+            AND CreatedDate BETWEEN #{beginTime} AND #{endTime}
+        </if>
+        <if test="buyerCellPhone!=''and buyerCellPhone!=null">
+            AND BuyerCellPhone = #{buyerCellPhone}
+        </if>
+        <!--<if test="orderCheckStatus!='' and orderCheckStatus!=null">-->
+        AND OrderCheckStatus = #{orderCheckStatus}
+        <!--</if>-->
+        ORDER BY CreatedDate DESC
+        Limit #{begionNumber},#{pageSize}
+    </select>
+
+    <!--根据订单号查询订单详细信息-->
+    <select id="selectGuesterInfo" resultMap="OrderInfoBaseMap" parameterType="orderInfo">
+        SELECT
+        o.OrderId,o.BuyerName,o.BuyerEmail,o.BuyerCellPhone,o.ShipName,
+        o.ShipRegion,o.ShipAddress,o.ShipCellPhone,o.ShipZipCode,i.ThumbnailsUrl,
+        i.Name,i.SKU,i.Attribute,i.ShipmentQuantity,i.SellPrice,
+        i.SupplierName,i.BrandName
+        FROM b2c_shop_orders o,b2c_shop_orderitems i
+        WHERE
+        o.OrderId=i.OrderId
+        AND
+        o.OrderId=#{orderId}
+    </select>
+    <!--用户-收货信息结果集-->
+    <resultMap id="User_ShippingInfo" type="com.zm.mall.domain.business.accountsUsers.Users">
+        <result column="UserID" property="userId" jdbcType="BIGINT"/>
+        <result column="UserName" property="userName" jdbcType="VARCHAR"/>
+        <result column="Email" property="email" jdbcType="VARCHAR"/>
+        <result column="Phone" property="phone" jdbcType="VARCHAR"/>
+        <collection property="shippingAddress" ofType="shippingAddress">
+            <result column="RegionId" property="regionId" jdbcType="BIGINT"/>
+            <result column="ShippingId" property="shippingId" jdbcType="BIGINT"/>
+            <result column="ShipName" property="shipName" jdbcType="VARCHAR"/>
+            <result column="Address" property="address" jdbcType="VARCHAR"/>
+            <result column="CelPhone" property="celPhone" jdbcType="VARCHAR"/>
+        </collection>
+
+    </resultMap>
+    <!--根据用户名查询对应的收货信息-->
+    <select id="selectShippingInfo" resultMap="User_ShippingInfo" parameterType="string">
+        SELECT
+        u.UserId,u.UserName,u.Email,u.Phone,
+        s.ShippingId,s.RegionId,s.ShipName,s.Address,s.CelPhone
+        from b2c_accounts_users u
+        LEFT JOIN b2c_shop_shippingaddress s
+        ON u.UserID=s.UserId
+        where u.UserName=#{buyerName}
+    </select>
+    <!--根据具体收货地址的regionId查询运费-->
+    <resultMap id="yunfei" type="com.zm.mall.domain.business.accountsUsers.RegionExpressPrice">
+        <id column="Id" jdbcType="BIGINT"/>
+        <result column="RegionId" jdbcType="BIGINT"/>
+        <result column="Price" jdbcType="DOUBLE"/>
+    </resultMap>
+    <select id="checkYunFei" resultType="regionPrice" parameterType="regionPrice">
+        SELECT r.Id,r.RegionId,r.Price
+        FROM b2c_shop_regionexpressprice r
+        WHERE
+        <if test="regionId !=null and regionId !=''">
+            r.RegionId = #{regionId} AND r.TypId = #{typId}
+        </if>
+        <if test="productId !=null and productId !=''">
+            r.ProductId = #{productId} AND r.TypId = #{typId}
+        </if>
+    </select>
+
+    <!--OA查询出最大的订单Id-->
+    <select id="selectOrderId" resultType="String">
+        select OrderId from b2c_shop_orders where OrderId LIKE '%zm%' ORDER BY MID(OrderId,3,10)+1 DESC LIMIT 1;
+    </select>
+    <!--微信查询出最大的订单Id-->
+    <select id="selectOrderIdWX" resultType="String">
+        select OrderId from b2c_shop_orders where OrderId LIKE '%wx%' ORDER BY MID(OrderId,3,10)+1 DESC LIMIT 1;
+    </select>
+    <!--&lt;!&ndash;商城同步查询出最大的订单Id&ndash;&gt;-->
+    <!--<select id="selectBigOrderId" resultType="String">-->
+    <!--select OrderId from shop_orders where OrderId NOT  LIKE '%zm%' GROUP BY (OrderId+0) DESC LIMIT 1;-->
+    <!--</select>-->
+
+    <!--向主表中插入新增订单-->
+    <insert id="insertEntry" parameterType="orderinfo">
+        INSERT INTO b2c_shop_orders (OrderId,OrderCode,ParentOrderId,CreatedDate,BuyerID,BuyerName,BuyerEmail,BuyerCellPhone,RegionId,ShipRegion,ShipProvince,ShipCity,ShipCounty,ShipAddress,
+        ShipZipCode,ShipName,ShipTelPhone,ShipCellPhone,ShipEmail,Weight,OrderTotal,ApplyVehicleStatus,Freight,DepartmentId,RoleId,DepartmentName,RealName,OrderCheckStatus,pluteformid,OrderCostPrice,paymentTypeId,Remark,paymentTypeName) VALUES (#{orderId},#{orderCode},#{parentOrderId},
+        now(),#{buyerID},#{buyerName},#{buyerEmail},#{buyerCellPhone},#{regionId},#{shipRegion},#{shipProvince},#{shipCity},#{shipCounty},#{shipAddress},
+        #{shipZipCode},#{shipName},#{shipTelPhone},#{shipCellPhone},#{shipEmail},#{weight},#{orderTotal},#{applyVehicleStatus},#{freight},#{departmentId},#{roleId},#{departmentName},#{realName},#{orderCheckStatus},#{pluteformid},#{orderCostPrice},#{paymentTypeId},#{remark},#{paymentTypeName})
+    </insert>
+    <insert id="insertOrderItems" parameterType="orderInfo">
+        INSERT INTO b2c_shop_orderitems (OrderId,OrderCode,ProductId,ProductCode,SKU,Name,Quantity,ThumbnailsUrl,ShipmentQuantity,SellPrice,Weight,GoodsType,pluteformid,attribute,adjustedPrice)
+        VALUES
+        <foreach collection="orderItems" item="item" index="index" separator=",">
+            (#{orderId},#{orderCode},#{item.productId},#{item.productCode},#{item.sku},#{item.name},#{item.quantity},#{item.thumbnailsUrl},#{item.quantity},#{item.sellPrice},#{item.weight},#{item.goodsType},#{pluteformid},#{item.attribute},#{item.adjustedPrice})
+        </foreach>
+    </insert>
+    <!--商城同步数据-->
+    <!--查询出订单收货人所在的省市县-->
+    <select id="selectRegion" parameterType="int" resultType="msRegions">
+        SELECT  RegionName,Path FROM b2c_ms_regions WHERE RegionId = #{regionId}
+    </select>
+    <select id="selectRegionName" parameterType="int" resultType="string">
+        SELECT  RegionName FROM b2c_ms_regions WHERE RegionId = #{regionId}
+    </select>
+    <insert id="insertOrder" parameterType="orderInfo">
+        INSERT INTO shop_orders (OrderId,OrderCode,ParentOrderId,CreatedDate,UpdatedDate,BuyerID,BuyerName,BuyerEmail,BuyerCellPhone,RegionId,ShipRegion,
+        ShipProvince,ShipCity,ShipCounty,ShipAddress,ShipZipCode,ShipName,ShipTelPhone,ShipCellPhone,ShipEmail,ShippingModeId,ShippingModeName,RealShippingModeId,RealShippingModeName,
+        ShipperId,ShipperName,ShipperAddress,ShipperCellPhone,Freight,FreightAdjusted,FreightActual,Weight,
+        ShippingStatus,ShipOrderNumber,ExpressCompanyName,ExpressCompanyAbb,PaymentTypeId,PaymentTypeName,
+        PaymentGateway,PaymentStatus,RefundStatus,PayCurrencyCode,PayCurrencyName,PaymentFee,
+        PaymentFeeAdjusted,GatewayOrderId,OrderTotal,OrderPoint,OrderCostPrice,OrderProfit,OrderOtherCost,
+        OrderOptionPrice,DiscountName,DiscountAmount,DiscountAdjusted,DiscountValue,DiscountValueType,CouponCode,
+        CouponName,CouponAmount,CouponValue,CouponValueType,ActivityName,ActivityFreeAmount,ActivityStatus,
+        GroupBuyId,GroupBuyPrice,GroupBuyStatus,Amount,OrderType,OrderStatus,SellerID,
+        SellerName,SellerEmail,SellerCellPhone,SupplierId,SupplierName,ReferID,ReferURL,
+        OrderIP,Remark,CommentStatus,ProductTotal,HasChildren,IsReviews,CreateUserId,ReferType,
+        OriginalId,OrderTypeSub,IsFreeShipping,PurchasingStatus,OrderCheckStatus)
+        VALUES (#{orderId},#{orderCode},#{parentOrderId},#{createdDate},#{updatedDate},#{buyerID},#{buyerName},#{buyerEmail},#{buyerCellPhone},#{regionId},#{shipRegion},
+        #{shipProvince},#{shipCity},#{shipCounty},#{shipAddress},#{shipZipCode},#{shipName},#{shipTelPhone},#{shipCellPhone},#{shipEmail},#{shippingModeId},#{shippingModeName},#{realShippingModeId},#{realShippingModeName},
+        #{shipperId},#{shipperName},#{shipperAddress},#{shipperCellPhone},#{freight},#{freightAdjusted},#{freightActual},#{weight},
+        #{shippingStatus},#{shipOrderNumber},#{expressCompanyName},#{expressCompanyAbb},#{paymentTypeId},#{paymentTypeName},
+        #{paymentGateway},#{paymentStatus},#{refundStatus},#{payCurrencyCode},#{payCurrencyName},#{paymentFee},
+        #{paymentFeeAdjusted},#{gatewayOrderId},#{orderTotal},#{orderPoint},#{orderCostPrice},#{orderProfit},#{orderOtherCost},
+        #{orderOptionPrice},#{discountName},#{discountAmount},#{discountAdjusted},#{discountValue},#{discountValueType},#{couponCode},
+        #{couponName},#{couponAmount},#{couponValue},#{couponValueType},#{activityName},#{activityFreeAmount},#{activityStatus},
+        #{groupBuyId},#{groupBuyPrice},#{groupBuyStatus},#{amount},#{orderType},#{orderStatus},#{sellerID},
+        #{sellerName},#{sellerEmail},#{sellerCellPhone},#{supplierId},#{supplierName},#{referID},#{referURL},
+        #{orderIP},#{remark},#{commentStatus},#{productTotal},#{hasChildren},#{isReviews},#{createUserId},#{referType},
+        #{originalId},#{orderTypeSub},#{isFreeShipping},#{purchasingStatus},#{orderCheckStatus})
+    </insert>
+    <insert id="insertOrderAction" parameterType="orderAction">
+        INSERT INTO b2c_shop_orderaction (OrderId,OrderCode,UserId,UserName,ActionCode,ActionDate,Remark)
+        VALUES (#{orderId},#{orderCode},#{userId},#{userName},#{actionCode},now(),remark )
+    </insert>
+    <insert id="insertOrderItemsByWeb" parameterType="orderItems">
+        INSERT INTO b2c_shop_orderitems (OrderId,OrderCode,ProductId,ProductCode,SKU,Name,ThumbnailsUrl,Description,Quantity,ShipmentQuantity,CostPrice,SellPrice,AdjustedPrice,Attribute,Remark,Weight,Deduct,Points,ProductLineId,SupplierId,BrandId,BrandName,ProductType,GoodsType)
+        VALUES (#{orderId},#{orderCode},#{productId},#{productCode},#{sku},#{name},#{thumbnailsUrl},#{description},#{quantity},#{shipmentQuantity},#{costPrice},#{sellPrice},#{adjustedPrice},#{attribute},#{remark},#{weight},#{deduct},#{points},#{productLineId},#{supplierId},#{brandId},#{brandName},#{productType},#{goodsType})
+    </insert>
+    <update id="updateSkuStock" parameterType="orderItems">
+        UPDATE b2c_shop_skus SET Stock = Stock - #{quantity} WHERE SKU = #{sku}
+    </update>
+    <select id="selectTypeName" resultType="String" parameterType="long">
+        select s.TypeName from b2c_shop_products p,b2c_shop_producttypes s where p.TypeId = s.TypeId and p.ProductId = #{productId};
+    </select>
+    <resultMap id="OrderItems" type="orderItems">
+        <id column="ItemId" property="itemId" jdbcType="BIGINT"/>
+        <result column="OrderId" property="orderId" jdbcType="VARCHAR"/>
+        <result column="OrderCode" property="orderCode" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--根据订单Id查询出对应的产品信息-->
+    <select id="selectOrderItemsByOrderId" resultMap="OrderItems" parameterType="orderInfo">
+        SELECT s.ItemId
+        FROM b2c_shop_orderitems s
+        where s.OrderId = #{orderId}
+        ORDER BY s.ItemId
+    </select>
+    <!--将订单产品和对应的规格信息插入表中-->
+    <insert id="insertOrderItemsAttribute" parameterType="orderInfo">
+        INSERT INTO b2c_shop_orderitems_attribute(ItemId,Name,Value,pluteformid)
+        VALUES
+        (#{itemId},#{name},#{value},#{pluteformid})
+        <!--<foreach collection="orderItems" item="item" index="index" separator=",">-->
+        <!--<foreach collection="item.orderItemsAttributes" item="item1" index="index" separator=")">-->
+        <!--(#{item1.itemId},#{item1.name},#{item1.value}-->
+        <!--</foreach>-->
+        <!--</foreach>-->
+    </insert>
+    <!-- 查询所有的订单生成采购单-->
+    <!--<select id="startMakePurchase" resultMap="OrderInfoBaseMap" parameterType="orderInfo">-->
+    <!--select shop_orderitems.OrderCode,shop_orderitems.OrderId,shop_orderitems.ProductId,shop_orderitems.ProductCode,shop_orderitems.Weight,shop_orderitems.Quantity,shop_orderitems.SKU, shop_orders.OrderCode,-->
+    <!--shop_orders.ShipperName,shop_orders.ShipAddress,shop_orders.ShipCellPhone  from shop_orderitems,shop_orders where shop_orders.OrderCode=shop_orderitems.OrderCode-->
+
+    <!--</select>-->
+    <select id="startMakePurchase" resultMap="OrderInfoBaseMap"  parameterType="orderInfo">
+        SELECT
+        o.OrderId,o.BuyerCellPhone,o.ShipName,o.OrderCode,o.OrderCheckStatus,
+        o.ShipRegion,o.ShipAddress,o.ShipCellPhone,i.Name
+        ,i.ShipmentQuantity,i.Quantity,i.GoodsType,i.SellPrice,
+        i.ProductCode,i.ProductId,i.Weight,i.SKU,i.ItemId
+        FROM b2c_shop_orders o,b2c_shop_orderitems i
+        WHERE
+        o.OrderId=i.OrderId
+        LIMIT 0,5
+    </select>
+
+    <!--订单处理-->
+    <!--订单处理页面_小组订单-->
+    <select id="searchOrder" resultMap="OrderInfoBaseMap" parameterType="orderByTip" >
+        SELECT
+        o.OrderId,
+        o.OrderCode,
+        DATE_FORMAT(o.CreatedDate,'%Y%m%d%H%i%s')AS createdDate,
+        o.BuyerName,
+        o.ShipName,
+        (select SUM(i.Quantity)) AS Quantity,
+        o.Weight,
+        o.OrderTotal
+        from b2c_shop_orders o,b2c_shop_orderitems i
+        where o.OrderId = i.OrderId
+        AND o.OrderCheckStatus = 1
+        AND o.PurchasingStatus = #{purchasingStatus}
+        AND o.ApplyVehicleStatus = #{applyVehicleStatus}
+        <if test="orderCode!='' and orderCode!=null">
+            AND  o.OrderCode =#{orderCode}
+        </if>
+        <if test="buyerName!='' and buyerName!=null">
+            AND o.BuyerName LIKE CONCAT(CONCAT('%', #{buyerName}), '%')
+        </if>
+        <if test="shipName!=''and shipName!=null">
+            AND o.ShipName LIKE CONCAT(CONCAT('%', #{shipName}), '%')
+        </if>
+        <if test="beginTime!='' and beginTime!=null or endTime !='' and endTime !=null" >
+            AND o.CreatedDate BETWEEN #{beginTime} AND #{endTime}
+        </if>
+        <if test="shipProvince !='' and shipProvince !=null">
+            AND o.ShipProvince = #{shipProvince}
+        </if>
+        <if test="shipCity !='' and shipCity !=null">
+            AND o.ShipCity = #{shipCity}
+        </if>
+        <if test="shipCounty !='' and shipCounty !=null">
+            AND o.ShipCounty = #{shipCounty}
+        </if>
+        AND o.DepartmentId = #{departmentId}
+        GROUP BY o.OrderId
+        ORDER BY o.CreatedDate
+        Limit #{begionNumber},#{pageSize}
+    </select>
+    <!--订单处理页面_商城生成的公共资源订单-->
+    <select id="searchOrderByM" resultMap="OrderInfoBaseMap" parameterType="orderByTip" >
+        SELECT
+        o.OrderId,
+        o.OrderCode,
+        DATE_FORMAT(o.CreatedDate,'%Y%m%d%H%i%s')AS createdDate,
+        o.BuyerName,
+        o.ShipName,
+        (select SUM(i.Quantity)) AS Quantity,
+        o.Weight,
+        o.OrderTotal
+        from b2c_shop_orders o,b2c_shop_orderitems i
+        where o.OrderId = i.OrderId
+        AND o.OrderCheckStatus = 1
+        AND o.PurchasingStatus = #{purchasingStatus}
+        AND o.ApplyVehicleStatus = #{applyVehicleStatus}
+        AND o.OrderId NOT LIKE '%zm%'
+        <if test="orderCode!='' and orderCode!=null">
+            AND  o.OrderCode =#{orderCode}
+        </if>
+        <if test="buyerName!='' and buyerName!=null">
+            AND o.BuyerName LIKE CONCAT(CONCAT('%', #{buyerName}), '%')
+        </if>
+        <if test="shipName!=''and shipName!=null">
+            AND o.ShipName LIKE CONCAT(CONCAT('%', #{shipName}), '%')
+        </if>
+        <if test="beginTime!='' and beginTime!=null or endTime !='' and endTime !=null" >
+            AND o.CreatedDate BETWEEN #{beginTime} AND #{endTime}
+        </if>
+        <if test="shipProvince !='' and shipProvince !=null">
+            AND o.ShipProvince = #{shipProvince}
+        </if>
+        <if test="shipCity !='' and shipCity !=null">
+            AND o.ShipCity = #{shipCity}
+        </if>
+        <if test="shipCounty !='' and shipCounty !=null">
+            AND o.ShipCounty = #{shipCounty}
+        </if>
+        GROUP BY o.OrderId
+        ORDER BY o.CreatedDate
+        Limit #{begionNumber},#{pageSize}
+    </select>
+    <select id="autoCompleteOrderInfo" resultMap="User_ShippingInfo">
+        SELECT * FROM b2c_accounts_users
+    </select>
+
+    <select id="selectone" resultMap="OrderInfoBaseMap">
+        SELECT      o.OrderId,i.OrderId,i.Name,
+        i.ProductCode,i.ProductId,i.Weight,i.SKU,i.ItemId,i.ShipmentQuantity
+        FROM b2c_shop_orders o,b2c_shop_orderitems i
+        WHERE
+        o.OrderId=i.OrderId
+        AND
+        o.OrderId=#{orderId}
+    </select>
+    <!--处理选中订单的方法-->
+    <resultMap id="OrderItemsMap" type="orderItems">
+        <result column="ItemId" property="itemId" jdbcType="BIGINT"/>
+        <result column="ThumbnailsUrl" property="thumbnailsUrl" jdbcType="VARCHAR"/>
+        <result column="Name" property="name" jdbcType="VARCHAR"/>
+        <result column="SKU" property="sku" jdbcType="VARCHAR"/>
+        <result column="Attribute" property="attribute" jdbcType="VARCHAR"/>
+        <result column="ShipmentQuantity" property="shipmentQuantity" jdbcType="BIGINT"/>
+        <result column="SellPrice" property="sellPrice" jdbcType="BIGINT"/>
+        <result column="AdjustedPrice" property="adjustedPrice" jdbcType="BIGINT"/>
+        <result column="SupplierName" property="supplierName" jdbcType="VARCHAR"/>
+        <result column="BrandName" property="brandName" jdbcType="VARCHAR"/>
+        <result column="ProductId" property="productId" jdbcType="BIGINT"/>
+        <result column="ProductCode" property="productCode" jdbcType="VARCHAR"/>
+        <result column="Quantity" property="quantity" jdbcType="INTEGER"/>
+        <result column="ShipmentQuantity" property="shipmentQuantity" jdbcType="INTEGER"/>
+        <result column="Weight" property="weight" jdbcType="INTEGER"/>
+        <result column="OrderId" property="orderId" jdbcType="VARCHAR"/>
+        <result column="OrderCode" property="orderCode" jdbcType="VARCHAR"/>
+        <result column="ShipName" property="shipName" jdbcType="VARCHAR"/>
+        <result column="ShipAddress" property="shipAddress" jdbcType="VARCHAR"/>
+        <result column="ShipCellPhone" property="shipCellPhone" jdbcType="VARCHAR"/>
+        <result column="OrderCheckStatus" property="orderCheckStatus" jdbcType="BIGINT"/>
+        <result column="GoodsType" property="goodsType" jdbcType="VARCHAR"/>
+        <result column="Description" property="description" jdbcType="VARCHAR"/>
+        <result column="DepartmentId" property="departmentId" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <select id="selectcheckedOrders" resultMap="OrderItemsMap">
+        select   o.OrderId,o.BuyerCellPhone,o.ShipName,o.OrderCode,o.OrderCheckStatus,
+        o.ShipRegion,o.ShipAddress,o.ShipCellPhone,o.DepartmentId,o.PurchasingStatus,o.ApplyVehicleStatus,i.Name
+        ,i.ShipmentQuantity,i.Quantity,i.GoodsType,i.SellPrice,
+        i.ProductCode,i.ProductId,i.Weight,i.SKU,i.ItemId
+        from b2c_shop_orders o LEFT JOIN b2c_shop_orderitems i
+        ON o.OrderId = i.OrderId
+        <!--WHERE o.OrderId IN-->
+        <!--<foreach collection="array" item="orderIds" open="(" separator="," close=")">-->
+        <!--#{orderIds}-->
+        <!--</foreach>-->
+        WHERE o.DepartmentId = #{departmentId}
+        and o.orderId in
+        <foreach collection="ids" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND o.PurchasingStatus = -1
+    </select>
+    <!--修改订单的审核状态-->
+    <!--通过审核  状态改为1-->
+    <update id="updateOrder" parameterType="string">
+        UPDATE b2c_shop_orders SET OrderCheckStatus = 1
+        WHERE OrderId IN
+        <foreach collection="array" item="orderId" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+    </update>
+    <!--未通过审核   状态改为-1-->
+    <update id="updateOrderCheckStatus" parameterType="string">
+        UPDATE b2c_shop_orders SET OrderCheckStatus = -1
+        WHERE OrderId IN
+        <foreach collection="array" item="orderId" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+    </update>
+    <!--打印-->
+    <select id="selectOrder" resultType="orderInfo" parameterType="string">
+        SELECT * from b2c_shop_orders where OrderId = #{orderId}
+    </select>
+    <select id="selectOrderItems" resultMap="OrderItemsMap" parameterType="string">
+        select * from b2c_shop_orderitems where OrderId = #{orderId}
+    </select>
+    <!--订单处理页面分页_小组订单状态-->
+    <select id="selectOrderCount" resultType="int" parameterType="orderByTip">
+        SELECT COUNT(DISTINCT OrderCode)
+        from b2c_shop_orders o
+        where o.OrderCheckStatus = 1
+        AND o.PurchasingStatus =  #{purchasingStatus}
+        AND o.ApplyVehicleStatus = #{applyVehicleStatus}
+        <if test="orderCode!='' and orderCode!=null">
+            AND  o.OrderCode =#{orderCode}
+        </if>
+        <if test="buyerName!='' and buyerName!=null">
+            AND o.BuyerName LIKE CONCAT(CONCAT('%', #{buyerName}), '%')
+        </if>
+        <if test="shipName!=''and shipName!=null">
+            AND o.ShipName LIKE CONCAT(CONCAT('%', #{shipName}), '%')
+        </if>
+        <if test="beginTime!='' and beginTime!=null or endTime !='' and endTime !=null" >
+            AND o.CreatedDate BETWEEN #{beginTime} AND #{endTime}
+        </if>
+        <if test="shipProvince !='' and shipProvince !=null">
+            AND o.ShipProvince = #{shipProvince}
+        </if>
+        <if test="shipCity !='' and shipCity !=null">
+            AND o.ShipCity = #{shipCity}
+        </if>
+        <if test="shipCounty !='' and shipCounty !=null">
+            AND o.ShipCounty = #{shipCounty}
+        </if>
+        AND o.DepartmentId = #{departmentId}
+        ORDER BY o.CreatedDate DESC
+    </select>
+    <!--订单处理页面分页_公共订单状态-->
+    <select id="selectOrderCountFromM" resultType="int" parameterType="orderByTip">
+        SELECT count(DISTINCT OrderCode)
+        from b2c_shop_orders o
+        where o.OrderCheckStatus = 1
+        AND o.PurchasingStatus = #{purchasingStatus}
+        AND o.ApplyVehicleStatus = #{applyVehicleStatus}
+        AND o.OrderId NOT LIKE '%zm%'
+        <if test="orderCode!='' and orderCode!=null">
+            AND  o.OrderCode =#{orderCode}
+        </if>
+        <if test="buyerName!='' and buyerName!=null">
+            AND o.BuyerName LIKE CONCAT(CONCAT('%', #{buyerName}), '%')
+        </if>
+        <if test="shipName!=''and shipName!=null">
+            AND o.ShipName LIKE CONCAT(CONCAT('%', #{shipName}), '%')
+        </if>
+        <if test="beginTime!='' and beginTime!=null or endTime !='' and endTime !=null" >
+            AND o.CreatedDate BETWEEN #{beginTime} AND #{endTime}
+        </if>
+        <if test="shipProvince !='' and shipProvince !=null">
+            AND o.ShipProvince = #{shipProvince}
+        </if>
+        <if test="shipCity !='' and shipCity !=null">
+            AND o.ShipCity = #{shipCity}
+        </if>
+        <if test="shipCounty !='' and shipCounty !=null">
+            AND o.ShipCounty = #{shipCounty}
+        </if>
+        ORDER BY o.CreatedDate DESC
+    </select>
+    <!--改变订单状态为已生成物流-->
+    <update id="updateOrderPurchasing" parameterType="string">
+        UPDATE b2c_shop_orders SET PurchasingStatus =2
+        WHERE OrderCode = #{orderCode}
+    </update>
+    <!--订单修改-查询要修改订单的信息-->
+    <select id="selectOrderInfoByOrderId" resultType="orderInfo" parameterType="string">
+        SELECT o.OrderId,o.OrderCode,o.BuyerName,o.ShipName,o.ShipAddress,o.ShipCellPhone,o.Weight,o.OrderTotal,o.ShipProvince,o.ShipCity,o.ShipCounty,o.BuyerID,o.BuyerEmail,o.RegionId,o.BuyerCellPhone,o.Freight
+        from b2c_shop_orders o
+        WHERE o.OrderId = #{orderId}
+    </select>
+    <select id="selectOrderItemsInfo" resultType="orderItems" parameterType="string">
+        SELECT i.ItemId,i.ProductId,i.ProductCode,i.SKU,i.Name,i.Quantity,i.ThumbnailsUrl,i.ShipmentQuantity,i.SellPrice,i.Weight,i.GoodsType
+        from b2c_shop_orderitems i
+        WHERE i.OrderId = #{orderId}
+        ORDER BY i.ItemId
+    </select>
+    <select id="selectOrderAttributes" resultType="orderItemsAttribute" parameterType="long">
+        SELECT a.ItemId,a.Name,a.Value
+        from b2c_shop_orderitems_attribute a
+        WHERE a.ItemId = #{itemId}
+        ORDER BY a.ItemId
+    </select>
+    <!--订单修改-->
+    <update id="updateOrderInfo" parameterType="orderInfo">
+        UPDATE b2c_shop_orders o SET o.BuyerName = #{buyerName},o.ShipName = #{shipName},o.ShipAddress = #{shipAddress},o.ShipCellPhone = #{shipCellPhone},o.Weight = #{weight},o.OrderTotal = #{orderTotal},o.ShipProvince = #{shipProvince},o.ShipCity = #{shipCity},o.ShipCounty = #{shipCounty},o.BuyerID = #{buyerID},o.BuyerEmail =#{buyerEmail},o.RegionId = #{regionId},o.BuyerCellPhone =#{buyerCellPhone},o.Freight =#{freight},
+        o.UpdatedDate = now()
+        WHERE o.OrderCode = #{orderCode}
+    </update>
+    <delete id="deleteOrderAttribute" parameterType="long">
+        DELETE FROM b2c_shop_orderitems_attribute
+        WHERE ItemId = #{itemId}
+    </delete>
+    <delete id="deleteOrderItems" parameterType="orderInfo">
+        DELETE FROM b2c_shop_orderitems
+        WHERE OrderCode = #{orderCode}
+    </delete>
+    <!--采购完毕修改订单状态-->
+    <update id="updatePurchaseOrder" parameterType="String">
+        UPDATE b2c_shop_orders SET PurchasingStatus = 1
+        WHERE OrderId IN
+        <foreach collection="array" item="orderId" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+    </update>
+    <!--强伟未申请车辆分页查询展-->
+    <select id="selectNoCarByLimit" resultMap="OrderInfoBaseMap" parameterType="page">
+        SELECT  b2c_shop_orders.OrderCode,b2c_shop_orders.Weight,b2c_shop_orders.DepartmentName
+        from b2c_shop_orders
+        WHERE b2c_shop_orders.ApplyVehicleStatus=0 and b2c_shop_orders.OrderCheckStatus=1
+        <if test="orderInfo.orderCode!='' and orderInfo.orderCode!=null">
+            AND b2c_shop_orders.OrderCode = #{orderInfo.orderCode}
+        </if>
+        <if test="orderInfo.departmentName!='' and orderInfo.departmentName!=null">
+            AND b2c_shop_orders.DepartmentName LIKE '%${orderInfo.departmentName}%'
+        </if>
+        Limit #{beginNumber},#{pageSize}
+    </select>
+    <select id="selectNoCarAllCount" resultType="int" parameterType="page">
+        SELECT count(DISTINCT  b2c_shop_orders.OrderCode)
+        from b2c_shop_orders
+        WHERE b2c_shop_orders.ApplyVehicleStatus=0 and b2c_shop_orders.OrderCheckStatus=1
+        <if test="orderInfo.orderCode!='' and orderInfo.orderCode!=null">
+            AND b2c_shop_orders.OrderCode = #{orderInfo.orderCode}
+        </if>
+        <if test="orderInfo.departmentName!='' and orderInfo.departmentName!=null">
+            AND b2c_shop_orders.DepartmentName LIKE '%${orderInfo.departmentName}%'
+        </if>
+
+    </select>
+
+    <select id="selectOneOrder" resultType="OrderInfo" parameterType="String">
+        SELECT  b2c_shop_orders.OrderCode,b2c_shop_orders.Weight,b2c_shop_orders.DepartmentName,b2c_shop_orders.RealName
+        from b2c_shop_orders
+        WHERE b2c_shop_orders.OrderCode=#{orderCode}
+
+    </select>
+    <!--修改订单车辆的状态-->
+    <update id="updateOrderCarState" parameterType="string">
+        UPDATE b2c_shop_orders SET ApplyVehicleStatus =1
+        WHERE OrderCode = #{orderCode}
+    </update>
+    <!--处理商城订单时加上小组-->
+    <update id="updateOrderFromM" parameterType="orderInfo">
+        UPDATE b2c_shop_orders SET DepartmentId = #{departmentId},RoleId = #{roleId},DepartmentName=#{departmentName},RealName=#{realName}
+        WHERE  OrderId = #{orderId}
+    </update>
+    <!--处理订单时修改订单为已处理状态-->
+    <update id="updateOrderToHandled" parameterType="string">
+        UPDATE b2c_shop_orders SET PurchasingStatus = -1
+        WHERE OrderId = #{orderId}
+    </update>
+    <!--修改订单车辆的状态-->
+    <update id="updateOrderCarTwoState" parameterType="string">
+        UPDATE b2c_shop_orders SET ApplyVehicleStatus =2
+        WHERE OrderCode = #{orderCode}
+    </update>
+
+    <!--//根据用户id查订单-->
+    <select id="orderList" parameterType="users" resultMap="OrderInfo">
+        SELECT  * FROM b2c_shop_orders
+        WHERE buyerId=#{userId}
+        <include refid="b2c_condition"/>
+        ORDER BY CreatedDate DESC
+    </select>
+    <!--微信查询自己的订单-->
+    <select id="selectWXOrder" resultType="orderInfo" parameterType="page">
+        SELECT  *
+        from b2c_shop_orders
+        WHERE BuyerName=#{orderInfo.buyerName}
+        <if test="orderInfo.orderStatus==0">
+            AND (
+            ( PaymentTypeId IN (1,2) AND orderStatus = 1 ) OR
+            ( PaymentTypeId IN (3,4) AND orderStatus = 2 ) OR
+            ( PaymentTypeId = 0 AND orderStatus = 0 )
+            )
+            AND shippingStatus = 0
+            AND PurchasingStatus  IN (-1,0)
+        </if>
+        <if test="orderInfo.orderStatus==1">
+            AND (
+            ( PaymentTypeId IN (1,2) AND orderStatus = 1 ) OR
+            ( PaymentTypeId IN (3,4) AND orderStatus = 2 ) OR
+            ( PaymentTypeId = 0 AND orderStatus = 0 )
+            )
+            AND shippingStatus = 1
+            AND PurchasingStatus in (1,2)
+        </if>
+        <if test="orderInfo.orderStatus==2">
+            AND (
+            ( PaymentTypeId IN (1,2) AND orderStatus = 1 ) OR
+            ( PaymentTypeId IN (3,4) AND orderStatus = 2 ) OR
+            ( PaymentTypeId = 0 AND orderStatus = 0 )
+            )
+            AND shippingStatus = 2
+            AND PurchasingStatus = 3
+        </if>
+        <include refid="b2c_condition"/>
+        Limit #{beginNumber},#{pageSize}
+    </select>
+
+
+    <!--<select id="selectWXOrder" resultType="orderInfo" parameterType="page">
+        SELECT  *
+        from b2c_shop_orders
+        WHERE BuyerName=#{orderInfo.buyerName}
+        <if test="orderInfo.orderStatus==0">
+            AND PurchasingStatus IN (0,-1) AND  shippingStatus=0 AND PaymentTypeId = 0
+        </if>
+        <if test="orderInfo.orderStatus==1">
+            AND PurchasingStatus IN (1,2)  AND shippingStatus=1
+        </if>
+        <if test="orderInfo.orderStatus==2">
+            AND PurchasingStatus =3  AND shippingStatus=2
+        </if>
+        <include refid="b2c_condition"/>
+        Limit #{beginNumber},#{pageSize}
+    </select>-->
+    <!--微信查询自己的订单-->
+    <select id="selectWXOrderDaiFaHuo" resultType="orderInfo" parameterType="orderInfo">
+        SELECT  *
+        from b2c_shop_orders
+        WHERE BuyerName=#{buyerName} AND PurchasingStatus IN (0,-1)
+        <include refid="b2c_condition"/>
+    </select>
+    <!--微信查询自己的订单-->
+    <select id="selectWXOrderDaiShouHuo" resultType="orderInfo" parameterType="orderInfo">
+        SELECT  *
+        from b2c_shop_orders
+        WHERE BuyerName=#{buyerName} AND PurchasingStatus IN (1,2)
+        <include refid="b2c_condition"/>
+    </select>
+    <!--微信查询自己的订单-->
+    <select id="selectWXOrderYiWanCheng" resultType="orderInfo" parameterType="orderInfo">
+        SELECT  *
+        from b2c_shop_orders
+        WHERE BuyerName=#{buyerName} AND PurchasingStatus=3
+        <include refid="b2c_condition"/>
+    </select>
+    <!--微信查询自己的待付款订单-->
+    <select id="selectWXOrderDaiFuKuan" resultType="orderInfo" parameterType="orderInfo">
+        SELECT  *
+        from b2c_shop_orders
+        WHERE BuyerName=#{orderInfo.buyerName} AND OrderStatus = 0 AND PaymentTypeId != 0
+        <include refid="b2c_condition"/>
+        Limit #{beginNumber},#{pageSize}
+    </select>
+
+
+    <!--<select id="selectWXOrderDaiFuKuan" resultType="orderInfo" parameterType="orderInfo">
+        SELECT  *
+        from b2c_shop_orders
+        WHERE BuyerName=#{orderInfo.buyerName} AND OrderStatus=0 AND PaymentTypeId != 0
+        <include refid="b2c_condition"/>
+        Limit #{beginNumber},#{pageSize}
+    </select>-->
+	<!--修改微信端订单付款状态-->
+    <update id="updateOrderStatusWX" parameterType="orderInfo">
+        UPDATE b2c_shop_orders o SET o.orderStatus =#{orderStatus}
+        WHERE o.OrderCode = #{orderCode} and BuyerName=#{buyerName}
+        <include refid="b2c_condition"/>
+    </update>
+    <!--修改微信端预约付款状态-->
+    <update id="updateAppointmentStatusWX" parameterType="orderInfo">
+        UPDATE b2c_appointment_order o SET o.orderStatus =#{orderStatus}
+        WHERE o.OrderCode = #{orderCode} and BuyerName=#{buyerName}
+        <include refid="b2c_condition"/>
+    </update>
+    <!-- 更新订单状态 -->
+    <update id="updateOrderStatus">
+        update b2c_shop_orders set ${key} = #{value} where OrderId = #{orderId} and pluteformid = #{platformId}
+    </update>
+
+    <!--全部查询展示到页面version2-->
+    <select id="selectAllOrders2" resultMap="OrderInfoBaseMap" parameterType="orderInfo">
+        SELECT
+        <include refid="all_column"/>
+        FROM b2c_shop_orders
+        <where>
+        <if test="departmentId != null">
+              And DepartmentId = #{departmentId}
+        </if>
+        <if test="pluteformid != null">
+            AND pluteformid = #{pluteformid}
+        </if>
+
+        <if test="orderCode!=null and orderCode!=''">
+            AND  OrderCode like concat('%',#{orderCode},'%')
+        </if>
+        <if test="buyerName!=null and buyerName!=''">
+            AND BuyerName LIKE CONCAT(CONCAT('%', #{buyerName}), '%')
+        </if>
+        <if test="shipName!=null and shipName!=''">
+            AND ShipName LIKE CONCAT(CONCAT('%', #{shipName}), '%')
+        </if>
+        <if test="buyerCellPhone!=null and buyerCellPhone!=''">
+            AND BuyerCellPhone like concat('%',#{buyerCellPhone},'%')
+        </if>
+        <if test="orderCheckStatus!=null">
+            AND OrderCheckStatus = #{orderCheckStatus}
+        </if>
+        <if test="shippingStatus!=null">
+            AND ShippingStatus = #{shippingStatus}
+        </if>
+        </where>
+        ORDER BY CreatedDate DESC
+        Limit #{begionNumber},#{pageSize}
+    </select>
+    <!--分页-查询订单数量version2-->
+    <select id="selectCount2" resultType="int">
+        SELECT COUNT(DISTINCT OrderCode) FROM b2c_shop_orders
+        <where>
+        <if test="departmentId != null">
+            And DepartmentId = #{departmentId}
+        </if>
+        <if test="pluteformid != null">
+            AND pluteformid = #{pluteformid}
+        </if>
+
+        <if test="orderCode!=null and orderCode!=''">
+            AND  OrderCode like concat('%',#{orderCode},'%')
+        </if>
+        <if test="buyerName!=null and buyerName!=''">
+            AND BuyerName LIKE CONCAT(CONCAT('%', #{buyerName}), '%')
+        </if>
+        <if test="shipName!=null and shipName!=''">
+            AND ShipName LIKE CONCAT(CONCAT('%', #{shipName}), '%')
+        </if>
+        <if test="buyerCellPhone!=null and buyerCellPhone!=''">
+            AND BuyerCellPhone like concat('%',#{buyerCellPhone},'%')
+        </if>
+        <if test="orderCheckStatus!=null">
+            AND OrderCheckStatus = #{orderCheckStatus}
+        </if>
+        <if test="shippingStatus!=null">
+            AND ShippingStatus = #{shippingStatus}
+        </if>
+        </where>
+    </select>
+    <!--处理商城订单时加上小组-->
+    <update id="orderSnagWx" parameterType="orderInfo">
+    UPDATE b2c_shop_orders SET DepartmentId = #{departmentId},RoleId = #{roleId},DepartmentName=#{departmentName},RealName=#{realName}
+    WHERE  OrderId = #{orderId}
+    </update>
+    <select id="selOrderItemByWeCart" resultType="orderItems" parameterType="orderInfo">
+    SELECT i.*
+    from b2c_shop_orderitems i
+    WHERE i.OrderId = #{orderId}
+    <if test="pluteformid !=null  and  pluteformid  !='' ">
+        AND i.pluteformid=#{pluteformid}
+    </if>
+    ORDER BY i.ItemId
+    </select>
+<!--根据订单orderCode和平台Id和购买人名字buyerName-->
+    <select id="selOrderByCodeAndBuyName" resultType="orderInfo" parameterType="orderInfo">
+        select  orderCode,orderId,OrderTotal,OrderCostPrice from b2c_shop_orders where OrderCode=#{orderCode}
+        AND pluteformid = #{pluteformid}
+        <if test="buyerName!=null and buyerName!=''">
+            AND BuyerName=#{buyerName}
+        </if>
+
+    </select>
+    <!--app端个人中心的订单信息-->
+    <select id="IndividualOrdersApp" parameterType="String" resultMap="OrderInfoBaseMap">
+        SELECT *
+        FROM b2c_shop_orders o,b2c_shop_orderitems i
+        WHERE o.orderId=i.orderId
+        AND buyerId=#{buyerId}
+    </select>
+    <!--总利润出来后，修改订单状态为已完成-->
+    <select id="updateOrderComplete" parameterType="String">
+        UPDATE b2c_shop_orders SET PurchasingStatus=3 WHERE orderCode=#{orderCode}
+    </select>
+
+    <!-- 微信用户修改订单状态，状态为2已完成的订单不允许修改 -->
+    <update id="updateOrderShippingStatusByUser">
+        update b2c_shop_orders set ShippingStatus = #{shippingStatus} where OrderCode = #{orderCode} and BuyerID = #{userId} and ShippingStatus != 2
+    </update>
+    <!-- 微信用户修改订单状态 -->
+    <update id="updateOrderPurchasingStatusByUser">
+        update b2c_shop_orders set PurchasingStatus = #{purchasingStatus} where OrderCode = #{orderCode} and BuyerID = #{userId}
+    </update>
+
+    <!-- 通过订单编号查询订单信息 -->
+    <select id="getOrderInfoByOrderCode" resultMap="OrderInfoBaseMap">
+        SELECT
+        <include refid="all_column"/>
+        FROM b2c_shop_orders
+        where pluteformid = #{platformId}
+        <if test="buyerName!='' and buyerName!=null">
+            AND BuyerName =#{buyerName}
+        </if>
+        AND OrderCode = #{orderCode}
+    </select>
+
+    <update id="updateItems" parameterType="orderItems">
+        update b2c_shop_orderitems set Attribute=#{attribute} where OrderId=#{orderId} and pluteformid=#{pluteformid}
+    </update>
+
+    <!--销量-->
+    <select id="championHip" resultMap="OrderInfoBaseMap" >
+        SELECT o.orderId,o.orderCode,o.createdDate,i.orderId,i.orderCode,i.productid,i.name,SUM(i.quantity) AS quantity,o.pluteformid,i.sellPrice
+        FROM b2c_shop_orders o,b2c_shop_orderitems i
+        WHERE o.orderCode=i.orderCode
+        <if test="startTime != null and startTime != ''">
+            AND o.createdDate &gt;= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            AND o.createdDate &lt;= #{endTime}
+        </if>
+        <if test="pluteformid != null and pluteformid != ''">
+            AND o.pluteformid = #{pluteformid}
+        </if>
+        GROUP BY i.productid
+        ORDER BY quantity DESC
+        Limit #{begionNumber},#{pageSize}
+    </select>
+    <select id="championHipCount" resultType="int">
+        SELECT COUNT(DISTINCT(i.productid))
+        FROM b2c_shop_orders o,b2c_shop_orderitems i
+        WHERE o.orderCode=i.orderCode
+        <if test="startTime != null and startTime != ''">
+            AND o.createdDate &gt;= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            AND o.createdDate &lt;= #{endTime}
+        </if>
+        <if test="pluteformid != null and pluteformid != ''">
+            AND o.pluteformid = #{pluteformid}
+        </if>
+    </select>
+    <!--订单量-->
+    <select id="orderQuantity" resultType="int">
+        SELECT COUNT(DISTINCT(o.orderCode))
+        FROM b2c_shop_orders o,b2c_shop_orderitems i
+        WHERE o.orderCode=i.orderCode
+        <if test="startTime != null and startTime != ''">
+            AND o.createdDate &gt;= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            AND o.createdDate &lt;= #{endTime}
+        </if>
+        <if test="pluteformid != null and pluteformid != ''">
+            AND o.pluteformid = #{pluteformid}
+        </if>
+    </select>
+    <!--月金额量-->
+    <select id="orderTotal" resultType="double">
+        SELECT SUM(o.orderTotal) FROM b2c_shop_orders o
+        WHERE 1=1
+        <if test="startTime != null and startTime != ''">
+            AND o.createdDate &gt;= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            AND o.createdDate &lt;= #{endTime}
+        </if>
+        <if test="pluteformid != null and pluteformid != ''">
+            AND o.pluteformid = #{pluteformid}
+        </if>
+    </select>
+    <!--商城下的店铺订单销量-->
+    <select id="emporiumShopChampionHip" resultMap="OrderInfoBaseMap" >
+        SELECT o.orderId,o.orderCode,o.createdDate,i.orderId,i.orderCode,i.productid,i.name,SUM(i.quantity) AS quantity,o.pluteformid,i.sellPrice
+        FROM b2c_shop_orders o,b2c_shop_orderitems i
+        WHERE o.orderCode=i.orderCode
+        AND i.ProductId IN
+        <foreach item="item" collection="productTds" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        <if test="startTime != null and startTime != ''">
+            AND o.createdDate &gt;= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            AND o.createdDate &lt;= #{endTime}
+        </if>
+        <if test="pluteformid != null and pluteformid != ''">
+            AND o.pluteformid = #{pluteformid}
+        </if>
+        GROUP BY i.productid
+        ORDER BY quantity DESC
+        Limit #{begionNumber},#{pageSize}
+    </select>
+    <select id="emporiumShopChampionHipCount" resultType="int">
+        SELECT COUNT(DISTINCT(i.productid))
+        FROM b2c_shop_orders o,b2c_shop_orderitems i
+        WHERE o.orderCode=i.orderCode
+        AND i.productid IN
+        <foreach item="item" collection="productTds" separator="," open="(" close=")" >
+            #{item}
+        </foreach>
+        <if test="startTime != null and startTime != ''">
+            AND o.createdDate &gt;= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            AND o.createdDate &lt;= #{endTime}
+        </if>
+        <if test="pluteformid != null and pluteformid != ''">
+            AND o.pluteformid = #{pluteformid}
+        </if>
+    </select>
+    <!--店铺订单量-->
+    <select id="shopOrderQuantity" resultType="int">
+        SELECT COUNT(DISTINCT(o.orderCode))
+        FROM b2c_shop_orders o,b2c_shop_orderitems i
+        WHERE o.orderCode=i.orderCode
+        AND i.productid IN
+        <foreach item="item" collection="productTds" separator="," open="(" close=")" >
+            #{item}
+        </foreach>
+        <if test="startTime != null and startTime != ''">
+            AND o.createdDate &gt;= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            AND o.createdDate &lt;= #{endTime}
+        </if>
+        <if test="pluteformid != null and pluteformid != ''">
+            AND o.pluteformid = #{pluteformid}
+        </if>
+    </select>
+    <!--店铺订单金额-->
+    <select id="shopOrderTotal" resultMap="OrderInfo">
+        SELECT DISTINCT(o.orderCode),SUM(o.orderTotal) ordertotal
+        FROM b2c_shop_orders o,b2c_shop_orderitems i
+        WHERE o.orderCode=i.orderCode
+        AND i.productid IN
+        <foreach item="item" collection="productTds" separator="," open="(" close=")" >
+            #{item}
+        </foreach>
+        <if test="startTime != null and startTime != ''">
+            AND o.createdDate &gt;= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            AND o.createdDate &lt;= #{endTime}
+        </if>
+        <if test="pluteformid != null and pluteformid != ''">
+            AND o.pluteformid = #{pluteformid}
+        </if>
+    </select>
+    <select id="selUserOrderTotal" resultType="double">
+        SELECT SUM(o.ordertotal)
+        FROM b2c_shop_orders o
+        WHERE buyerid=#{users.userId}
+        <if test="startTime != null and startTime != ''">
+            AND o.createdDate &gt;= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            AND o.createdDate &lt;= #{endTime}
+        </if>
+    </select>
+    <select id="selectOneOrderByOrderCode" resultMap="OrderInfoBaseMap" parameterType="orderInfo">
+      SELECT      *
+        FROM b2c_shop_orders o,b2c_shop_orderitems i
+        WHERE
+        o.orderCode=i.orderCode
+        AND
+        o.orderCode=#{orderCode}
+    </select>
+    <select id="getYUYUEOrderInfo" parameterType="page" resultMap="OrderInfoBaseMap">
+        select  * from b2c_appointment_order orders
+        INNER JOIN b2c_shop_orderitems  item on orders.OrderId=item.OrderId
+        where orders.OrderStatus=#{orderInfo.orderStatus} AND orders.BuyerName=#{orderInfo.buyerName} and orders.pluteformid=#{orderInfo.pluteformid}
+        limit #{beginNumber},#{pageSize}
+    </select>
+    <select id="getAppointmentData" resultMap="OrderInfoBaseMap" parameterType="appOrder">
+        SELECT
+        <include refid="all_column"/>
+        FROM b2c_appointment_order
+        <where>
+            <if test="departmentId != null">
+                And DepartmentId = #{departmentId}
+            </if>
+            <if test="pluteformid != null">
+                AND pluteformid = #{pluteformid}
+            </if>
+            <if test="orderCode!=null and orderCode!=''">
+                AND  OrderCode like concat('%',#{orderCode},'%')
+            </if>
+            <if test="buyerName!=null and buyerName!=''">
+                AND BuyerName LIKE CONCAT(CONCAT('%', #{buyerName}), '%')
+            </if>
+            <if test="shipName!=null and shipName!=''">
+                AND ShipName LIKE CONCAT(CONCAT('%', #{shipName}), '%')
+            </if>
+            <if test="buyerCellPhone!=null and buyerCellPhone!=''">
+                AND BuyerCellPhone like concat('%',#{buyerCellPhone},'%')
+            </if>
+            <if test="orderCheckStatus!=null">
+                AND OrderCheckStatus = #{orderCheckStatus}
+            </if>
+            <if test="shippingStatus!=null">
+                AND ShippingStatus = #{shippingStatus}
+            </if>
+        </where>
+        ORDER BY CreatedDate DESC
+        Limit #{begionNumber},#{pageSize}
+    </select>
+    <!--分页-查询订单数量version2-->
+    <select id="getAppointmentDataCount" resultType="int" parameterType="appOrder">
+        SELECT COUNT(DISTINCT OrderCode) FROM b2c_appointment_order
+        <where>
+            <if test="departmentId != null">
+                And DepartmentId = #{departmentId}
+            </if>
+            <if test="pluteformid != null">
+                AND pluteformid = #{pluteformid}
+            </if>
+
+            <if test="orderCode!=null and orderCode!=''">
+                AND  OrderCode like concat('%',#{orderCode},'%')
+            </if>
+            <if test="buyerName!=null and buyerName!=''">
+                AND BuyerName LIKE CONCAT(CONCAT('%', #{buyerName}), '%')
+            </if>
+            <if test="shipName!=null and shipName!=''">
+                AND ShipName LIKE CONCAT(CONCAT('%', #{shipName}), '%')
+            </if>
+            <if test="buyerCellPhone!=null and buyerCellPhone!=''">
+                AND BuyerCellPhone like concat('%',#{buyerCellPhone},'%')
+            </if>
+            <if test="orderCheckStatus!=null">
+                AND OrderCheckStatus = #{orderCheckStatus}
+            </if>
+            <if test="shippingStatus!=null">
+                AND ShippingStatus = #{shippingStatus}
+            </if>
+        </where>
+    </select>
+    <update id="updateAppOrderStatus" >
+        update b2c_appointment_order  set ${key}=#{value} where pluteformid=#{plueformId} and orderId=#{orderId}
+    </update>
+    <select id="selectGuesterInfo2" resultType="appOrder" parameterType="string">
+        SELECT
+        o.OrderId,o.BuyerName,o.BuyerEmail,o.BuyerCellPhone,o.ShipName,
+        o.ShipRegion,o.ShipAddress,o.ShipCellPhone,o.ShipZipCode,i.ThumbnailsUrl,
+        i.Name,i.SKU,i.Attribute,i.ShipmentQuantity,i.SellPrice,
+        i.SupplierName,i.BrandName
+        FROM b2c_appointment_order o,b2c_shop_orderitems i
+        WHERE
+        o.OrderId=i.OrderId
+        AND
+        o.OrderId=#{orderId}
+    </select>
+</mapper>

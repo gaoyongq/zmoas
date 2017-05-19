@@ -1,0 +1,102 @@
+#set($layout = "layout/user_layout.vm")
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li>修改</a></li>
+    </ul>
+</div>
+
+    <input type="hidden" value="$!name" id="name_01">
+<p class="show_1" style="color: red; font-weight: bold; "></p>
+<p class="show_2" style="color: orange;"></p>
+<form class="form-x" method="post" action="/business/updateUser.action?rankId=$!UserRank.rankId&name1=$!name" id="form1">
+  #*  <form class="form-x" method="post" action="/business/addUserLevel.action" >*#
+        <div class="form-group">
+            <div class="body-content">
+                <div class="label">
+                    <div for="sitename">等级:</div>
+                </div>
+                <div class="field">
+                    <input type="text"  value="$!UserRank.rankLevel" name="rankLevel" class="rankLevel">
+                </div>
+            </div>
+            <div class="body-content">
+                <div class="label">
+                    <div for="sitename">等级名称:</div>
+                </div>
+                <div class="field">
+                    <input type="text" value="$!UserRank.name" name="name" class="name">
+                </div>
+            </div>
+            <div class="body-content">
+                <div class="label">
+                    <div for="sitename">成长值上限:</div>
+                </div>
+                <div class="field">
+                    <input type="text" value="$!UserRank.scoreMax" name="scoreMax" class="scoreMax">
+                </div>
+            </div>
+            <div class="body-content">
+                <div class="label">
+                    <div for="sitename">成长值下限:</div>
+                </div>
+                <div class="field">
+                    <input type="text"  value="$!UserRank.scoreMin" name="scoreMin" class="scoreMin">
+                </div>
+            </div>
+            <div class="body-content">
+                <div class="label">
+                    <div for="sitename">等级描述:</div>
+                </div>
+                <div class="field">
+                    <textarea type="text"  style="height:80px;width: 25%;"  name="description" class="description">$!UserRank.description</textarea>
+                </div>
+            </div>
+            <div class="form-foot">
+                <button class="button border-green icon-check" type="submit"> 提交</button>&nbsp;
+                <input type="button" class="button border-blue button_01" value="返回"  />
+            </div>
+        </div>
+    </form>
+##              <p>等级级别:<input name="rankLevel" value="$!UserRank.rankLevel" class="rankLevel" style="width:200px;" type="text"></p>
+##              <p class="show_2" style="color: orange;"></p>
+##              <p>等级名称<input name="name" value="$!UserRank.name" class="name" style="width:200px;" type="text"></p>
+##              <p>成长值下限:<input name="scoreMin" value="$!UserRank.scoreMin" class="scoreMin"  style="width:200px;" type="text"></p>
+##              <p>成长值上限:<input name="scoreMax" value="$!UserRank.scoreMax" class="scoreMax"  style="width:200px;" type="text"></p>
+##              <p>成长值描述:
+##                <textarea name="description" rows="3" cols="20" class="description" style="width:320px;">
+##                    $!UserRank.description
+##                </textarea>
+##              </p>
+##    <input type="submit" value="保存" style="width: 65px;" id="form">
+##        </form>
+##    <input type="submit" value="取消" style="width:65px;margin-top: 25px;" class="button_01">
+
+
+<script>
+    $(".icon-check").click(function(){
+        var rankLevel=$(".rankLevel").val().trim();
+        var name=$(".name").val().trim();
+        var scoreMin=$(".scoreMin").val().trim();
+        var scoreMax=$(".scoreMax").val().trim();
+        var description=$(".description").val().trim();
+        var re= /^[0-9]$|^[1][0-9]$|^[2][0]$/;
+        if(rankLevel==""||name==""||scoreMin==""||scoreMax==""||description==""){
+            $(".show_2").text("");
+            $(".show_1").text("请将信息补充完整!!");
+            return false;
+        }else if(!re.test(rankLevel)){
+            $(".show_1").text("");
+            $(".show_2").text("输入0-20等级正确的格式!!!");
+            return false;
+        }else
+        {
+            return true;
+        }
+
+    });
+    $(".button_01").click(function(){
+        var name=$("#name_01").val();
+        window.location.href="/business/UserLevel.action?name="+name;
+    })
+</script>

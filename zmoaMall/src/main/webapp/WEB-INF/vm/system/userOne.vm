@@ -1,0 +1,115 @@
+#set($layout = "layout/empty.vm")
+<if test="$departmentResults==null">
+    <redirect url="showD.action">
+    </redirect></if>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script src="../../js/jquery.js"></script>
+</head>
+<body>
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li><a>编辑</a></li>
+    </ul>
+</div>
+<form action="update.action" method="post" class="form-x">
+    <input type="hidden" name="id" value="$userOne.id">
+    <div class="form-group">
+        <div class="body-content">
+            <div class="label">
+                <div>登录名:</div>
+            </div>
+            <div class="field">
+                <input type="text" name="name" value="$!userOne.name" class="input w50"  size="50">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">姓名</div>
+            </div>
+            <div class="field">
+                <input type="text" name="realName" value="$!userOne.realName" class="input w50"  size="50">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">部门</div>
+            </div>
+            <div class="field">
+                <select name="department.id" class="input w50">
+                    #foreach($r in $departmentResults)
+                        <option value="$r.id" #if($r.id==$userOne.department.id)
+                                selected="selected"
+                        #end>$!r.name</option>
+                        #foreach($rn in $r.departments)
+                            <option value="$rn.id" #if($r.id==$userOne.department.id)
+                                    selected="selected"
+                            #end>&nbsp;&nbsp;├$!rn.name</option>
+                        #end
+                    #end
+                </select>
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">部门描述</div>
+            </div>
+            <div class="field">
+                <input type="text" name="description" value="$!userOne.department.description" class="input w50"  size="50">
+            </div>
+         </div>
+        <div class="body-content">
+            <div class="label">
+                <div >性别</div>
+            </div>
+            <div class="field">
+                <select name="gender"  class="input w50">
+                <option value="男" $!userOne.gender=="男"?'selected':''}>男</option>
+                <option value="女" $!userOne.gender=="女"?'selected':''}>女</option>
+            </select>
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+            <div for="sitename">联系电话</div>
+            </div>
+            <div class="field">
+                <input type="text" name="phone" value="$!userOne.phone" class="input w50"  size="50">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">E-mail</div>
+            </div>
+            <div class="field">
+                <input type="text" name="email" value="$!userOne.email" class="input w50"  size="25">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div >备注</div>
+            </div>
+            <div class="field"> <textarea type="text" style="height:80px;width: 25%;" name="tits" >$!userOne.description</textarea>
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div >岗位描述</div>
+            </div>
+            <div class="field"> <textarea type="text" style="height:80px;width: 25%;"  name="description">$!userOne.roles.description</textarea>
+            </div>
+        </div>
+        <div class="form-foot">
+            <button class="button border-green icon-check" type="submit"> 提交</button>&nbsp;
+            <input type="button" class="button border-blue" value="返回" class="input-button" onclick="history.back();" />
+        </div>
+    </div>
+</form>
+</div>
+</body>
+</html>

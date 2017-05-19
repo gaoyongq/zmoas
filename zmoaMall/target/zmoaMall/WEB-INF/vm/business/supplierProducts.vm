@@ -1,0 +1,274 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>商家产品列表</title>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script type="text/javascript" src="/js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var last;
+            var next=2;
+            var currentPage=1;
+            if($page.totalPages==1){
+                next=1;
+            }
+            $("#find").click(function(){
+                var productName = $("#productName").val();
+                var sku = $("#sku").val();
+                jQuery.ajax({
+                    url: "/supplierProduct/blur.action?id=$id",
+                    type: 'POST',
+                    data: {'productName': productName,'sku':sku},
+                    dataType: 'json',
+                    success: function (data) {
+                        $("#pageInfo").text("")
+                        $("#pageInfo").append("共"+data.page.totalPages+"页 当前页"+ data.page.currentPage+"页 共"+data.page.totalCount+"条")
+                        var arr=data.supplierProductResults;
+                        var show="";
+                        if(arr==null || arr.length==0){
+
+                        }else{
+                            for(var i=0;i<arr.length;i++){
+                                show+="<tr><td><input type='checkbox' attr='check' name='check' value='"+arr[i].skuInfo.skuId+"'></td>";
+                                show+="<td>"+arr[i].productName+"</td>";
+                                show+="<td>"+arr[i].skuInfo.sku+"</td>";
+                                show+="<td>"+arr[i].prize+"</td>";
+                                show+="<td>"+arr[i].count+"</td></tr>";
+                               ## show+="<td><a class='button border-red' href='/supplierProduct/withdrawProduct.action?id="+data.id+"&currentPage="+data.page.currentPage+"&skuId="+arr[i].skuInfo.skuId+"'><span class='icon-trash-o'></span>删除</a> "+
+                                ##"<a class='button border-green' href='/supplierProduct/toUpdatePage.action?id="+data.id+"&currentPage="+data.page.currentPage+"&skuId="+arr[i].skuInfo.skuId+"'><span class='icon-edit'></span>修改</a></td></tr>";
+                            }
+                        }
+                        currentPage=data.page.currentPage;
+                        if(data.page.currentPage+1>data.page.totalPages){
+                            next=data.page.totalPages;
+                        }else{
+                            next=data.page.currentPage+1;
+                        }
+                        if(data.page.currentPage-1<=1){
+                            last=1;
+                        }else{
+                            last=data.page.currentPage-1;
+                        }
+                        $("#show tr").remove();
+                        $('#show').append(show);
+                    }
+                })
+            })
+            //上一页
+            $("#last").click(function(){
+                var productName = $("#productName").val();
+                var sku = $("#sku").val();
+                jQuery.ajax({
+                    url: "/supplierProduct/blur.action?id=$id",
+                    type: 'POST',
+                    data: {'productName': productName,'sku':sku,'currentPage':last},
+                    dataType: 'json',
+                    success: function (data) {
+                        $("#pageInfo").text("")
+                        $("#pageInfo").append("共"+data.page.totalPages+"页 当前页"+ data.page.currentPage+"页 共"+data.page.totalCount+"条")
+                        var arr=data.supplierProductResults;
+                        var show="";
+                        if(arr==null || arr.length==0){
+
+                        }else{
+                            for(var i=0;i<arr.length;i++){
+                                show+="<tr><td><input type='checkbox' attr='check' name='check' value='"+arr[i].skuInfo.skuId+"'></td>";
+                                show+="<td>"+arr[i].productName+"</td>";
+                                show+="<td>"+arr[i].skuInfo.sku+"</td>";
+                                show+="<td>"+arr[i].prize+"</td>";
+                                show+="<td>"+arr[i].count+"</td></tr>";
+                                ##show+="<td><a class='button border-red' href='/supplierProduct/withdrawProduct.action?id="+data.id+"&currentPage="+data.page.currentPage+"&skuId="+arr[i].skuInfo.skuId+"'><span class='icon-trash-o'></span>删除</a> "+
+                                ##"<a class='button border-green' href='/supplierProduct/toUpdatePage.action?id="+data.id+"&currentPage="+data.page.currentPage+"&skuId="+arr[i].skuInfo.skuId+"'><span class='icon-edit'></span>修改</a></td>";
+                            }
+                        }
+                        currentPage=data.page.currentPage;
+                        if(data.page.currentPage+1>data.page.totalPages){
+                            next=data.page.totalPages;
+                        }else{
+                            next=data.page.currentPage+1;
+                        }
+                        if(data.page.currentPage-1<=1){
+                            last=1;
+                        }else{
+                            last=data.page.currentPage-1;
+                        }
+                        $("#show tr").remove();
+                        $('#show').append(show);
+                    }
+                })
+            })
+            //下一页
+            $("#next").click(function(){
+                var productName = $("#productName").val();
+                var sku = $("#sku").val();
+                jQuery.ajax({
+                    url: "/supplierProduct/blur.action?id=$id",
+                    type: 'POST',
+                    data: {'productName': productName,'sku':sku,'currentPage':next},
+                    dataType: 'json',
+                    success: function (data) {
+                        $("#pageInfo").text("")
+                        $("#pageInfo").append("共"+data.page.totalPages+"页 当前页"+ data.page.currentPage+"页 共"+data.page.totalCount+"条")
+                        var arr=data.supplierProductResults;
+                        var show="";
+                        if(arr==null || arr.length==0){
+
+                        }else{
+                            for(var i=0;i<arr.length;i++){
+                                show+="<tr><td><input type='checkbox' attr='check' name='check' value='"+arr[i].skuInfo.skuId+"'></td>";
+                                show+="<td>"+arr[i].productName+"</td>";
+                                show+="<td>"+arr[i].skuInfo.sku+"</td>";
+                                show+="<td>"+arr[i].prize+"</td>";
+                                show+="<td>"+arr[i].count+"</td></tr>";
+                               ## show+="<td><a class='button border-red' href='/supplierProduct/withdrawProduct.action?id="+data.id+"&currentPage="+data.page.currentPage+"&skuId="+arr[i].skuInfo.skuId+"'><span class='icon-trash-o'></span>删除</a> "+
+                                ##"<a class='button border-green' href='/supplierProduct/toUpdatePage.action?id="+data.id+"&currentPage="+data.page.currentPage+"&skuId="+arr[i].skuInfo.skuId+"'><span class='icon-edit'></span>修改</a></td></tr>";
+                            }
+                        }
+                        currentPage=data.page.currentPage;
+                        if(data.page.currentPage+1>data.page.totalPages){
+                            next=data.page.totalPages;
+                        }else{
+                            next=data.page.currentPage+1;
+                        }
+                        if(data.page.currentPage-1<=1){
+                            last=1;
+                        }else{
+                            last=data.page.currentPage-1;
+                        }
+                        $("#show tr").remove();
+                        $('#show').append(show);
+                    }
+                })
+            })
+            //添加产品
+            $("#addSupplierProduct").click(function(){
+                $(this).attr('href',"/supplierProduct/toAddPage.action?id="+$id);
+                return true;
+            })
+            //产品下架
+            $("#withdrawProduct").click(function(){
+                var ids ='';
+                $("input[attr='check']").each(function(i,v){
+                    if($(v).is(":checked")){
+                        if(ids){
+                            ids+=',';
+                        }
+                        ids=ids+$(v).val();
+                    }
+
+                });
+                if(!ids){
+                    alert("你没选中任何记录");
+                    return false;
+                }
+                $(this).attr('href','/supplierProduct/withdrawProduct.action?id=$id&skuIds='+ids+'&currentPage='+currentPage+'');
+                return true;
+
+            });
+            //产品修改
+            $("#updateBtn").click(function(){
+                var ids ='';
+                $("input[attr='check']").each(function(i,v){
+                    if($(v).is(":checked")){
+                        if(ids){
+                            ids+=',';
+                        }
+                        ids=ids+$(v).val();
+                    }
+                });
+                if(!ids){
+                    alert("你没选中任何记录");
+                    return false;
+                }
+                if(ids.indexOf(',') != -1){
+                    alert("你只能选择一条记录");
+                    return false;
+                }
+                $(this).attr('href','/supplierProduct/toUpdatePage.action?id=$id&skuId='+ids+'&currentPage='+currentPage+'');
+                return true;
+            });
+
+
+        })
+    </script>
+
+</head>
+<body>
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li><a>供应商产品</a></li>
+    </ul>
+</div>
+<div class="divtbs">
+    产品名称:<input id="productName" class="input"  type="text" name="productName">
+    产品规格:<input id="sku" class="input"  type="text" name="sku">
+
+    <button class="button border-yellow" id="find" ><span class="icon-search">搜索</span></button>
+    ##<a class="button border-green icon-pencil" href="/supplierProduct/toAddPage.action?id=$id">添加产品</a>
+    #vela("/supplierProduct/toAddPage.action" "添加产品" "addSupplierProduct" "button border-green icon-pencil")
+    #vela("/supplierProduct/withdrawProduct.action" "产品下架" "withdrawProduct" "button border-green icon-pencil")
+    #vela("/supplierProduct/toUpdatePage.action" "产品修改" "updateBtn" "button border-green icon-pencil")
+</div>
+#*<div id="pageInfo">
+    共$page.totalPages页
+    当前页$page.currentPage页
+    共$page.totalCount条
+</div>*#
+<table class="table text-center">
+    <tr>
+        <th>选择</th>
+        <th>名称</th>
+        <th>规格</th>
+        <th>价格</th>
+        <th>库存</th>
+    </tr>
+    <tbody id="show">
+        #foreach($s in $supplierProductResults)
+            <tr>
+                <td><input type="checkbox" value="$s.skuInfo.skuId" attr="check" name="check"></td>
+                <td>$s.productName</td>
+                <td>$s.skuInfo.sku</td>
+                <td>$s.prize</td>
+                <td>$s.count</td>
+                #*<td><a class="button border-red" href="/supplierProduct/withdrawProduct.action?id=$id&currentPage=$page.currentPage&skuId=$s.skuInfo.skuId"><span class="icon-trash-o"></span>删除</a>
+                    <a class="button border-blue" href="/supplierProduct/toUpdatePage.action?id=$id&currentPage=$page.currentPage&skuId=$s.skuInfo.skuId"><span class="icon-edit"></span>修改</a>
+                </td>*#
+            </tr>
+        #end
+    </tbody>
+    <tfoot>
+
+    </tfoot>
+</table>
+   <div class="pagelist" align="right" >
+       <div id="pageInfo">
+           共$page.totalPages页
+           当前页$page.currentPage页
+           共$page.totalCount条
+       </div>
+       <input type="button" id="last" value="上一页"><input type="button" id="next" value="下一页">
+
+   </div>
+<table width="100%">
+    <div style="height: 5px"></div>
+    <tr align="right">
+        <td>
+            #*<div id="pageInfo">
+                共$page.totalPages页&nbsp;
+                当前页$page.currentPage页&nbsp;
+                共$page.totalCount条&nbsp;&nbsp;
+                <div class="pagelist">
+                    <input type="button" id="last" value="上一页"><input type="button" id="next" value="下一页">
+                </div>
+            </div>*#
+        </td>
+    </tr>
+</table>
+</body>
+</html>
+
+

@@ -1,0 +1,231 @@
+#set($layout = "layout/empty.vm")
+<html>
+    <head>
+        <!-- 导入jquery核心类库 -->
+        <script type="text/javascript"
+                src="../../js/jquery-1.8.3.js"></script>
+        <!-- 导入easyui类库 -->
+       <link id="easyuiTheme" rel="stylesheet" type="text/css"
+              href="../../js/easyui/themes/default/easyui.css">
+##        <link rel="stylesheet" type="text/css"
+##              href="../../js/easyui/themes/icon.css">
+##        <link rel="stylesheet" type="text/css"
+##              href="../../css/default.css">
+        <script type="text/javascript"
+                src="../../js/easyui/jquery.easyui.min.js"></script>
+        <link rel="stylesheet" href="../../css/zmoaStyle.css">
+        <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+
+
+        <script>
+            function consent(){
+
+                var distributionCode= $("#distributionCode").val()+",";
+                /*var approvePeople= $("#approvePeople").val();
+
+                if(approvePeople.trim()==""){
+                    alert("审批人必填")
+                    return false;
+                }*/
+
+
+
+                window.location.href="/business/distributionConsent.action?distributionCode="+distributionCode/*+"&approvePeople="+approvePeople*/;
+            }
+            function noConsent(){
+
+                var distributionCode= $("#distributionCode").val()+",";
+               /* var approvePeople= $("#approvePeople").val();
+                if(approvePeople.trim()==""){
+                    alert("审批人必填")
+                    return false;
+                }*/
+
+
+                window.location.href="/business/distributionNoConsent.action?distributionCode="+distributionCode/*+"&approvePeople="+approvePeople*/;
+            }
+
+
+        </script>
+    </head>
+    <body>
+    <div class="place">
+        <span class="icon-reorder">&nbsp;位置：</span>
+        <ul class="placeul">
+            <li><a>详细</a></li>
+        </ul>
+    </div>
+        <div>
+                <div class="divtbs">
+                    &nbsp; &nbsp; &nbsp; &nbsp;
+                    <input type="hidden" id="distributionCode" name="distributionCode" value="$!resultDistribution.distributionCode">
+##                    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+##                    <input type="submit"  value="审批同意" onclick="consent()"/>
+##                    <input type="submit"  value="审批不同意" onclick="noConsent()"/>
+                    <a class="button border-green" onclick="consent()"><span class="icon-check"></span> 审批同意</a>&nbsp;
+                    <a class="button border-red" onclick="noConsent()"><span ></span> 审批不同意</a>&nbsp;
+                </div>
+               #* <table  align="center" border="0" cellspacing="0" cellpadding="0"  class="wukuang" width="100%" >
+                    <input type="hidden" id="distributionCode" name="distributionCode" value="$!resultDistribution.distributionCode">
+                    <tr style="color: #0070a9">
+                        <td>
+                            <input type="submit"  value="审批同意" onclick="consent()"/>
+                        </td>
+                        <td>
+                            <input type="submit"  value="审批不同意" onclick="noConsent()"/>
+                        </td>
+
+                    </tr>
+
+                </table>*#
+                <table class="tableson"   border="1">
+                    <tr style="color: #0070a9">
+                        <td colspan="2">
+                            小组：
+                            $!resultDistribution.smallgroup
+                           #* <input type="text" name="smallgroup" value="$!resultDistribution.smallgroup" />*#
+                        </td>
+##                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td colspan="2">
+                            配送人员：
+                            $!resultDistribution.person
+                           #* <input type="text" name="person" value="$!resultDistribution.person" />*#
+                        </td>
+##                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td colspan="2">
+                            车号：
+                            $!resultDistribution.number
+                            #*<input name="number"  value="$!resultDistribution.number" />*#
+                        </td>
+##                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td colspan="2">
+                            起始时间：
+                            $!resultDistribution.startTime
+                           #* <input name="startTime" value="$!resultDistribution.startTime" />*#
+                        </td>
+##                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td colspan="2">
+                            截止时间：
+                            $!resultDistribution.endTime
+                          #*  <input name="endTime" value="$!resultDistribution.endTime" />*#
+                        </td>
+##                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>采购单编号</td>
+                        <td>订单编号</td>
+                        <td>货物种类</td>
+                        <td>订单数量</td>
+                        <td>实际数量</td>
+                        <td>重量</td>
+                        <td>收货人地址</td>
+                        <td>电话</td>
+                        <td>公里数</td>
+                        <td>油耗/元/km</td>
+                        <td>备注</td>
+                    </tr>
+                    #foreach($DistributionSon in $resultList)
+                        <tr>
+                            <td>$!DistributionSon.purchaseCode</td>
+                            <td>$!DistributionSon.orderCode</td>
+                            <td>$!DistributionSon.kind</td>
+                            <td>$!DistributionSon.orderNumber</td>
+                            <td>$!DistributionSon.practicalNumber</td>
+                            <td>$!DistributionSon.weight</td>
+                            <td>$!DistributionSon.address</td>
+                            <td>$!DistributionSon.phone</td>
+                            <td>$!DistributionSon.kilometre</td>
+                            <td>$!DistributionSon.consume</td>
+                            <td>$!DistributionSon.remark</td>
+
+                           #* <td><input name="orderCode" value="$!DistributionSon.orderCode"></td>
+                            <td><input name="zhonglei" value="$!DistributionSon.kind"></td>
+                            <td><input name="ddsl" value="$!DistributionSon.orderNumber"></td>
+                            <td><input name="sjsl" value="$!DistributionSon.practicalNumber"></td>
+                            <td><input name="sjzl" value="$!DistributionSon.weight"></td>
+                            <td><input name="shipAddress" value="$!DistributionSon.address"></td>
+                            <td><input name="shipCellPhone" value="$!DistributionSon.phone"></td>
+                            <td><input type="text" name="kilometre" value="$!DistributionSon.kilometre" ></td>
+                            <td><input type="text" name="consume" value="$!DistributionSon.consume"></td>
+                            <td><input type="text" name="remark" value="$!DistributionSon.remark"></td>*#
+
+
+                        </tr>
+
+                    #end
+                    <tr>
+                        <td>
+                            合计：
+
+                        </td>
+                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td>
+                            $!resultDistribution.allOrderNumber
+                           #* <input name="allOrderNumber" value="$!resultDistribution.allOrderNumber" />*#
+                        </td>
+                        <td>
+                            $!resultDistribution.allRealNumber
+                           #* <input name="allRealNumber" value="$!resultDistribution.allRealNumber" />*#
+                        </td>
+                        <td>
+                            $!resultDistribution.allRealWeigth
+                          #*  <input name="allRealWeigth" value="$!resultDistribution.allRealWeigth" />*#
+                        </td>
+
+                        <td colspan="2">
+                            预支差旅费：
+                            $!resultDistribution.money
+                           #* <input name="money" value="$!resultDistribution.money"/>*#
+                        </td>
+##                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td colspan="2">
+                            装车完毕时间：
+                            $!resultDistribution.truckFinishTime
+                           #* <input name="truckFinishTime" value="$!resultDistribution.truckFinishTime"/>*#
+                        </td>
+##                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    </tr>
+                    #*<tr>
+                        <td>
+                            审批：
+                            <input type="text" id="approvePeople"  name="approvePeople" value=" " />
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            组长：
+                            $!resultDistribution.groupLeader
+                           *##* <input type="text" id="groupLeader"  name="groupLeader" value=" $!resultDistribution.groupLeader" readonly="readonly"/>*##*
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+
+                        <td>
+                            制表人：
+                            $!resultDistribution.ister
+                           *##* <input type="text" id="ister"  name="ister" value=" $!resultDistribution.ister" readonly="readonly"/>*##*
+                        </td>
+                        <td></td>
+                    </tr>*#
+                </table>
+
+        </div>
+
+
+    </body>
+
+</html>
+
+
+
+
+
+
+
+

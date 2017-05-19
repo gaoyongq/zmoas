@@ -1,0 +1,61 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script src="../../js/jquery.js"></script>
+</head>
+<body>
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li><a>录入</a></li>
+    </ul>
+</div>
+<form action="addRole.action" method="post" class="form-x">
+    <div class="form-group">
+        <div class="body-content">
+            <div class="label">
+                <div>岗位名称:</div>
+            </div>
+            <div class="field">
+                <input type="text" name="name" >
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div>岗位说明:</div>
+            </div>
+            <div class="field">
+                <input type="text" name="description" >
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div>部门名称:</div>
+            </div>
+            <div class="field">
+                <select name="department.id">
+                    <option value="0">无上级部门</option>
+                    #foreach($r in $departmentResults)
+                        <option value="$r.id" #if($r.id==$departmentResult.department.id)
+                                selected="selected"
+                        #end>$r.name</option>
+                        #foreach($rn in $r.departments)
+                            <option value="$rn.id" #if($rn.id==$departmentResult.department.id)
+                                    selected="selected"
+                            #end>&nbsp;&nbsp;├$rn.name</option>
+                        #end
+                    #end
+                </select>
+            </div>
+        </div>
+        <div class="form-foot">
+            <button class="button border-green icon-check" type="submit"> 提交</button>&nbsp;
+            <input type="button" class="button border-blue" value="返回" class="input-button" onclick="history.back();" />
+        </div>
+    </div>
+</form>
+</body>

@@ -1,0 +1,181 @@
+#set($layout = "layout/user_layout.vm")
+##<style>
+##     div{
+##        #ccc;
+##    }
+##    form input,select
+##    {
+##        margin-top: 20px;
+##    }
+##
+##    b{
+##        margin-right: 15px;
+##    }
+##</style>
+<input type="hidden" value="$!userId" id="userId">
+<input type="hidden" value="$!text" id="text_01">
+<input type="hidden" value="$!activity" id="activityId"> #*是否激活*#
+<input type="hidden" value="$!keyWord" id="keyId"> #*关键字*#
+<input type="hidden" value="$!beforeTime" id="beforeTimeId">
+<input type="hidden" value="$!afterTime" id="afterTimeId">
+<input type="hidden" value="$!page" id="pageId">
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li>$!name的收货地址</li>
+    </ul>
+</div>
+        <form class="form-x" method="post" action="/business/userShipAddress.action?userId=$!userId&name=$!name&text=$!text&activity=$!activity&keyWord=$!keyWord&beforeTime=$!beforeTime&afterTime=$!afterTime&page=$!page">
+            <div class="form-group">
+                <div class="body-content">
+                    <div class="label">
+                        <div for="sitename">收货人:</div>
+                    </div>
+                    <div class="field">
+                        <input type="text" value="$!ship.shipName" name="shipName">
+                    </div>
+                </div>
+                <div class="body-content">
+                    <div class="label">
+                        <div for="sitename">所在地区:</div>
+                    </div>
+                    <div class="field">
+                        <select name="" id="province">
+
+                        </select>
+                        <select name="" id="city" ">
+
+                        </select>
+                        <select name="regionId" id="area">
+
+                        </select>
+                    </div>
+                </div>
+                <div class="body-content">
+                    <div class="label">
+                        <div for="sitename">详细地址:</div>
+                    </div>
+                    <div class="field">
+                        <input type="text" value="$!ship.address" class="address" name="address">
+                    </div>
+                </div>
+                <div class="body-content">
+                    <div class="label">
+                        <div for="sitename">手机号码:</div>
+                    </div>
+                    <div class="field">
+                        <input type="text" value="$!ship.telPhone" class="telPhone" name="telPhone">
+                    </div>
+                </div>
+                <div class="body-content">
+                    <div class="label">
+                        <div for="sitename">邮编:</div>
+                    </div>
+                    <div class="field">
+                        <input type="text" value="$!ship.zipcode" class="zipcode" name="zipcode">
+                    </div>
+                </div>
+                <div class="form-foot">
+                    <button class="button border-green icon-check" type="submit"> 提交</button>&nbsp;
+                    <input type="button" class="button border-blue input-button" value="返回"  onclick="history.back(-1);" />
+                </div>
+                </form>
+            </div>
+##
+##            <b>收货人:</b> <input type="text" value="$!ship.shipName" name="shipName"><br>
+##            <b> 所在地区:</b><select name="" id="province" style="color: orange;">
+##
+##                  </select>
+##            <select name="" id="city" style="color: orange;display: none;">
+##
+##            </select>
+##            <select name="regionId" id="area" style="color: orange;display: none;">
+##
+##            </select><br>
+##            <b>详细地址:</b><input type="text" value="$!ship.address" class="address" name="address"><br>
+##            <b>手机号码:</b><input type="text" value="$!ship.telPhone" class="telPhone" name="telPhone"><br>
+##            <b>邮编:</b><input type="text" value="$!ship.zipcode" class="zipcode" name="zipcode"><br>
+##              <input type="submit" value="保存" style="width:105px;">
+##            <input type="button" value="返回" style="width:105px;" id="return_01">
+<script>
+
+    $(function(){
+            $("#return_01").click(function(){
+                window.location.href="/business/pageBeanUser.action?text=$!text&keyWord=$!keyWord&activity=$!activity&beforeTime=$!beforeTime&afterTime=$!afterTime&page=$!page";
+            });
+    })
+        /**
+         * 获取所有的省份
+         */
+        $(function(){
+            jQuery.ajax({
+                url: "/business/Province.action",
+                type: 'POST',
+                data: {depth: 1},
+                dataType: 'json',
+                success: function (data) {
+                    var arr = eval(data);
+                    var path="";
+                    var str = "<option value=''>==请选择省份==</option>";
+                    for (var i = 0; i < arr.length; i++) {
+                        //显示在页面
+                        str +="<option value='"+arr[i]['regionId']+"'>"+arr[i]['regionName']+"</option>";//省份名称
+                    }
+                    str+="";
+                    $("#province").html(str);
+
+
+                }
+            })
+
+            $("#province").change(function(){
+              var id=  $("#province").prop("value");//获取省份的id 查找市
+                $("#area").hide();
+                cityShow(id);
+            })
+            function cityShow(id)
+            {
+                jQuery.ajax({
+                    url: "/business/city.action",
+                    type: 'POST',
+                    data: {parentId: id},
+                    dataType: 'json',
+                    success: function (data) {
+                        var arr = eval(data);
+                        var str = "<option value=''>==请选择市==</option>";
+                        for (var i = 0; i < arr.length; i++) {
+                            //显示在页面
+                            str +="<option value='"+arr[i]['regionId']+"'>"+arr[i]['regionName']+"</option>";//省份名称
+                        }
+                        str+="";
+                        $("#city").html(str);
+                        $("#city").show();
+                    }
+                });
+            }
+            $("#city").change(function(){
+                var id=$(this).prop("value");
+                areaShow(id);
+            })
+           function areaShow(id){
+               jQuery.ajax({
+                   url: "/business/area.action",
+                   type: 'POST',
+                   data: {parentId: id},
+                   dataType: 'json',
+                   success: function (data) {
+                       var arr = eval(data);
+                       var str = "<option value=''>==请选择区域==</option>";
+                       for (var i = 0; i < arr.length; i++) {
+                           //显示在页面
+                           str +="<option value='"+arr[i]['regionId']+"'>"+arr[i]['regionName']+"</option>";//省份名称
+                       }
+                       str+="";
+                       $("#area").html(str);
+                       $("#area").show();
+                   }
+               });
+
+           }
+        })
+</script>

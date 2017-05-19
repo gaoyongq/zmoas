@@ -1,0 +1,211 @@
+#set($layout = "layout/empty.vm")
+<html>
+    <head>
+        <!-- 导入jquery核心类库 -->
+        <script type="text/javascript"
+                src="../../js/jquery-1.8.3.js"></script>
+        <!-- 导入easyui类库 -->
+       <link id="easyuiTheme" rel="stylesheet" type="text/css"
+              href="../../js/easyui/themes/default/easyui.css">
+##        <link rel="stylesheet" type="text/css"
+##              href="../../js/easyui/themes/icon.css">
+##        <link rel="stylesheet" type="text/css"
+##              href="../../css/default.css">
+        <link rel="stylesheet" href="../../css/zmoaStyle.css">
+        <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+        <script type="text/javascript"
+                src="../../js/easyui/jquery.easyui.min.js"></script>
+
+        <script>
+            $(function(){
+                var currentPage = "1";
+                var totalPages;
+                selData();
+                function selData(){
+
+                    jQuery.post("/business/selectDistributionNoConsent.action",{"currentPage":currentPage},function(data){
+
+                        if(data.resultDistribution==null){
+                            $("#mytbody").html("<tr><td colspan='11' algin='center'>查无结果</td></tr>");
+                        }else {
+
+                            var resultData = "";
+                            for (var j = 0; j < data.resultDistribution.length; j++) {
+                                //alert(data.resultPurchaseItems[j].orderCode)
+                                resultData += "<tr><td><input type='checkbox' class='skuattr' name='purchaseCheck' id='showproduct'value='"+data.resultDistribution[j].distributionCode+"' /></td>";
+                                resultData += "<td>" + data.resultDistribution[j].distributionCode + "</td>";
+                                //resultData += "<td> <label  title='"+data.resultPurchaseItems[j].productName+"' style='cursor: pointer;'>" + cutstr(data.resultPurchaseItems[j].productName,10) + "</td>";
+                                resultData += "<td>" + data.resultDistribution[j].smallgroup + "</td>";
+                                resultData += "<td>" + data.resultDistribution[j].person + "</td>";
+                                resultData += "<td>" + data.resultDistribution[j].number + "</td>";
+                                resultData += "<td>" + data.resultDistribution[j].allOrderNumber + "</td>";
+                                resultData += "<td>" + data.resultDistribution[j].allRealNumber + "</td>";
+                                resultData += "<td>" + data.resultDistribution[j].allRealWeigth + "</td>";
+                                resultData += "<td>" + data.resultDistribution[j].startTime+"</td>";
+                                resultData += "<td>" + data.resultDistribution[j].endTime+ "</td>";
+                                resultData += "<td>" + data.resultDistribution[j].money+ "</td>";
+                                resultData += "<td>" + data.resultDistribution[j].truckFinishTime+ "</td>";
+//                                resultData += "<td><input type=submit value=修改 onclick=update(distributionCode='"+ data.resultDistribution[j].distributionCode +"')></td><tr>";
+                                resultData += "<td> <a class='button border-blue' onclick=update(distributionCode='"+ data.resultDistribution[j].distributionCode +"')><span class='icon-file-alt'>详情</span></a></td><tr>";
+
+                            }
+                            $("#mytbody").html(resultData);
+                            currentPage = data.currentPage;
+                            totalPages=data.totalPages;
+                            $("#page").html("" + currentPage + " / " + data.totalPages + "");
+                            ajaxLoadEnd();
+                        }
+                    });
+                }
+                //上一页
+                $("#upPage").click(function(){
+                    if(currentPage==1){
+                        alert("当前已经是第一页")
+                    }else{
+                        currentPage = currentPage-1;
+                        selData();
+                    }
+                });
+
+                //下一页
+                $("#downPage").click(function () {
+                    if(currentPage==totalPages){
+                        alert("已经是最后一页")
+                    }else{
+                        currentPage=currentPage+1;
+                        selData();
+                    }
+                });
+
+
+            });
+            function update(distributionCode){
+
+                /*alert(distributionCode);*/
+                window.location.href="/business/distributionSonUpdate.action?distributionCode="+distributionCode;
+            }
+           /* function consent(){
+
+                var distributionCode="";
+                jQuery("input[name=purchaseCheck]").each(function() {
+
+                    if ($(this).prop("checked")) {
+                        distributionCode += $(this).val()+",";
+
+                    }
+                });
+
+                if(distributionCode==""){
+                    alert("至少选中一条报销!!!")
+                    return false;
+                }
+
+
+                window.location.href="/examineApprove/distributionConsent.action?distributionCode="+distributionCode;
+            }
+            function noConsent(){
+
+                var distributionCode="";
+                jQuery("input[name=purchaseCheck]").each(function() {
+
+                    if ($(this).prop("checked")) {
+                        distributionCode += $(this).val()+",";
+
+                    }
+                });
+
+                if(distributionCode==""){
+                    alert("至少选中一条记录!!!")
+                    return false;
+                }
+
+
+                window.location.href="/examineApprove/distributionNoConsent.action?distributionCode="+distributionCode;
+            }*/
+
+
+
+
+        </script>
+    </head>
+    <body>
+    <div class="place">
+        <span class="icon-reorder">&nbsp;位置：</span>
+        <ul class="placeul">
+            <li><a>审核不通过</a></li>
+        </ul>
+    </div>
+   #* <div>
+        <table  align="center" border="0" cellspacing="0" cellpadding="0"  class="wukuang" width="100%" >
+            <tr style="color: #0070a9">
+                <td>
+                    <input type="submit"  value="审批同意" onclick="consent()"/>
+                </td>
+                <td>
+                    <input type="submit"  value="审批不同意" onclick="noConsent()"/>
+                </td>
+
+            </tr>
+
+        </table>
+
+    </div>*#
+
+
+        <div>
+            <table class="table">
+                <thead>
+                <th width="5%"></th>
+                <th width="5%">序号</th>
+                <th>物流配送编号</th>
+                <th>小组</th>
+                <th>配送人员</th>
+                <th>车牌号</th>
+                <th>订单总数量</th>
+                <th>采购总数量</th>
+                <th>采购总数量</th>
+                <th>起始时间</th>
+                <th>结束时间</th>
+                <th>预支差旅费</th>
+                <th>装车完毕时间</th>
+                <th> &nbsp; &nbsp; &nbsp; &nbsp;</th>
+                </thead>
+                <tbody id="mytbody"></tbody>
+
+                #*<tr>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                </tr>*#
+               #* <tr><td colspan="11" align="right"><font id="page"></font> &nbsp;&nbsp;<a href="#" id="upPage">上一页</a>&nbsp;&nbsp;<a href="#" id="downPage">下一页</a></td></tr>*#
+            </table>
+            <div>
+                <table width="100%">
+                    <tr><td colspan="11" align="right"><font id="page"></font> &nbsp;&nbsp;<a href="#" id="upPage">上一页</a>&nbsp;&nbsp;<a href="#" id="downPage">下一页</a></td></tr>
+                </table>
+
+            </div>
+     </div>
+
+
+    </body>
+
+</html>
+
+
+
+
+
+
+
+

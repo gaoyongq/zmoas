@@ -1,0 +1,81 @@
+#set($layout = "layout/empty.vm")
+
+<table class="easyui-datagrid" data-options="
+        fit: true,
+        border: false
+        ">
+    <thead>
+        <tr>
+            <th data-options="field:'code'" width="20%">名称</th>
+            <th data-options="field:'name'" width="80%">信息</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>商店名称</td><td>$!{shopInfo.name}</td>
+        </tr>
+        <tr>
+            <td>成立时间</td><td>$!date.format('yyyy-MM-dd HH:mm:ss', $!{shopInfo.establishedDate})</td>
+        </tr>
+        <tr>
+            <td>注册资本</td><td>$!{shopInfo.registeredCapital}</td>
+        </tr>
+        <tr>
+            <td>账户余额</td><td>$!{shopInfo.balance}</td>
+        </tr>
+        <tr>
+            <td>电话</td><td>$!{shopInfo.telPhone}</td>
+        </tr>
+        <tr>
+            <td>手机</td><td>$!{shopInfo.cellPhone}</td>
+        </tr>
+        <tr>
+            <td>联系邮箱</td><td>$!{shopInfo.contactMail}</td>
+        </tr>
+        <tr>
+            <td>详细地址</td><td>$!{shopInfo.address}</td>
+        </tr>
+        <tr>
+            <td>联系人</td><td>$!{shopInfo.contact}</td>
+        </tr>
+        <tr>
+            <td>传真</td><td>$!{shopInfo.fax}</td>
+        </tr>
+        <tr>
+            <td>邮编</td><td>$!{shopInfo.postCode}</td>
+        </tr>
+        <tr>
+            <td>主页</td><td>$!{shopInfo.homePage}</td>
+        </tr>
+        <tr>
+            <td>法人</td><td>$!{shopInfo.artiPerson}</td>
+        </tr>
+        <tr>
+            <td>商家等级</td><td>$!{shopInfo.rank}</td>
+        </tr>
+        <tr>
+            <td>商家分类</td><td>$!{shopInfo.categoryId}</td>
+        </tr>
+        <tr>
+            <td>公司性质</td><td>$!{shopInfo.companyType}</td>
+        </tr>
+        <tr>
+            <td>税务登记</td><td>$!{shopInfo.taxNumber}</td>
+        </tr>
+        <tr>
+            <td>开户银行</td><td>$!{shopInfo.accountBank}</td>
+        </tr>
+        <tr>
+            <td>账号信息</td><td>$!{shopInfo.accountInfo}</td>
+        </tr>
+        <tr>
+            <td>MSN</td><td>$!{shopInfo.msn}</td>
+        </tr>
+        <tr>
+            <td>商家介绍</td><td>$!{shopInfo.introduction}</td>
+        </tr>
+        <tr>
+            <td>备注</td><td>$!{shopInfo.reMark}</td>
+        </tr>
+    </tbody>
+</table>

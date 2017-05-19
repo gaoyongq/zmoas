@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.zm.mall.dao.system.systemCode.DeptSystemCodeDao">
+
+    <update id="updateDeptCode">
+        update b2c_item_system_code
+            <set>
+                <if test="code!=null">code = #{code},</if>
+                <if test="name!=null">name = #{name},</if>
+                <if test="description!=null">description = #{description},</if>
+            </set>
+        where id = #{codeId}
+    </update>
+
+    <insert id="insertDeptCode">
+        insert into b2c_item_system_code (
+            id,
+            fid,
+            code,
+            name,
+            description,
+            value,
+            pluteformid
+        ) values (
+            null,
+            #{codeParentId},
+            #{code},
+            #{name},
+            #{description},
+            1,
+            #{platformId}
+        )
+    </insert>
+
+    <update id="updateDept">
+        update b2c_department set code = #{code} where id = #{id}
+    </update>
+
+
+    <resultMap id="deptCodeMap" type="com.zm.mall.domain.system.systemCode.DeptSystemCode">
+        <id property="id" column="lv1_dept_id" />
+        <result property="codeId" column="lv1_code_id" />
+        <result property="codeParentId" column="lv1_code_fid" />
+        <result property="deptParentId" column="lv1_dept_departmentid" />
+        <result property="platformId" column="lv1_dept_pluteformid" />
+        <result property="name" column="lv1_dept_name" />
+        <result property="code" column="lv1_dept_code" />
+        <result property="description" column="lv1_code_description" />
+        <collection property="subDeptSystemCodeList" ofType="com.zm.mall.domain.system.systemCode.DeptSystemCode">
+            <id property="id" column="lv2_dept_id" />
+            <result property="deptParentId" column="lv2_dept_departmentid" />
+            <result property="platformId" column="lv2_dept_pluteformid" />
+            <result property="name" column="lv2_dept_name" />
+            <result property="code" column="lv2_dept_code" />
+        </collection>
+    </resultMap>
+
+    <select id="getDeptCodeListByDeptParentId" resultMap="deptCodeMap">
+        select
+            lv1_dept.id as lv1_dept_id,
+            lv1_dept.name as lv1_dept_name,
+            lv1_dept.description as lv1_dept_description,
+            lv1_dept.departmentid as lv1_dept_departmentid,
+            lv1_dept.pluteformid as lv1_dept_pluteformid,
+            lv1_dept.code as lv1_dept_code,
+
+            lv1_code.id as lv1_code_id,
+            lv1_code.fid as lv1_code_fid,
+            lv1_code.code as lv1_code_code,
+            lv1_code.name as lv1_code_name,
+            lv1_code.description as lv1_code_description,
+            lv1_code.value as lv1_code_value,
+            lv1_code.pluteformid as lv1_code_pluteformid,
+
+            lv2_dept.id as lv2_dept_id,
+            lv2_dept.name as lv2_dept_name,
+            lv2_dept.description as lv2_dept_description,
+            lv2_dept.departmentid as lv2_dept_departmentid,
+            lv2_dept.pluteformid as lv2_dept_pluteformid,
+            lv2_dept.code as lv2_dept_code
+
+        from b2c_department lv1_dept
+            left join b2c_item_system_code lv1_code on lv1_dept.code = lv1_code.code
+                and lv1_dept.pluteformid = lv1_code.pluteformid
+            left join b2c_department lv2_dept on lv2_dept.departmentid = lv1_dept.id
+        where lv1_dept.pluteformid = #{platformId}
+        <choose>
+            <when test="deptParentId != null">
+                AND lv1_dept.departmentid = #{deptParentId}
+            </when>
+            <otherwise>
+                AND lv1_dept.departmentid is NULL
+            </otherwise>
+        </choose>
+
+    </select>
+
+
+</mapper>

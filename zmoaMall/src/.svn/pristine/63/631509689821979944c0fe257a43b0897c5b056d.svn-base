@@ -1,0 +1,117 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>兆美自营产品分配</title>
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/default/easyui.css">
+
+    <script type="text/javascript" src="/js/jeasyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-filter.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-detailview.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-cellediting.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="/js/date-zh-CN.js"></script>
+</head>
+<body>
+
+<table id="dg" class="easyui-treegrid" data-options="
+        url: '/business/getZMProductCategoriesByParentId',
+        toolbar:'#tb',
+        fitColumns:true,
+        title:'兆美产品列表',
+        border:false,
+        fit:true,
+        singleSelect:true,
+        idField: 'id',
+        treeField: 'text',
+        onLoadSuccess:function(data) {
+            $('.desc').linkbutton({text:'设为自营',plain:true,iconCls:'icon-add'});
+            $('.desc1').linkbutton({text:'取消自营',plain:true,iconCls:'icon-cancel'});
+        }
+    ">
+    <thead>
+    <tr>
+        <th data-options="field:'id',align:'left'" width="10%">ID</th>
+        <th data-options="field:'text',align:'left'" width="50%">名称</th>
+        <th data-options="field:'_operate',formatter:operateFormatter" width="40%">操作</th>
+    </tr>
+    </thead>
+</table>
+
+<!-- toolbar -->
+<div id="tb" style="padding:2px 5px;">
+
+</div>
+
+
+<script>
+
+    //定义startsWith函数
+    if (typeof String.prototype.startsWith != 'function') {
+        String.prototype.startsWith = function (prefix){
+            return this.slice(0, prefix.length) === prefix;
+        };
+    }
+
+    function operateFormatter(value, row, index) {
+        var idStr = row.id + "";
+        if (idStr.startsWith("prod")) {
+            var param = "'" + row.id + "','" + row.selfSell + "','" + index + "'";
+            var str;
+            if (row.selfSell == false) {
+                str = '<a href="#" onclick="updateAsSelfProduct(' + param + ', this)" class="desc" class="easyui-linkbutton"></a>';
+            } else {
+                str = '<a href="#" onclick="updateAsSelfProduct(' + param + ', this)" class="desc1" class="easyui-linkbutton"></a>';
+            }
+            return str;
+        } else {
+            return "";
+        }
+
+    }
+
+
+    /**
+     * 时间格式化字符串
+     */
+    function dateFormatter(value, row, index) {
+        return new Date(value).toString("yyyy-MM-dd HH:mm:ss");
+    }
+
+
+
+    function updateAsSelfProduct(id, selfSell, index, item) {
+        if (selfSell == true || selfSell == 'true') {
+            selfSell = 0;
+        } else {
+            selfSell = 1;
+        }
+
+        jQuery.ajax({
+            url: '/business/updateSelfProduct',
+            type: 'post',
+            data: 'productId='+id+'&selfSell='+selfSell,
+            dataType: 'json',
+            success: function(data) {
+                $('#dg').treegrid("reload");
+                /*if (selfSell == 0)
+                    $(item).linkbutton({text:'设为自营',plain:true,iconCls:'icon-add'});
+                else
+                    $(item).linkbutton({text:'取消自营',plain:true,iconCls:'icon-cancel'});*/
+
+            },
+            error: function() {
+                alert("请求失败");
+            }
+        });
+    }
+
+
+</script>
+
+</body>
+</html>

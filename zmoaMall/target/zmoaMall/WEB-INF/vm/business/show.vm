@@ -1,0 +1,301 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>查询产品</title>
+    <link rel="stylesheet" type="text/css" href="../../css/colorbox.css">
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script type="text/javascript" src="/js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="../../../js/zooming.js"></script>
+    <script type="text/javascript" src="/js/jquery.colorbox-min.js"></script>
+    <script type="text/javascript" src="/js/jquery.colorbox.js"></script>
+    <script type="text/javascript" src="/layer/layer.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            var currentPage = "1";
+            var totalPages;
+            var cate = "";//分类路径
+            //动态插入分类
+            jQuery.post("/business/selCategory.action",function(data){
+                var select = "<option value='' checked='checked'>全部</option>";
+                for(var i = 0;i<data.length;i++){
+                    select +="<option value='"+data[i].categoryId+"' checked='checked'>"+data[i].name+"</option>";
+                }
+                $("#categoryId").append(select);
+            });
+            selData();
+            //获得二级分类
+            $("#categoryId").change(function(){
+                var select = "<option value='' checked='checked'>全部</option>";
+                var fatherId = $("#categoryId option:selected").val();
+                var depath = "2";
+                cate ="";
+                if(fatherId != null && fatherId !=''){
+                    jQuery.post("/business/selCategory.action",{"fatherId":fatherId,"depath":depath},function(data){
+                        for(var s = 0;s<data.length;s++){
+                            select +="<option value='"+data[s].categoryId+"' checked='checked'>"+data[s].name+"</option>"
+                        }
+                        $("#second option").remove();
+                        $("#three option").remove();
+                        $("#second").append(select);
+                        $("#three").append(select);
+                    });
+                }else{
+                    $("#second option").remove();
+                    $("#second").append(select);
+                    $("#three option").remove();
+                    $("#three").append(select);
+                }
+            });
+            //获得三级分类
+            $("#second").change(function(){
+                var select = "<option value='' checked='checked'>全部</option>";
+                var fatherId = $("#second option:selected").val();
+                var depath = "3";
+                if(fatherId != null && fatherId !=''){
+                    jQuery.post("/business/selCategory.action",{"fatherId":fatherId,"depath":depath},function(data){
+                        for(var s = 0;s<data.length;s++){
+                            select +="<option value='"+data[s].categoryId+"' checked='checked'>"+data[s].name+"</option>"
+                        }
+                        $("#three option").remove();
+                        $("#three").append(select);
+                    });
+                }else{
+                    $("#three option").remove();
+                    $("#three").append(select);
+                }
+            });
+            //获得分类路径
+            function cateUrl(){
+                if($("#categoryId option:selected").val()!=null && $("#categoryId option:selected").val() != ""){
+                    cate ="";
+                    cate += $("#categoryId option:selected").val()+"|";
+                }
+                if($("#second option:selected").val()!=null && $("#second option:selected").val() != ""){
+                    cate +=$("#second option:selected").val()+"|";
+                }
+                if($("#three option:selected").val()!=null && $("#three option:selected").val() != ""){
+                    cate +=$("#three option:selected").val();
+                }
+            }
+
+            //点击查询
+            $("#btn").click(function(){
+                currentPage = "1";
+                cateUrl();
+                selData();
+            });
+            //截取字符串
+            function cutstr(str, len) {
+                var str_length = 0;
+                var str_len = 0;
+                if (!str) {
+                    return "";
+                }
+                var str_cut = new String();
+                str_len = str.length;
+                for (var i = 0; i < str_len; i++) {
+                    var a = str.charAt(i);
+                    str_length++;
+                    if (escape(a).length > 4) {
+                        //中文字符的长度经编码之后大于4
+                        str_length++;
+                    }
+                    str_cut = str_cut.concat(a);
+                    if (str_length >= len) {
+                        str_cut = str_cut.concat("...");
+                        return str_cut;
+                    }
+                }
+                //如果给定字符串小于指定长度，则返回源字符串；
+                if (str_length < len) {
+                    return str;
+                }
+            }
+
+            function selData(){
+                var productN = $("#productName").val();
+                var productC = $("#productCode").val();
+                var saleStatus = $("#saleStatus option:selected").val();
+                var index = layer.load(1, {
+                    shade: [0.1,'#fff'] //0.1透明度的白色背景
+                });
+                jQuery.post("/business/selectProduct.action",{"productN":productN,"productC":productC,"category":cate,"saleStatus":saleStatus,"currentPage":currentPage},function(data){
+                    if(data.resultProductInfo==null){
+                        $("#mytbody").html("<tr><td colspan='11' algin='center'>查无结果</td></tr>");
+                    }else {
+                        var resultData = "";
+                        for (var j = 0; j < data.resultProductInfo.length; j++) {
+                            resultData += "<tr><td><input type='checkbox' class='skuattr' name='showproduct' id='showproduct'value='"+data.resultProductInfo[j].productId+"' /></td>";
+                            resultData += "<td><img src=$image.showImageUrl()?proportion=4:5&relUrl=" + data.resultProductInfo[j].imageUrl + " data-action='zoom'></td>";
+                            resultData += "<td>" + data.resultProductInfo[j].productCode + "</td>";
+                            resultData += "<td> <label  title='"+data.resultProductInfo[j].productName+"' style='cursor: pointer;'>" + cutstr(data.resultProductInfo[j].productName,10) + "</td>";
+                            resultData += "<td><input type='hidden' value='"+ data.resultProductInfo[j].searchProductCategories+"'>" + data.resultProductInfo[j].mainCategoryPath + "</td>";
+                            resultData += "<td>" + data.resultProductInfo[j].supplier+"</td>";
+                            resultData += "<td>" + data.resultProductInfo[j].brand+ "</td>";
+                            resultData += "<td>" + data.resultProductInfo[j].productType+ "</td>";
+                            resultData += "<td>" + data.resultProductInfo[j].lowestSalePrice + "</td>";
+                            resultData += "<td>" + data.resultProductInfo[j].vistiCounts + "</td>";
+                            resultData += "<td>" + data.resultProductInfo[j].stock + "</td><tr>";
+                        }
+                        $("#mytbody").html(resultData);
+                        currentPage = data.currentPage;
+                        totalPages = data.totalPages;
+                        $("#page").html("" + currentPage + " / " + data.totalPages + "");
+                    }
+                    layer.close(index);
+                });
+            }
+            //上一页
+            $("#upPage").click(function(){
+                if(currentPage==1){
+                    layer.msg("当前已经是第一页");
+                }else{
+                    currentPage = currentPage-1;
+                    selData();
+                }
+            });
+
+            //下一页
+            $("#downPage").click(function () {
+                if(currentPage==totalPages){
+                    layer.msg("已经是最后一页");
+                }else{
+                    currentPage=currentPage+1;
+                    selData();
+                }
+            });
+            $("#delete").click(function(){
+                layer.confirm('您确定要删除这条数据', {
+                    closeBtn: 0, //不显示关闭按钮
+                    btn: ['确定','取消'] //按钮
+                }, function(index){
+                    var delProducctId="";
+                    var arr = $("#mytbody :checked");
+                    jQuery.each(arr,function(){
+                        delProducctId += $(this).val()+"+";
+                    });
+                    if(arr.length<1){
+                        layer.msg("选中一条产品");
+                        return;
+                    }
+                    jQuery.post("/business/delProduct.action",{"delProductId":delProducctId},function(data){
+                        if(data!=null || data>0){
+                            selData();
+                        }else{
+                            layer.msg("删除失败");
+                        }
+                    });
+                    layer.close(index);
+                }, function(index){
+                    layer.close(index);
+                });
+                return false;
+            });
+            $(".skuattr").live("click",function(){
+                var index = $(this).val();
+                $(".skuattr").each(function(){
+                    if(index!=$(this).val()){
+                        $(this).attr("checked",false);
+                    }
+                });
+                var boolean = $(this).prop("checked");
+                if(boolean){
+                    var v = $(this).val();
+                    layer.open({
+                        type: 2,
+                        title: '<div align="center"><b>详细规格</b></div>',
+                        shadeClose: true,
+                        shade: 0.8,
+                        skin: 'layui-layer-rim',
+                        area: ['40%', '60%'],
+                        content: "/business/skuAttr.action?ProductId="+v
+                    });
+                }
+            });
+            //跟新数据
+            $("#update").click(function(){
+                var arr = $("#mytbody :checked").closest("tr");
+                if(arr.length==1){
+                    var cate = arr.eq(0).children("td").find("input:hidden").val();
+                    var id = arr.eq(0).children("td").find("input:checkbox:checked").val();
+                    window.location.href="/business/upProductInfo.action?id="+id+"&cate="+cate;
+                }else{
+                    layer.msg("选中一条产品");
+                }
+                return false;
+            });
+        });
+    </script>
+</head>
+<body>
+<div>
+    <form action="" method="post" id="myform">
+        <br/>
+        <div class="divtbs">
+         &nbsp;&nbsp;
+                    商品分类:
+                    <select id="categoryId" name="category">
+                    </select>
+                    <select id="second" name="second">
+                        <option value="">全部</option>
+                    </select>
+                    <select id="three" name="three">
+                        <option value="">全部</option>
+                    </select>
+        &nbsp;
+                    状态:
+                    <select id="saleStatus" name="saleStatus">
+                        <option value="" checked="checked">全部</option>
+                        <option value="1">在售</option>
+                        <option value="0">下架</option>
+                    </select>
+        &nbsp;
+                    商品名称:
+                    <input type="text" id="productName" name="productN"/>
+        &nbsp;
+                    商品编号:
+                    <input type="text" id="productCode" name="productC" value="" />
+        &nbsp;
+                    <a class="button border-yellow" name="btn" id="btn" href='#'><span class="icon-search"></span>搜索</a>
+##                    <a class="button border-blue" id="insert" href='/business/preEntering.action'><span class="icon-pencil"></span>添加</a>
+##                    <a class="button border-red" id="delete" href='#'><span class="icon-trash-o"></span> 删除</a>
+##                    <a class="button border-blue" id="update" href='#'><span class="icon-edit"></span>编辑</a>
+                    #vela("/business/preEntering.action" "<span class='icon-pencil'></span>添加" "insert" "button border-blue")
+                    #vela("/business/delProduct.action" "<span class='icon-trash-o'></span>删除" "delete" "button border-red")
+                    #vela("/business/upProductInfo.action" "<span class='icon-edit'></span>修改" "update" "button border-blue")
+
+
+        </div>
+    </form>
+    <br/>
+    <table width="100%" class="table">
+        <thead>
+            <td width="5%"></td>
+            <td>图片</td>
+            <td>编码</td>
+            <td>产品名</td>
+            <td>分类</td>
+            <td>厂商</td>
+            <td>品牌</td>
+            <td>类型</td>
+            <td>最低价</td>
+            <td>浏览</td>
+            <td>库存</td>
+        </thead>
+        <tbody id="mytbody"></tbody>
+        <tr><td colspan="11" align="right"><font id="page"></font> &nbsp;&nbsp;<a href="#" id="upPage">上一页</a>&nbsp;&nbsp;<a href="#" id="downPage">下一页</a></td></tr>
+    </table>
+</div>
+</body>
+</html>
+
+
+
+
+
+
+
+

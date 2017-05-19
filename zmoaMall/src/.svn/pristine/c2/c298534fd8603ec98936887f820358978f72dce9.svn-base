@@ -1,0 +1,254 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>商家列表</title>
+
+    <link rel="stylesheet" href="../../css/print.css" type="text/css" media="print">
+    <script src="../../js/jquery.js"></script>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script type="text/javascript" src="../../js/jquery-1.8.3.js"></script>
+    <script src="../../js/jquery.jqprint-0.3.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            //修改
+            $("#updateBtn").click(function(){
+                var ids ='';
+                $("input[attr='check']").each(function(i,v){
+                    if($(v).is(":checked")){
+                        if(ids){
+                            ids+=',';
+                        }
+                        ids=ids+$(v).val();
+                    }
+                });
+                if(!ids){
+                    alert("你没选中任何记录");
+                    return false;
+                }
+                if(ids.indexOf(',') != -1){
+                    alert("你只能选择一条记录");
+                    return false;
+                }
+
+                $(this).attr('href',"/supplierInfo/get.action?supplierId="+ids);
+                return true;
+            });
+            //删除代码：
+            $("#deleteBtn").click(function(){
+                var ids ='';
+                $("input[attr='check']").each(function(i,v){
+                    if($(v).is(":checked")){
+                        if(ids){
+                            ids+=',';
+                        }
+                        ids=ids+$(v).val();
+                    }
+
+                });
+                if(!ids){
+                    alert("你没选中任何记录");
+                    return false;
+                }
+                $(this).attr('href',"/supplierInfo/"+ids+"/delete.action");
+                return true;
+
+            });
+            //查看供应商商品
+            $("#selProduct").click(function(){
+                var ids ='';
+                $("input[attr='check']").each(function(i,v){
+                    if($(v).is(":checked")){
+                        if(ids){
+                            ids+=',';
+                        }
+                        ids=ids+$(v).val();
+                    }
+                });
+                if(!ids){
+                    alert("你没选中任何记录");
+                    return false;
+                }
+                if(ids.indexOf(',') != -1){
+                    alert("你只能选择一条记录");
+                    return false;
+                }
+
+                $(this).attr('href',"/../supplierProduct/getProductBySupplier.action?id="+ids);
+                return true;
+            });
+            //打印
+            $("#print").click(function(){
+                $("#supplierShow").jqprint({
+                });
+            });
+            //供应商对应的珠子列表
+          /*  $(".supplier").click(function(){
+                var id = $(this).attr("id");
+                if ($("tr").hasClass("s" + id + "")) {
+                    $("tr").remove(".s" + id + "");
+                    return false;
+                }
+                jQuery.post("/supplierInfo/getProductSale.action",{"id": id},function(data){
+                    var str = "<tr class='s" + id + "'><th></th><th>商品名称</th>   <th>商品规格</th>   <th>最近销售数量</th><th></th></tr>"
+                    for(var i=0;i<data.length;i++){
+
+                    }
+                    $(".s" + id + "").remove()
+                    $("#" + id + "").after(str)
+                })
+            });*/
+        });
+
+    </script>
+
+</head>
+<body>
+<div class="divtbs">
+    <div style="height: 10px"></div>
+##<form method="post" action="/supplierInfo/blur.action">
+##    <a id="updateBtn" class="button border-green"><span class="icon-edit"></span>修改</a>
+##    <a id="deleteBtn" class="button border-red"><span class="icon-trash-o"></span>删除</a>
+##    <input type="button" class="button border-green" value="供应商评分" id="supplierScore">
+##    <a id="selProduct" class="button border-green">供应商商品明细</a>
+##    <a class="button border-main icon-plus-square-o" href="/supplierInfo/toAddPage.action">添加供应商</a>
+##    <input id="print" type="button" class="button border-main icon-search" value="打印">
+##    请输入商家名称:<input type="text" class="input"  name="name" #if($supplierInfo.name)
+##                   value="$supplierInfo.name"
+###end>
+##    <input type="submit" class="button border-main icon-search" value="搜索">
+##</form>
+
+    <form method="post" action="/supplierInfo/blur.action">
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        商家名称:<input type="text" class="input"  name="name" #if($supplierInfo.name)
+                       value="$supplierInfo.name"
+    #end>
+        <button class="button border-yellow "><span class="icon-search"></span>搜索</button>
+        #vela("/supplierInfo/get.action" "<span class='icon-edit'></span>修改" "updateBtn" "button border-blue")
+        #vela("/supplierInfo/delete.action" "<span class='icon-trash-o'></span>删除" "deleteBtn" "button border-red")
+        #vela("/supplierInfo/toAddPage.action" "添加" "addSupplierInfo" "button border-green icon-pencil")
+        #vela("/supplierInfo/supplierInfoScore.action" "供应商评分" "supplierScore" "button border-blue")
+        #*<a  class="button border-blue" id="supplierScore">供应商评分</a>*#
+       #* <a id="selProduct" class="button border-blue">供应商商品明细</a>*#
+        #vela("/../supplierProduct/getProductBySupplier.action" "供应商产品明细" "selProduct" "button border-blue")
+        <input id="print" type="button" class="button border-blue" value="打印">
+    </form>
+    <div style="height: 10px"></div>
+</div>
+##<input type="button" value="供应商评分" id="supplierScore">
+<div id="supplierShow">
+<table class="table text-center">
+    <tr>
+        <th>选择</th>
+        <th>名称</th>
+        <th>所属用户</th>
+        <th>分类</th>
+        <th>性质</th>
+        <th>法人</th>
+        <th>成立时间</th>
+        <th>创建日期</th>
+        <th>状态</th>
+        <th>供应商评分</th>
+    </tr>
+    #foreach($s in $pageResult.result)
+        <tr class="supplier" id="$s.supplierId">
+            <td><input type="checkbox" attr="check" value="$s.supplierId" name="check"></td>
+            <td>$s.Name</td>
+            <td>$!s.userName</td>
+            <td>#if($s.categoryId==1)
+                合资
+            #elseif($s.categoryId==2)
+                独资
+            #elseif($s.categoryId==3)
+                国有
+            #elseif($s.categoryId==4)
+                私营
+            #elseif($s.categoryId==5)
+                全民所有制
+            #elseif($s.categoryId==6)
+                集体所有制
+            #elseif($s.categoryId==7)
+                股份制
+            #else
+                有限责任制
+            #end
+            </td>
+            <td>#if($s.companyType==1)
+                个体工商
+            #elseif($s.companyType==2)
+                私营独资商家
+            #else
+                国营商家
+            #end
+
+            </td>
+            <td>$s.artiPerson</td>
+            <td>$!date.format('yyyy-MM-dd',$s.establishedDate)</td>
+            <td>$!date.format('yyyy-MM-dd HH:mm:ss',$s.createdDate)</td>
+            <td>#if($s.status==0)
+                未审核
+            #elseif($s.status==1)
+                已审核
+            #elseif($s.status==2)
+                冻结
+            #else
+                删除
+            #end
+            </td>
+            <td style="color: red;">
+                $!s.userScore.score
+            </td>
+        </tr>
+    #end
+</table></div>
+    #set($last = $pageResult.currentPage - 1)
+    #if($last<=0)
+        #set($last = 1)
+    #end
+    #set($next = $pageResult.currentPage + 1)
+    #if($next>$pageResult.totalPages)
+        #set($next=$pageResult.totalPages)
+    #end
+
+
+<table width="100%">
+    <div style="height: 5px"></div>
+    <tr align="right">
+        <td>
+            共$pageResult.totalPages页&nbsp;
+            当前页$pageResult.currentPage页&nbsp;
+            共$pageResult.totalCount条&nbsp;&nbsp;
+            <a href="/supplierInfo/show.action?currentPage=$last">上一页</a>&nbsp;&nbsp;
+            <a href="/supplierInfo/show.action?currentPage=$next">下一页</a>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
+<script>
+
+    $(function(){
+        $("#supplierScore").click(function(){
+            var text="";
+            $("input[name=check]").each(function () {
+                if ($(this).prop("checked")) {
+                    text += $(this).val() + ",";
+                }
+            });
+            var a = text.split(",").length;
+            if (a == 1) {//没有点击
+                alert("请选择要查看的供应商!!");
+                return false;
+            } else if (a > 2) {//点击超过1个
+                alert("请选择一个供应商进行操作!!!");
+                return false;
+            } else {
+                var id=text.split(",")[0];
+                $(this).attr('href',"/supplierInfo/supplierInfoScore.action?id="+id);
+            }
+        })
+    })
+</script>

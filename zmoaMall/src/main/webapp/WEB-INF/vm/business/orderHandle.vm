@@ -1,0 +1,437 @@
+#set($layout = "layout/empty.vm")
+
+<script type="text/javascript" src="../../../js/jquery-1.8.3.js"></script>
+<script type="text/javascript" src="../../js/jquery.colorbox-min.js"></script>
+<script type="text/javascript" src="../../js/jquery.colorbox.js"></script>
+<script type="text/javascript" src="../../My97DatePicker/WdatePicker.js"></script>
+<link rel="stylesheet" type="text/css" href="../../css/colorbox.css">
+<link rel="stylesheet" type="text/css" href="../../css/WdatePicker.css">
+<link rel="stylesheet" href="../../css/zmoaStyle.css">
+<link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+<title>订单处理</title>
+<input type="hidden" id="currentPage" value="$!currentPage">
+<input type="hidden" id="totalPage" value="$!totalPage">
+<script type="text/javascript">
+    $(function(){
+
+        //城市3级联动
+        $("#Regionfirst").change(function(){
+            var select = "<option  id='0'  checked='checked'>请选择</option>";
+            var fatherId = $("#Regionfirst option:selected").attr('id');
+            var depath = 2;
+            if(fatherId != null && fatherId !=''){
+                jQuery.post("/business/selRegionInfo.action",{"fatherId":fatherId,"depath":depath},function(data){
+                    for(var r = 0;r<data.length;r++) {
+                        select += "<option id='" + data[r].regionId + "'>" + data[r].regionName + "</option>"
+                    }
+                    $("#Regionsecond option").remove();
+                    $("#Regionthree option").remove();
+                    $("#Regionsecond").append(select);
+                    $("#Regionthree").append("<option  id='0'  checked='checked'>请选择</option>");
+                });
+            }else{
+                $("#Regionsecond option").remove();
+                $("#Regionsecond").append(select);
+                $("#Regionthree option").remove();
+                $("#Regionthree").append("<option  id='0'  checked='checked'>请选择</option>");
+            }
+        });
+        //二级
+        $("#Regionsecond").change(function(){
+            var select = "<option id='0' checked='checked'>请选择</option>";
+            var fatherId = $("#Regionsecond option:selected").attr('id');
+            var depath = 3;
+            if(fatherId != null && fatherId !=''){
+                jQuery.post("/business/selRegionInfo.action",{"fatherId":fatherId,"depath":depath},function(data){
+                    for(var r = 0;r<data.length;r++) {
+                        select += "<option id='" + data[r].regionId + "'>" + data[r].regionName + "</option>"
+                    }
+                    $("#Regionthree option").remove();
+                    $("#Regionthree").append(select);
+                });
+            }else{
+                $("#Regionthree option").remove();
+                $("#Regionthree").append(select);
+            }
+        });
+
+        //地址
+        function regio(){
+            var regio = '';
+            if($("#Regionthree").val()!=0){
+                regio = $("#Regionthree option:selected").val();
+            }else if($("#Regionsecond").val()!=0){
+                regio = $("#Regionsecond option:selected").val();
+            }else if($("#Regionfirst").val()!=0){
+                regio = $("#Regionfirst option:selected").val();
+            }
+            alert(regio);
+        }
+
+// --------------------------------------处理订单的方法------------------------------
+        $("#add").live('click',function(){
+            //判定选中订单不为空,只允许未处理的订单能处理
+            var length = $("#order_table").find("input:checkbox:checked").length;
+            var status = $("#check").attr('value');
+            var applyVehicleStatus = $("#vehicle").attr('value');
+            if(length==0){
+                alert("请您选中订单才能处理");
+                return;
+            }else if(status==0){
+                $("#form").submit();
+//                if(applyVehicleStatus==2){
+//                    $("#form").submit();
+//                }else{
+//                    alert("只有已配车的订单才能处理");
+//                    $("#order_table").find("input:checkbox").each(function(){
+//                        $(this).attr('checked',false);
+//                    })
+//                    return;
+//                }
+
+            }else{
+                alert("您选择的订单已处理");
+                $("#order_table").find("input:checkbox").each(function(){
+                    $(this).attr('checked',false);
+                })
+                return;
+            }
+        })
+// -------------------全选----------------------------
+        $("#qCheck").live('click',function(){
+            var statue =$(this).attr('statue');
+            if(statue==0){
+                $(this).attr('statue',1);
+                $("#order_table").find("input:checkbox").each(function(){
+                    $(this).attr('checked',true);
+                })
+            }else{
+                $(this).attr('statue',0);
+                $("#order_table").find("input:checkbox").each(function(){
+                    $(this).attr('checked',false);
+                })
+
+            }
+
+        })
+//抢购订单
+        $("#orderSnagWx").click(function(){
+            var ids ='';
+            $("input[name=OrderId]").each(function() {
+                if ($(this).prop("checked")) {
+                    ids = $(this).val();
+                }
+            });
+            var idLength = ids.split(",").length;
+
+            window.location.href = "/business/orderSnagWx.action?ids="+ids;
+            return true;
+        });
+    })
+
+</script>
+
+<body>
+<div style="height: 7px"></div>
+<div class="order_search">
+      <div class="divtbs">
+          &nbsp;&nbsp;&nbsp;&nbsp;
+      订单号  ：<input type="text" class="orderCode">&nbsp;
+      用户名  ：<input type="text" class="buyerName">&nbsp;
+      收货人  ：<input type="text" class="shipName">&nbsp;
+      下单时间：<input type="text" class="beginTime" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})">--<input type="text" class="endTime" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})">&nbsp;
+      </div>
+      <div class="divtbs">
+          &nbsp;&nbsp;&nbsp;&nbsp;
+      收货地址：<select id="Regionfirst" name="shipProvince">
+                  <option id="0">请选择</option>
+                  #foreach($RegionInfo in $list)
+                      <option id="$RegionInfo.regionId">$RegionInfo.regionName</option>
+                  #end
+              </select>
+              <select id="Regionsecond" name="shipCity" >
+                  <option id="0">请选择</option>
+              </select>
+              <select id="Regionthree" name="shipCounty">
+                  <option id="0">请选择</option>
+              </select>
+          &nbsp;
+          订单状态 ：<select id="check" name="purchasingStatus">
+                       <option  id="handle" value="0">未处理</option>
+                       <option  value="-1">已处理</option>
+                       <option  value="1">已采购</option>
+                       <option value="2">已配送</option>
+                       <option value="3">已完成</option>
+                   </select>
+          &nbsp;
+          配车状态 ：<select id="vehicle" name="applyVehicleStatus">
+                       <option value="0">未申请车辆</option>
+                       <option value="1">申请车辆</option>
+                       <option value="2">已配车</option>
+                   </select>
+##          &nbsp;
+##          订单分类 ：<select id="from" name="orderFrom">
+##                    <option value="0">小组订单</option>
+##                    <option value="1">公共订单</option>
+##                   </select>
+          <button class="button border-yellow btn"><span class="icon-search"></span>搜索</button>&nbsp;
+          <a id="add" class="button border-blue">处理</a>&nbsp;
+          #vela("/business/getOrdersFromM.action" "<span class='icon-check'>公共订单</span>" "get" "button border-green")&nbsp;
+          <a class="button border-blue" id="orderSnagWx"><span class="icon-edit"></span>订单抢购</a>
+      </div>
+  </div>
+
+  <div class="order_show" align="center">
+      <form action="/business/getOrderId.action" method="post" id="form">
+      <table class="table text-center" style="width:100%" id="order_table">
+          <tr class="order_show_tr" style="cursor: pointer">
+              <th><input type="checkbox" id="qCheck" statue="0" ></th>
+              <th>订单号</th>
+              <th>下单时间</th>
+              <th>用户名</th>
+              <th>收货人</th>
+              <th>订单数量</th>
+              <th>订单重量</th>
+              <th>订单总额</th>
+          </tr>
+          #foreach ($order in $orders)
+              <tr class="orderInfo">
+                  <td><input type="checkbox" name="OrderId" value="$order.orderId" attr="check"></td>
+                  <td>$order.orderCode</td>
+                  <td>$!date.format('yyyy-MM-dd HH:mm:ss',$order.createdDate)</td>
+                  <td>$order.buyerName</td>
+                  <td>$order.shipName</td>
+                  <td>$order.quantity</td>
+                  <td>$order.weight</td>
+                  <td>$order.orderTotal</td>
+              </tr>
+          #end
+          </table>
+
+      </form>
+  </div>
+<div id="fenYe" align="right">
+    <h>$!currentPage/$!totalPage</h> &nbsp;&nbsp;<a href="#" id="upPage">上一页</a>&nbsp;&nbsp;<a href="#" id="downPage">下一页</a>
+</div>
+</body>
+<script>
+    $(function(){
+        //------------------------查询----------------------------------------------
+        $(".btn").live('click',function(){
+            var currentPage = 1;
+            search(currentPage);
+        })
+        //只有小组长才能抢公共订单
+        $("#get").live('click',function(){
+            var currentPage = 1;
+            //将订单状态改为未处理
+            $("#handle").attr("selected","selected");
+            searchOrderFromM(currentPage);
+            return false;
+        })
+//--------------------搜索公共订单的方法---------------------------------------------
+        function searchOrderFromM(currentPage){
+            //删除已有的订单信息
+            $(".orderInfo").remove();
+            $(".orderInfochecked").remove();
+            var orderCode = $(".orderCode").val();
+            var buyerName = $(".buyerName").val();
+            var shipName = $(".shipName").val();
+            var beginTime = $(".beginTime").val();
+            var endTime = $(".endTime").val();
+            var shipProvince = $("#Regionfirst").val();
+            var shipCity = $("#Regionsecond").val();
+            var shipCounty = $("#Regionthree").val();
+            if(shipProvince =="请选择"){
+                shipProvince = "";
+            }
+            if(shipCity=="请选择"){
+                shipCity = "";
+            }
+            if(shipCounty=="请选择"){
+                shipCounty ="";
+            }
+            var purchasingStatus = $("#check").val();
+            var applyVehicleStatus = $("#vehicle").val();
+            jQuery.ajax({
+                url:"/business/getOrdersFromM.action",
+                type:"post",
+                data:{"orderCode":orderCode,"buyerName":buyerName,"shipName":shipName,"beginTime":beginTime,"endTime":endTime,
+                    "shipProvince":shipProvince,"shipCity":shipCity,"shipCounty":shipCounty,"purchasingStatus":purchasingStatus,"applyVehicleStatus":applyVehicleStatus,"currentPage":currentPage},
+                dataType:'json',
+                success:function(data){
+                    //删除分页，重新添加
+                    $("#fenYe").find('h').remove();
+                    var currentPage = data.currentPage;
+                    var totalPage = data.totalPages;
+                    $("#currentPage").val(currentPage);
+                    $("#totalPage").val(totalPage);
+                    $("#fenYe").prepend('<h>'+currentPage+'/'+totalPage+'</h>');
+
+                    var page ="";
+                    var resultOrderInfo = data.resultOrderInfo;
+                    if(resultOrderInfo.length ==0){
+                        alert("没有您想要的数据");
+                    }else{
+                        for(var i =0;i<resultOrderInfo.length;i++){
+                            var order = resultOrderInfo[i];
+                            //强下单时间格式化
+                            var createDate = new Date(order.createdDate);
+                            var year = createDate.getFullYear();
+                            var month = createDate.getMonth()+1;
+                            if(month<10){
+                                month = "0"+month;
+                            }
+                            var day = createDate.getDate();
+                            if(day <10 ){
+                                day = "0"+day;
+                            }
+                            var hours = createDate.getHours();
+                            if(hours<10){
+                                hours = "0"+hours;
+                            }
+                            var minute = createDate.getMinutes();
+                            if(minute<10){
+                                minute = "0"+minute;
+                            }
+                            var second = createDate.getSeconds();
+                            if(second<10){
+                                second = "0"+second;
+                            }
+                            createDate = year+"-"+month+"-"+day+" "+hours+":"+minute+":"+second;
+
+                            page +="<tr class='orderInfochecked'>";
+                            page +="<td><input type='checkbox' name='OrderId' value="+order.orderId+"></td>";
+                            page +="<td>"+order.orderCode+"</td>";
+                            page +="<td>"+createDate+"</td>";
+                            page +="<td>"+order.buyerName+"</td>";
+                            page +="<td>"+order.shipName+"</td>";
+                            page +="<td>"+order.quantity+"</td>";
+                            page +="<td>"+order.weight+"</td>";
+                            page +="<td>"+order.orderTotal+"</td>";
+                            page +="</tr>";
+                        }
+                        $("#order_table").append(page);
+                    }
+                }
+            })
+
+        }
+
+
+// -------------------公共搜索方法------------------------------------------------------
+        function search(currentPage){
+            //删除已有的订单信息
+            $(".orderInfo").remove();
+            $(".orderInfochecked").remove();
+            var orderCode = $(".orderCode").val();
+            var buyerName = $(".buyerName").val();
+            var shipName = $(".shipName").val();
+            var beginTime = $(".beginTime").val();
+            var endTime = $(".endTime").val();
+            var shipProvince = $("#Regionfirst").val();
+            var shipCity = $("#Regionsecond").val();
+            var shipCounty = $("#Regionthree").val();
+            if(shipProvince =="请选择"){
+                shipProvince = "";
+            }
+            if(shipCity=="请选择"){
+                shipCity = "";
+            }
+            if(shipCounty=="请选择"){
+                shipCounty ="";
+            }
+            var purchasingStatus = $("#check").val();
+            var applyVehicleStatus = $("#vehicle").val();
+            jQuery.ajax({
+                url:"/business/getOrdersByTip.action",
+                type:"post",
+                data:{"orderCode":orderCode,"buyerName":buyerName,"shipName":shipName,"beginTime":beginTime,"endTime":endTime,
+                    "shipProvince":shipProvince,"shipCity":shipCity,"shipCounty":shipCounty,"purchasingStatus":purchasingStatus,"applyVehicleStatus":applyVehicleStatus,"currentPage":currentPage},
+                dataType:'json',
+                success:function(data){
+                    //删除分页，重新添加
+                    $("#fenYe").find('h').remove();
+                    var currentPage = data.currentPage;
+                    var totalPage = data.totalPages;
+                    $("#currentPage").val(currentPage);
+                    $("#totalPage").val(totalPage);
+                    $("#fenYe").prepend('<h>'+currentPage+'/'+totalPage+'</h>');
+
+                    var page ="";
+                    var resultOrderInfo = data.resultOrderInfo;
+                    if(resultOrderInfo.length ==0){
+                        alert("没有您想要的数据");
+                    }else{
+                        for(var i =0;i<resultOrderInfo.length;i++){
+                            var order = resultOrderInfo[i];
+                            //强下单时间格式化
+                            var createDate = new Date(order.createdDate);
+                            var year = createDate.getFullYear();
+                            var month = createDate.getMonth()+1;
+                            if(month<10){
+                               month = "0"+month;
+                            }
+                            var day = createDate.getDate();
+                            if(day <10 ){
+                                day = "0"+day;
+                            }
+                            var hours = createDate.getHours();
+                            if(hours<10){
+                                hours = "0"+hours;
+                            }
+                            var minute = createDate.getMinutes();
+                            if(minute<10){
+                                minute = "0"+minute;
+                            }
+                            var second = createDate.getSeconds();
+                            if(second<10){
+                                second = "0"+second;
+                            }
+                            createDate = year+"-"+month+"-"+day+" "+hours+":"+minute+":"+second;
+
+                            page +="<tr class='orderInfochecked'>";
+                            page +="<td><input type='checkbox' name='OrderId' value="+order.orderId+"></td>";
+                            page +="<td>"+order.orderCode+"</td>";
+                            page +="<td>"+createDate+"</td>";
+                            page +="<td>"+order.buyerName+"</td>";
+                            page +="<td>"+order.shipName+"</td>";
+                            page +="<td>"+order.quantity+"</td>";
+                            page +="<td>"+order.weight+"</td>";
+                            page +="<td>"+order.orderTotal+"</td>";
+                            page +="</tr>";
+                        }
+                        $("#order_table").append(page);
+                    }
+                }
+            })
+
+        }
+        //------------------------分页--------------------
+        //上一页
+        $("#upPage").live('click',function(){
+            var currentPage = Number($("#currentPage").val()-1);
+            if(currentPage < 1){
+                alert("当前第一页");
+            }else if($("#get")!=null){
+                searchOrderFromM(currentPage);
+            }else{
+                search(currentPage);
+            }
+
+        })
+        //下一页
+        $("#downPage").live('click',function(){
+            var currentPage = Number($("#currentPage").val())+1;
+            var totalPage = Number($("#totalPage").val());
+            if(currentPage>totalPage){
+                alert("当前最后一页");
+            }else if($("#get")!=null){
+               searchOrderFromM(currentPage);
+            }else{
+                search(currentPage);
+            }
+        })
+    })
+</script>
+</body>

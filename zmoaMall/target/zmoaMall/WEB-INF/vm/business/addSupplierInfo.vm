@@ -1,0 +1,676 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>添加商家</title>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script src="../../js/jquery.js"></script>
+    <script type="text/javascript" src="/js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="../../My97DatePicker/WdatePicker.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            //获得地址
+            $("#Regionfirst").change(function () {
+                var select = "<option  value='0'  checked='checked'>请选择</option>";
+                var fatherId = $("#Regionfirst option:selected").val();
+                var depath = 2;
+                if (fatherId != null && fatherId != '') {
+                    jQuery.post("/supplierInfo/getAddress.action", {
+                        "fatherId": fatherId,
+                        "depath": depath
+                    }, function (data) {
+                        for (var r = 0; r < data.length; r++) {
+                            select += "<option value='" + data[r].regionId + "'>" + data[r].regionName + "</option>"
+                        }
+                        $("#Regionsecond option").remove();
+                        $("#Regionthree option").remove();
+                        $("#Regionsecond").append(select);
+                        $("#Regionthree").append("<option  value='0'  checked='checked'>请选择</option>");
+                    });
+                } else {
+                    $("#Regionsecond option").remove();
+                    $("#Regionsecond").append(select);
+                    $("#Regionthree option").remove();
+                    $("#Regionthree").append("<option  value='0'  checked='checked'>请选择</option>");
+                }
+            });
+            //二级地址
+            $("#Regionsecond").change(function () {
+                var select = "<option value='0' checked='checked'>请选择</option>";
+                var fatherId = $("#Regionsecond option:selected").val();
+                var depath = 3;
+                if (fatherId != null && fatherId != '') {
+                    jQuery.post("/supplierInfo/getAddress.action", {
+                        "fatherId": fatherId,
+                        "depath": depath
+                    }, function (data) {
+                        for (var r = 0; r < data.length; r++) {
+                            select += "<option value='" + data[r].regionId + "'>" + data[r].regionName + "</option>"
+                        }
+                        $("#Regionthree option").remove();
+                        $("#Regionthree").append(select);
+                    });
+                } else {
+                    $("#Regionthree option").remove();
+                    $("#Regionthree").append(select);
+                }
+            });
+            $("#province").change(function () {
+                var select = "<option  value='0'  checked='checked'>请选择</option>";
+                var fatherId = $("#province option:selected").val();
+                var depath = 2;
+                if (fatherId != null && fatherId != '') {
+                    jQuery.post("/supplierInfo/getAddress.action", {
+                        "fatherId": fatherId,
+                        "depath": depath
+                    }, function (data) {
+                        for (var r = 0; r < data.length; r++) {
+                            select += "<option value='" + data[r].regionId + "'>" + data[r].regionName + "</option>"
+                        }
+                        $("#city option").remove();
+                        $("#county option").remove();
+                        $("#city").append(select);
+                        $("#county").append("<option  value='0'  checked='checked'>请选择</option>");
+                    });
+                } else {
+                    $("#city option").remove();
+                    $("#city").append(select);
+                    $("#county option").remove();
+                    $("#county").append("<option  value='0'  checked='checked'>请选择</option>");
+                }
+            });
+            //二级地址
+            $("#city").change(function () {
+                var select = "<option value='0' checked='checked'>请选择</option>";
+                var fatherId = $("#city option:selected").val();
+                var depath = 3;
+                if (fatherId != null && fatherId != '') {
+                    jQuery.post("/supplierInfo/getAddress.action", {
+                        "fatherId": fatherId,
+                        "depath": depath
+                    }, function (data) {
+                        for (var r = 0; r < data.length; r++) {
+                            select += "<option value='" + data[r].regionId + "'>" + data[r].regionName + "</option>"
+                        }
+                        $("#county option").remove();
+                        $("#county").append(select);
+                    });
+                } else {
+                    $("#county option").remove();
+                    $("#county").append(select);
+                }
+            })
+        })
+
+
+    </script>
+
+</head>
+<body>
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li><a>添加</a></li>
+    </ul>
+</div>
+<form class="form-x" method="post" action="/supplierInfo/addSupplierInfo.action">
+    <div class="form-group">
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">商店名称:</div>
+            </div>
+            <div class="field">
+                <input type="text" name="name" class="input w50"/>
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">成立时间:</div>
+            </div>
+            <div class="field">
+                <input type="text" name="establishedDate" class="input w50" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">注册资本:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="registeredCapital">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">账户余额:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="balance" >
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename"> 电话:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="telPhone" >
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">手机:</div>
+            </div>
+            <div class="field">
+                <input type="text" name="cellPhone" class="input w50" >
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">联系邮箱:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50"  name="contactMail" >
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">省/市/县:</div>
+            </div>
+            <div class="field">
+            <select id="Regionfirst" name="Regionfirst">
+                <option value="0">请选择</option>
+                #foreach($r in $regionInfos)
+                    <option value="$r.regionId">$r.regionName</option>
+                #end
+            </select>
+            <select id="Regionsecond" name="Regionsecond">
+                <option value="0">请选择</option>
+            </select>
+            <select id="Regionthree" name="establishedCity">
+                <option value="0">请选择</option>
+            </select>
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">注册地:</div>
+            </div>
+            <div class="field">
+            <select id="province">
+                <option value="0">请选择</option>
+                #foreach($r in $regionInfos)
+                    <option value="$r.regionId">$r.regionName</option>
+                #end
+            </select>
+            <select id="city">
+                <option value="0">请选择</option>
+            </select>
+            <select id="county" name="regionId">
+                <option value="0" name="regionId">请选择</option>
+            </select>
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">详细地址:</div>
+            </div>
+            <div class="field">
+                <input type="text" name="address" class="input w50" >
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">联系人:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="contact" >
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">传真:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="fax" >
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">邮编:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="postCode" >
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">主页:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="homePage" >
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">法人:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="artiPerson">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">商家等级:</div>
+            </div>
+            <div class="field">
+                <select name="rank" class="input w50">
+                    <option value="0">请选择</option>
+                    <option value="1">一星级</option>
+                    <option value="2">二星级</option>
+                    <option value="3">三星级</option>
+                    <option value="4">四星级</option>
+                    <option value="5">五星级</option>
+                </select>
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">商家分类:</div>
+            </div>
+            <div class="field">
+                <select name="categoryId" class="input w50">
+                    <option value="0">请选择</option>
+                    <option value="1">合资</option>
+                    <option value="2">独资</option>
+                    <option value="3">国有</option>
+                    <option value="4">私营</option>
+                    <option value="5">全民所有制</option>
+                    <option value="6">集体所有制</option>
+                    <option value="7">股份制</option>
+                    <option value="8">有限责任制</option>
+                </select>
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">公司性质:</div>
+            </div>
+            <div class="field">
+                <select name="companyType" class="input w50">
+                    <option value="0">请选择</option>
+                    <option value="1">个体工商</option>
+                    <option value="2" >私营独资商家</option>
+                    <option value="3" >国营商家</option>
+                </select>
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">税务登记:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="taxNumber" >
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">开户银行:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="accountBank" >
+            </div>
+        </div>
+
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">账号信息:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="accountInfo" >
+            </div>
+        </div>
+
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">MSN:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="msn" >
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">状态:</div>
+            </div>
+            <div class="field" style="padding-top:8px;">
+                未审核<input type="radio" value="0"  name="status" >
+                已审核<input type="radio" value="1" name="status" >
+                冻结<input type="radio" value="2" name="status"  >
+                删除<input type="radio" value="3" name="status"  >
+            </div>
+        </div>
+
+        <div class="body-content">
+            <div class="label">
+                <div>商家介绍:</div>
+            </div>
+            <div class="field">
+                <textarea name="introduction" class="input" style="height:80px;width: 25%;"></textarea>
+            </div>
+        </div>
+
+        <div class="body-content">
+            <div class="label">
+                <div>备注:</div>
+            </div>
+            <div class="field">
+                <textarea name="reMark" class="input" style="height:80px;width: 25%;"></textarea>
+            </div>
+        </div>
+
+        <div class="form-foot">
+            <button class="button border-green icon-check" type="submit"> 提交</button>&nbsp;
+            <input type="button" class="button border-blue input-button" value="返回"  onclick="history.back(-1);" />
+        </div>
+    </div>
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename">用户名称:</label>
+##        </div>
+##        <div class="field">
+##            <input type="text" class="input w50" name="userName">
+##        </div>
+##    </div>
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename">商店名称:</label>
+##        </div>
+##        <div class="field">
+##            <input type="text" class="input w50" name="name">
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename">成立时间:</label>
+##        </div>
+##        <div class="field">
+##            <input name="establishedDate" class="input w50" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})">
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename"> 创建时间:</label>
+##        </div>
+##        <div class="field">
+##            <input name="createdDate" class="input w50" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})">
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename">注册资本:</label>
+##        </div>
+##        <div class="field">
+##            <input type="text" class="input w50" name="registeredCapital">
+##        </div>
+##    </div>
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename">账户余额:</label>
+##        </div>
+##        <div class="field">
+##            <input type="text" class="input w50" name="balance">
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >电话:</label>
+##        </div>
+##        <div class="field">
+##            <input type="text" class="input w50" name="telPhone">
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >手机:</label>
+##        </div>
+##        <div class="field">
+##            <input type="text" class="input w50" name="cellPhone">
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >联系邮箱:</label>
+##        </div>
+##        <div class="field">
+##            <input type="text" class="input w50" name="contactMail">
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >省/市/县:</label>
+##        </div>
+##        <div class="field">
+##            <select id="Regionfirst" name="Regionfirst">
+##                <option value="0">请选择</option>
+##                #foreach($r in $regionInfos)
+##                    <option value="$r.regionId">$r.regionName</option>
+##                #end
+##            </select>
+##            <select id="Regionsecond" name="Regionsecond">
+##                <option value="0">请选择</option>
+##            </select>
+##            <select id="Regionthree" name="establishedCity">
+##                <option value="0">请选择</option>
+##            </select>
+##        </div>
+##    </div>
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >注册地:</label>
+##        </div>
+##        <div class="field">
+##            <select id="province">
+##                <option value="0">请选择</option>
+##                #foreach($r in $regionInfos)
+##                    <option value="$r.regionId">$r.regionName</option>
+##                #end
+##            </select>
+##            <select id="city">
+##                <option value="0">请选择</option>
+##            </select>
+##            <select id="county" name="regionId">
+##                <option value="0" name="regionId">请选择</option>
+##            </select>
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >详细地址:</label>
+##        </div>
+##        <div class="field">
+##            <input type="text" class="input w50" name="address">
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >联系人:</label>
+##        </div>
+##        <div class="field">
+##            <input type="text" class="input w50" name="contact">
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >传真:</label>
+##        </div>
+##        <div class="field">
+##            <input type="text" class="input w50" name="fax">
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >邮编:</label>
+##        </div>
+##        <div class="field">
+##            <input type="text" class="input w50" name="postCode">
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >主页:</label>
+##        </div>
+##        <div class="field">
+##            <input type="text" class="input w50" name="homePage">
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >法人:</label>
+##        </div>
+##        <div class="field">
+##            <input type="text" class="input w50" name="artiPerson">
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >商家等级:</label>
+##        </div>
+##        <div class="field">
+##            <select name="rank" class="input w50">
+##                <option value="0">请选择</option>
+##                <option value="1">一星级</option>
+##                <option value="2">二星级</option>
+##                <option value="3">三星级</option>
+##                <option value="4">四星级</option>
+##                <option value="5">五星级</option>
+##            </select>
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >商家分类:</label>
+##        </div>
+##        <div class="field">
+##            <select name="categoryId" class="input w50">
+##                <option value="0">请选择</option>
+##                <option value="1">合资</option>
+##                <option value="2">独资</option>
+##                <option value="3">国有</option>
+##                <option value="4">私营</option>
+##                <option value="5">全民所有制</option>
+##                <option value="6">集体所有制</option>
+##                <option value="7">股份制</option>
+##                <option value="8">有限责任制</option>
+##            </select>
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >公司性质:</label>
+##        </div>
+##        <div class="field">
+##            <select name="companyType" class="input w50">
+##                <option value="0">请选择</option>
+##                <option value="1">个体工商</option>
+##                <option value="2">私营独资商家</option>
+##                <option value="3">国营商家</option>
+##            </select>
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >税务登记:</label>
+##        </div>
+##        <div class="field">
+##            <input type="text" class="input w50" name="taxNumber">
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >开户银行:</label>
+##        </div>
+##        <div class="field">
+##            <input type="text" class="input w50" name="accountBank">
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >账号信息:</label>
+##        </div>
+##        <div class="field">
+##            <input type="text" class="input w50" name="accountInfo">
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >MSN:</label>
+##        </div>
+##        <div class="field">
+##            <input type="text" class="input w50" name="msn">
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename">状态:</label>
+##        </div>
+##        <div class="field" style="padding-top:8px;">
+##            未审核<input type="radio" value="0" name="status">
+##            已审核<input type="radio" value="1" name="status">
+##            冻结<input type="radio" value="2" name="status">
+##            删除<input type="radio" value="3" name="status">
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >商家介绍:</label>
+##        </div>
+##        <div class="field">
+##            <textarea name="introduction" class="input" style="height:80px;width: 25%;"></textarea>
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##            <label for="sitename" >备注:</label>
+##        </div>
+##        <div class="field">
+##            <textarea name="reMark" class="input" style="height:80px;width: 25%;"></textarea>
+##        </div>
+##    </div>
+##
+##    <div class="form-group">
+##        <div class="label">
+##        </div>
+##        <div class="field">
+##            <input type="submit" class="button border-green" value="添加">
+##            <input type="button" class="button border-green" value="返回" onclick="javascript:history.back(-1);">
+##        </div>
+##    </div>
+
+
+</form>
+</body>
+</html>

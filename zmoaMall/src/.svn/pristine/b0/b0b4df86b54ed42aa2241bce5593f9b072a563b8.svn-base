@@ -1,0 +1,353 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>商城管理</title>
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/default/easyui.css">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script type="text/javascript" src="/js/jeasyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-filter.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-detailview.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="/js/date-zh-CN.js"></script>
+</head>
+<body>
+
+<table id="shop-dg" class="easyui-datagrid" data-options="
+        toolbar:'#tb',
+        title:'商城列表',
+        fit:true,
+        singleSelect:true,
+        fitColumns:true,
+        url:'/system/getAllMallConfig.action',
+        idField: 'id',
+        pagination:true,
+        pageSize:20,
+        onLoadSuccess:function(data){
+            $('.desc').linkbutton({text:'详情',plain:true,iconCls:'icon-redo'});
+            $('.recommend').linkbutton({text:'推荐',plain:true,iconCls:'fa fa-star-o fa-lg'});
+            $('.remove').linkbutton({text:'删除',plain:true,iconCls:'icon-remove'});
+            $('.checking').linkbutton({text:'审核',plain:true,iconCls:'icon-search'});
+        }
+        ">
+    <thead>
+    <tr>
+        <th field="status"  hidden="hidden"></th>
+        <th field="id" width="50px">商城Id</th>
+        <th field="nickname" width="50px">商城名称</th>
+        <th field="status" width="50px" hidden="hidden">商城名称</th>
+        <th field="phone" width="40px">联系电话</th>
+        <th field="updateTime" formatter="dateFormatter" width="40px">创建日期</th>
+
+        <th data-options="field:'_operate',formatter:operateFormatter" width="100px">操作</th>
+    </tr>
+    </thead>
+</table>
+
+<!-- toolbar -->
+<div id="tb" style="padding:2px 5px;">
+    查询条件:
+    <select id="filterName" class="easyui-combobox" panelHeight="auto" style="width:100px">
+        <option value="nickname">商城名</option>
+    </select>
+    关键字: <input id="filterValue" class="easyui-textbox" style="width:110px">
+    <a href="#" onclick="searchShop()" class="easyui-linkbutton" iconCls="icon-search">查询</a>
+    &nbsp;&nbsp;
+    #*<a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true" onclick="addTypeBrandDlg();">添加店铺</a>*#
+
+</div>
+
+
+<div id="addTypeBrand-dlg" style="width:500px"></div>
+<div id="updateTypeBrand-dlg" style="width:500px"></div>
+<div id="checkShop-dlg" style="width:500px"></div>
+<div id="shopDesc-dlg" style="width:500px"></div>
+
+
+<script>
+
+    function searchShop() {
+        var filterName = $('#filterName').combobox('getValue');
+        var filterValue = $('#filterValue').textbox('getValue');
+        var shopDgOps = $('#shop-dg').datagrid('options');
+        shopDgOps.url = '/system/getAllMallConfig.action?filterName='+filterName+'&filterValue='+filterValue;
+        $('#shop-dg').datagrid(shopDgOps);
+        $('#shop-dg').datagrid('reload');
+    }
+
+   function operateFormatter(value, row, index) {
+        var str = '<a href="#"  onclick="shopDescDlg('+row.id+')" class="desc" class="easyui-linkbutton"></a>';
+        str += '<a href="#"  class="recommend" class="easyui-linkbutton"></a>';
+       str += '<a href="#" onclick="deleteShop('+row.id+')" class="remove" class="easyui-linkbutton"></a>';
+        str += '<a href="#" onclick="checkShopDlg('+row.id+')" class="checking" class="easyui-linkbutton"></a>';
+        return str;
+    }
+
+
+    function dateFormatter(value,row,index){
+        return new Date(value).toString('yyyy-MM-dd HH:mm:ss');
+    }
+
+   function statusFormatter(value, row, index) {
+        if (value == 0) {
+            return '未审核';
+        } else if (value == 1) {
+            return '已审核';
+        } else if (value == 2) {
+            return '冻结';
+        } else if (value == 3) {
+            return '删除';
+        } else {
+            return '无状态';
+        }
+    }
+
+
+    function recommendShop(supplierId) {
+        if (supplierId == null) return;
+        jQuery.messager.confirm('提示', '你确定要推荐此店铺吗？', function(r){
+            if (r){
+                jQuery.ajax({
+                    url: '/business/shop/recommendShop',
+                    type: 'post',
+                    data: 'supplierId='+supplierId+'&recomend=1',
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.success) {
+                            $('#shop-dg').datagrid('reload');
+                            jQuery.messager.show({
+                                title:'数据修改成功提示！',
+                                msg: '店铺已推荐<br/>' + new Date().toLocaleString(),
+                                showType:'show'
+                            });
+                        }
+                    },
+                    error: function(data) {
+                        alert("请求失败");
+                    }
+                });
+            }
+        });
+    }
+
+    function deleteShop(supplierId) {
+        if (supplierId == null)
+            return;
+        jQuery.messager.confirm('提示', '你确定要删除吗？', function(r){
+            if (r){
+                jQuery.ajax({
+                    url: '/system/checkShop',
+                    type: 'post',
+                    data: 'id='+supplierId+'&status=2',
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data!=null) {
+                            $('#shop-dg').datagrid('reload');
+                            jQuery.messager.show({
+                                title:'数据修改成功提示！',
+                                msg: '店铺已删除<br/>' + new Date().toLocaleString(),
+                                showType:'show'
+                            });
+                        }
+                    },
+                    error: function(data) {
+                        alert("请求失败");
+                    }
+                });
+            }
+        });
+    }
+
+    function checkShop(supplierId, status) {
+        jQuery.ajax({
+            url: '/system/checkShop',
+            type: 'post',
+            data: 'id='+supplierId+'&status='+status,
+            dataType: 'json',
+            success: function(data) {
+                if (data!=null) {
+                    $('#checkShop-dlg').dialog('close');
+                    $('#shop-dg').datagrid('reload');
+                    var msg = status == 1 ? '店铺已通过审核<br/>' : '店铺未通过审核<br/>';
+                    jQuery.messager.show({
+                        title:'数据修改成功提示！',
+                        msg: msg + new Date().toLocaleString(),
+                        showType:'show'
+                    });
+                }
+            },
+            error: function(data) {
+                alert("请求失败");
+            }
+        });
+    }
+
+    function shopDescDlg(supplierId) {
+        $('#shopDesc-dlg').dialog({
+            title: '店铺详情',
+            width: 700,
+            height: 400,
+            href: '/system/checkShopDlg?id='+supplierId,
+            buttons:[{
+                text:'关闭',
+                iconCls:'icon-ok',
+                handler:function() {
+                    $('#shopDesc-dlg').dialog('close');
+                }
+            }]
+        });
+    }
+
+    function checkShopDlg(supplierId) {
+        var row =$("#shop-dg").datagrid("getSelected");
+        if(row.status=='1'){
+            alert("该商城已审核");
+            return ;
+        }
+        $('#checkShop-dlg').dialog({
+            title: '店铺审核',
+            width: 700,
+            height: 400,
+            href: '/system/checkShopDlg?id='+supplierId,
+            buttons:[{
+                text:'确认店铺信息真实无误，同意开店',
+                iconCls:'icon-ok',
+                handler:function() {
+                    checkShop(supplierId, 1);
+                }
+            },{
+                text:'店铺信息有问题，通知商家',
+                iconCls:'icon-cancel',
+                handler:function() {
+                    checkShop(supplierId, 0);
+                }
+            }]
+        });
+
+    }
+
+    function addTypeBrand() {
+        $('#addTypeBrand-fm').form('submit', {
+            url:'/business/prodCat/addTypeBrand.action',
+            success: function(data) {
+                var data = eval('(' + data + ')');  // change the JSON string to javascript object
+                if (data.success) {
+                    $('#addTypeBrand-dlg').dialog('close');
+                    $('#typeBrand-dg').datagrid('reload');
+                    jQuery.messager.show({
+                        title:'数据修改成功提示！',
+                        msg: '您在 ' + new Date().toLocaleString() + ' 成功更新了一条数据',
+                        showType:'show'
+                    });
+                }
+            },
+            error: function() {
+                jQuery.messager.show({
+                    title:'请求失败！',
+                    msg: new Date().toLocaleString() + ' 请求服务器失败',
+                    showType:'show'
+                });
+            }
+        });
+    }
+
+    function addTypeBrandDlg() {
+        $('#addTypeBrand-dlg').dialog({
+            title: '新增品牌',
+            width: 700,
+            height: 400,
+            href: '/business/prodCat/addTypeBrandDlg',
+            buttons:[{
+                text:'增加',
+                iconCls:'icon-ok',
+                handler:function() {
+                    addTypeBrand();
+                }
+            },{
+                text:'取消',
+                iconCls:'icon-cancel',
+                handler:function() {
+                    $('#addTypeBrand-dlg').dialog('close');
+                }
+            }]
+        });
+    }
+
+    function updateTypeBrand() {
+        $('#updateTypeBrand-fm').form('submit', {
+            url:'/business/prodCat/updateTypeBrand.action',
+            success: function(data) {
+                var data = eval('(' + data + ')');  // change the JSON string to javascript object
+                if (data.success) {
+                    $('#updateTypeBrand-dlg').dialog('close');
+                    $('#typeBrand-dg').datagrid('reload');
+                    jQuery.messager.show({
+                        title:'数据修改成功提示！',
+                        msg: '您在 ' + new Date().toLocaleString() + ' 成功更新了一条数据',
+                        showType:'show'
+                    });
+                }
+            },
+            error: function() {
+                jQuery.messager.show({
+                    title:'请求失败！',
+                    msg: new Date().toLocaleString() + ' 请求服务器失败',
+                    showType:'show'
+                });
+            }
+        });
+    }
+
+    function updateTypeBrandDlg(brandId) {
+        $('#updateTypeBrand-dlg').dialog({
+            title: '修改品牌',
+            width: 700,
+            height: 400,
+            href: '/business/prodCat/updateTypeBrandDlg?brandId='+brandId,
+            buttons:[{
+                text:'修改',
+                iconCls:'icon-ok',
+                handler:function() {
+                    updateTypeBrand();
+                }
+            },{
+                text:'取消',
+                iconCls:'icon-cancel',
+                handler:function() {
+                    $('#updateTypeBrand-dlg').dialog('close');
+                }
+            }]
+        });
+    }
+    function deleteTypeBrand(brandId) {
+        if (brandId == null) {
+            return;
+        }
+        jQuery.messager.confirm('提示', '你确定要删除吗？', function(r){
+            if (r){
+                jQuery.ajax({
+                    url: "/business/prodCat/deleteTypeBrand?brandId="+brandId,
+                    type: "get",
+                    dataType: "json",
+                    success: function (data) {
+                        //$('#typeBrand-dg').datagrid('reload');
+                        jQuery.messager.show({
+                            title:'数据更新提示！',
+                            msg:'删除成功',
+                            timeout:3000,
+                            showType:'slide'
+                        });
+                    }
+                });
+            }
+        });
+
+    }
+
+</script>
+</body>
+</html>

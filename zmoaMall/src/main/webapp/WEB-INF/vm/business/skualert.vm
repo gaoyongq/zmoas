@@ -1,0 +1,97 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <style>
+    #table{width:100%;max-width:100%;border-collapse:collapse;border-spacing:0;}
+    #table td{border-top:0px solid #ddd;padding:8px;vertical-align:top;}
+    #mytable{
+        text-align: center;
+    }
+    span
+    {
+        float: left;
+    }
+    #mytable tr td
+    {
+        width: 525px;
+    }
+    .borderkuang td {
+        line-height: 25px;
+        color: #666;
+        padding-left: 10px;
+        background-color: #FFFFFF;
+    }
+    .newstitle {
+        font-size: 14px;
+        color: #06C;
+        font-weight: 600;
+        padding-left: 10px;
+        padding-top: 10px;
+    }
+    .newstitlebody {
+        line-height: 25px;
+        color: #666;
+        padding-left: 10px;
+    }
+    .td_class {
+        width: 150px;
+        text-align: right;
+        padding-bottom: 10px;
+        padding-top: 10px;
+    }
+</style>
+</head>
+<body style="text-align: center">
+<div style="width: 95%;text-align: center">
+    <div class="newslistabout">
+        <div class="newslist_title">
+        </div>
+        <table id="mytable" style="width: 100%;" class="border" cellspacing="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <td class="tdbg" align="left">
+                    <div class="formtitle"><span>属性</span></div>
+                    <table class="table table-hover text-center" style="border-left: solid 1px #ddd;border-right: solid 1px #ddd;" cellspacing="0" cellpadding="3" width="100%">
+                        <tr><th>属性</th><th>属性值</th></tr>
+                        #foreach($spec in $Specs)
+                            <tr>
+                                <td style="border-left: solid 1px #ddd;border-right: solid 1px #ddd;">$spec.attributeName</td>
+                            <td>
+                                #foreach($value in $spec.listAttributeValues)
+                                    <table id="table" width="100%"><tr><td>$value.valueStr</td></tr>
+                                    <tr></tr></table>
+                                #end
+                            </td>
+                            </tr>
+                        #end
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td class="tdbg" align="left">
+                    <div class="formtitle"><span>规格</span></div>
+                    <table class="table table-hover text-center" style="border-left: solid 1px #ddd;border-right: solid 1px #ddd;" cellspacing="0" cellpadding="3"  width="100%">
+                        <tr><th>规格</th><th>规格值</th></tr>
+                        #foreach($sku in $Skus)
+                            <tr>
+                                <td style="border-left: solid 1px #ddd;border-right: solid 1px #ddd;">$sku.attributeName</td>
+                            <td>
+                                #foreach($value in $sku.listAttributeValues)
+                                   <table id="table" width="100%"><tr><td>$value.valueStr</td></tr>
+                                   <tr></tr></table>
+                                #end
+                            </td>
+                            </tr>
+                        #end
+                    </table>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+</div>
+</body>
+</html>

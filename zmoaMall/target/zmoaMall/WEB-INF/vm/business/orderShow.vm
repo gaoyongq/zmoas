@@ -1,0 +1,412 @@
+#set($layout = "layout/empty.vm")
+
+<script type="text/javascript" src="../../../js/jquery-1.8.3.js"></script>
+<link rel="stylesheet" href="../../css/zmoaStyle.css">
+<link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+<script type="text/javascript" src="../../../js/zooming.js"></script>
+<script type="text/javascript" src="../../../js/zooming.js"></script>
+<script src="../../js/jquery.jqprint-0.3.js"></script>
+<script type="text/javascript" src="../../js/jquery.colorbox-min.js"></script>
+<script type="text/javascript" src="../../js/jquery.colorbox.js"></script>
+<script type="text/javascript" src="../../My97DatePicker/WdatePicker.js"></script>
+<link rel="stylesheet" type="text/css" href="../../css/colorbox.css">
+<link rel="stylesheet" type="text/css" href="../../css/WdatePicker.css">
+<link rel="stylesheet" href="../../css/print.css" type="text/css" media="print">
+<input type="hidden" id="currentPage" value="$!currentPage">
+<input type="hidden" id="totalPage" value="$!totalPage">
+<input type="hidden" id="orderCheckStatus" value="$!orderCheckStatus">
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("tr[name='orders']").find('td').each(function(){
+            var currentEle = $(this).parent();
+            $(this).click(function(){
+                var status = $(this).parent().attr("status");
+                var orderId = $(this).parent().attr("systemidvalue");
+                if(status==orderId){
+                    $(".info").remove();
+                    $("tr[name='orders']").each(function(){
+                        $(this).attr("status",0);
+                    });
+                }else{
+                    checkInfo(orderId,currentEle);
+                    $("tr[name='orders']").each(function(){
+                        $(this).attr("status",0);
+                    });
+                    $(this).parent().attr("status",orderId);
+                }            })
+        })
+
+        function checkInfo(orderId,currentEle){
+            jQuery.ajax({
+                url:"/business/OrderInformation.action",
+                type:'POST',
+                data:{orderId:orderId},
+                dataType:'json',
+                success:function(data){
+                    var page='';
+                    page+='<tr class="info"><td></td><td colspan="9"><table class="tableson" border=1><tr><th>图片</th><th>名称</th><th>编号</th><th>数量</th><th>单价</th><th>收货人</th><th>收货地址</th><th>联系方式</th><th>产品金额</th></tr>'
+                    for(var i=0;i<data.orderItems.length;i++){
+                        var total = data.orderItems[i].sellPrice*data.orderItems[i].shipmentQuantity;
+                        page+='<tr class="info"><td><img src=http://www.zhongguozhaomei.com'+data.orderItems[i].thumbnailsUrl+' data-action="zoom" width="20px" height="25px"> </td><td>'+data.orderItems[i].name+'</td><td>'+data.orderItems[i].sku+'</td><td>'+data.orderItems[i].shipmentQuantity+'</td>' +
+                        '<td>'+data.orderItems[i].sellPrice+'</td><td>'+data.shipName+'</td><td>'+data.shipAddress+'</td>' +
+                        '<td>'+data.shipCellPhone+'</td><td>'+total.toFixed(2)+'</td></tr>'
+                    }
+                    page+='</table></td></tr>';
+
+                    $(".info").remove();
+                    currentEle.after(page);
+
+                }
+
+
+
+
+            })
+        }
+//-----------------------------审核通过或未通过功能--------------------------------
+        //审核通过
+        $("#sure").live('click',function(){
+            //验证是否已审核
+            var orderCheckStatus = $("#check").attr('value');
+            if(orderCheckStatus==0){
+                var orderIds = getOrderIds();
+            }else{
+                alert("订单已审核");
+                $("#orderTable").find("input:checkbox").each(function () {
+                    $(this).attr('checked', false);
+                })
+                return false;
+            }
+            jQuery.ajax({
+                url:"/business/orderPass.action",
+                type:'POST',
+                data:{"message":"yes","orderIds":orderIds},
+                dataType:'json',
+                success:function(data){
+                    if(data>0){
+                        window.location.reload("/business/orderManagerAction_list.action");
+                    }
+                    else{
+                        alert("审核失败");
+                        $("#orderTable").find("input:checkbox").each(function () {
+                            $(this).attr('checked', false);
+                        })
+                        return false;
+                    }
+
+                }
+
+            })
+            return false;
+        })
+        //审核未通过
+        $("#no").live('click',function(){
+            //验证是否已审核
+            var orderCheckStatus = $("#check").attr('value');
+            if(orderCheckStatus==0){
+                var orderIds = getOrderIds();
+            }else{
+                alert("订单已审核");
+                $("#orderTable").find("input:checkbox").each(function () {
+                    $(this).attr('checked', false);
+                })
+                return false;
+            }
+            jQuery.ajax({
+                url:"/business/orderPass.action",
+                type:'POST',
+                data:{"message":"no","orderIds":orderIds},
+                dataType:'json',
+                success:function(data){
+                    if(data>0){window.location.reload();
+                    }
+                    else{
+                        alert("审核失败");
+                        $("#orderTable").find("input:checkbox").each(function () {
+                            $(this).attr('checked', false);
+                        })
+                        return false;
+                    }
+                }
+
+            })
+            return false;
+
+        })
+//---------------------获取table中选中checkbox的id
+        function getOrderIds(){
+            var orderIds ="";
+            $("#orderTable").find("input:checkbox:checked").each(function(){
+                orderIds +=$(this).attr('id');
+                orderIds +=",";
+            })
+            orderIds = orderIds.substring(0,orderIds.length-1);
+            return orderIds;
+        }
+
+        //页面跳转时保存状态下拉框数据
+        var orderCheckStatus = $("#orderCheckStatus").val();
+        $("#check").find("option[value='"+orderCheckStatus+"']").attr("selected",true);
+//-----------------------给复选框加验证----------------------------------
+//        $(".check").live('click',function(){
+//            //获取订单审核状态
+//            var orderCheckStatus = $("#check").attr('value');
+//            if(orderCheckStatus==0){
+//
+//            }else{
+//                alert("该订单已审核");
+//                $(this).attr('checked',false);
+//            }
+//
+//        })
+//---------------------全选按钮------------------------------
+        $("#qCheck").live('click',function() {
+            var statue = $(this).attr('statue');
+            //获取订单审核状态
+//            var orderCheckStatus = $("#check").attr('value');
+//            if(orderCheckStatus==0) {
+            if (statue == 0) {
+                $(this).attr('statue', 1);
+                $("#orderTable").find("input:checkbox").each(function () {
+                    $(this).attr('checked', true);
+                })
+            }
+            else {
+                $(this).attr('statue', 0);
+                $("#orderTable").find("input:checkbox").each(function () {
+                    $(this).attr('checked', false);
+                })
+
+            }
+//            }else{
+//                alert("订单已审核");
+//                $(this).attr('checked',false);
+//            }
+        })
+// -------------------------订单打印功能-----------------------------------
+        $("#print").click(function(){
+                        var ids ='';
+                        $("input[attr='check']").each(function(i,v){
+                                if($(v).is(":checked")){
+                                        if(ids){
+                                                ids+=',';
+                                            }
+                                        ids=ids+$(v).val();
+                                    }
+                            });
+                        if(!ids){
+                                alert("你没选中任何记录");
+                                return false;
+                            }
+            jQuery.post("/print/orders.action",{"ids":ids},function(data){
+                                for(var i=0;i<data.length;i++){
+                                        var str="";
+                                        str+="<h2 align='center'><font size='5px'>兆美商城订单表(电商部)</font></h2><br>"
+                                        str+="<table  border='1' cellspacing='0' cellpadding='0' width='100%'><tr><td>订单号</td><td colspan='6'>"+data[i].orderInfo.orderCode+"</td>"
+                                        str+="<td>编号</td><td>ZM-"+data[i].orderInfo.orderCode+"</td>"
+                                        str+="<tr><td>序号</td><td>产品名称</td><td>编号</td><td>规格</td><td>摘要</td><td>元/m²</td>"
+                                        str+="<td>数量</td><td>单价/片</td><td>总价</td></tr>"
+                                        var count=0;
+                                        for(var j=0;j<data[i].list.length;j++){
+                                                str+="<tr><td>"+(j+1)+"</td>"
+                                                str+="<td>"+data[i].list[j].name+"</td>"
+                                                str+="<td>"+data[i].list[j].sku+"</td>"
+                                                str+="<td></td><td></td><td></td>"
+                                                str+="<td>"+data[i].list[j].shipmentQuantity+"</td>"
+                                                count+=data[i].list[j].shipmentQuantity;
+                                                str+="<td>"+data[i].list[j].sellPrice+"</td>"
+                                                str+="<td>"+data[i].list[j].sellPrice*data[i].list[j].shipmentQuantity+"</td></tr>"
+                                            }
+                                        str+="<tr><td rowspan='2' colspan='2'>配送费用</td><td rowspan='2'></td>"
+                                        str+="<td>总平方</td><td></td>"
+                                        str+="<td rowspan='2'>总数</td><td rowspan='2'>"+count+"</td>"
+                                        str+="<td rowspan='2'>商品总额</td><td rowspan='2'>"+data[i].orderInfo.orderTotal+"</td></tr>"
+                                        var w=(data[i].orderInfo.weight/1000000).toFixed(2)
+                                        str+="<tr><td>总重量</td><td>"+w+"t</td></tr>"
+                                        str+="<tr><td colspan='2'>收货信息</td><td colspan='7'>"+data[i].orderInfo.shipAddress+"<br>收货人:"+data[i].orderInfo.shipName+"&nbsp;&nbsp;&nbsp;"+data[i].orderInfo.shipCellPhone+"</td></tr>"
+                                        str+="<tr><td colspan='2'>接单员</td><td></td><td>备注</td><td colspan='5'>谢绝现金,货到汇款</td></tr></table>"
+                                        $("#printShow").append(str);
+                                    }
+                                $("#printShow").jqprint({});
+                                //打印完成后清空div
+                                        $('#printShow').html("");
+                            })
+                        return true;
+
+                            });
+//-----------------------------订单修改---------------------------------------
+        $("#change").live('click',function(){
+             var length = $("input[attr='check']:checked").length;
+             if(length==0){
+                 alert("你没选中任何记录");
+                 return false;
+             }
+             else if(length>1){
+                alert("请选择一个订单");
+                 return false;
+             }
+            else{
+                 var orderId = $("input[attr='check']:checked").val();
+                 window.location.href="/business/changeOrderInfo.action?orderId="+orderId;
+             }
+            return false;
+//            var ids ='';
+//            $("input[attr='check']").each(function(i,v){
+//                if($(v).is(":checked")){
+//                    if(ids){
+//                        ids+=',';
+//                    }
+//                    ids=ids+$(v).val();
+//                }
+//            });
+//            if(!ids){
+//                alert("你没选中任何记录");
+//                return false;
+//            }
+//            var orderId = ids.split(',');
+//            if(orderId.length>1){
+//                alert("请选择一个订单");
+//                return false;
+//            }else{
+//                alert(orderId);
+//                window.location.href="/business/changeOrderInfo.action?order="+orderId;
+////                window.location.href = "/business/changeOrderInfo.action?orderId="+orderId;
+//            }
+
+        })
+    })
+</script>
+<div style="height: 10px"></div>
+<div id="checkOrder">
+    <form ACTION="/business/orderManagerAction_list.action" method="post" id="form">
+        <div class="divtbs">
+            &nbsp;订单号：<input type="text" name="orderCode" value="$!orderCode"/>
+            &nbsp;&nbsp;收货人：<input type="text" name="shipName" value="$!shipName" />
+            &nbsp;&nbsp;用户名：<input type="text" name="buyerName" value="$!buyerName"/>
+            &nbsp;&nbsp;下单时间：<input type="text" name="beginTime" class="beginTime" value="$!beginTime" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})">--<input type="text" name="endTime" class="endTime" value="$!endTime" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})">
+            <br/>
+            &nbsp;&nbsp;联系方式：<input type="text" name="buyerCellPhone" value="$!buyerCellPhone">
+            &nbsp;&nbsp;审核状态：
+                    <select id="check" name="orderCheckStatus">
+                        <option  value="0">等待审核</option>
+                        <option  value="1">审核通过</option>
+                        <option  value="-1">审核未通过</option>
+                    </select>
+            &nbsp;<input id="currentPage1" type="hidden" name="currentPage">
+##                    <input type="submit" value="查询" id="form">
+##                    <a href="/business/addOrderInfo.action"><input type="button" value="新增"></a>
+##                    <input type="button" value="审核通过" id="sure">
+##                    <input type="button" value="审核未通过" id="no">
+
+    &nbsp;<button class="button border-yellow" id="form"><span class="icon-search">查询</span></button>
+    &nbsp;<a href="/business/addOrderInfo.action" class="button border-blue"><span class="icon-pencil">新增</span></a>
+    &nbsp;#vela("/business/orderPass.action" "<span class='icon-check'>审核通过</span>" "sure" "button border-green")
+    &nbsp;#vela("/business/orderPass.action" "<span class='icon-check'>审核未通过</span>" "no" "button border-red")
+    &nbsp;<a class="button border-green" id="print"><span class="icon-check">打印</span></a>
+    &nbsp;#vela("/business/changeOrderInfo.action" "<span class='icon-check'>修改</span>" "change" "button border-green")
+##                    <a class="button border-green" id="sure"><span class="icon-check">审核通过</span></a>
+##                    <a class="button border-red" id="no"><span class="icon-remove">审核未通过</span></a>
+##                    <a class="button border-green" id="print"><span class="icon-remove">打印</span></a>
+##                    <a class="button border-yellow" id="change"><span class="icon-remove">修改</span></a>
+        </div>
+    </form>
+</div>
+    <table class="table text-center" id="orderTable">
+        <tr>
+            <th><input type="checkbox" id="qCheck" statue="0" ></th>
+            <th>订单号</th>
+            <th>下单时间</th>
+            <th>订单总额</th>
+            <th>用户名</th>
+            <th>用户联系方式</th>
+            <th>收货人</th>
+            <th>发货状态</th>
+            <th>订单状态</th>
+            <th>审核状态</th>
+        </tr>
+        #foreach($order in $orders)
+            <tr name="orders" style="cursor: pointer" systemidvalue="$order.orderId">
+                <th><input type="checkbox" id="$order.orderId" class="check" attr='check' value="$order.orderId"></th>
+                <td>$order.orderCode</td>
+                <td>$!date.format('yyyy-MM-dd HH:mm:ss',$order.createdDate)</td>
+                <td>$order.orderTotal</td>
+                <td>$order.buyerName</td>
+                <td>$order.buyerCellPhone</td>
+                <td>$order.shipName</td>
+                <td>
+                    #if($order.shippingStatus==0)
+                        未发货
+                    #end
+                    #if($order.shippingStatus==3)
+                        已确认付款
+                    #end
+                    #if($order.shippingStatus==2)
+                        已发货
+                    #end
+                    #if($order.shippingStatus==1)
+                        已确认收货
+                    #end
+
+                </td>
+                <td>
+                    #if($order.orderStatus==0)
+                        等待付款
+                    #end
+                    #if($order.orderStatus==-1)
+                        已取消
+                    #end
+                    #if($order.orderStatus==2)
+                        已完成
+                    #end
+
+                </td>
+                <td>
+                    #if($order.orderCheckStatus==0)
+                        等待审核
+                    #end
+                    #if($order.orderCheckStatus==1)
+                        通过
+                    #end
+                    #if($order.orderCheckStatus==-1)
+                        未通过
+                    #end
+                </td>
+            </tr>
+        #end
+    </table>
+</div>
+<div id="fenYe" align="right">
+      $!currentPage/$!totalPage &nbsp;&nbsp;<a href="#" id="upPage">上一页</a>&nbsp;&nbsp;<a href="#" id="downPage">下一页</a>
+</div>
+<div id="printShow"></div>
+<script>
+    $(function(){
+        //------------------------分页--------------------
+        //上一页
+        $("#upPage").live('click',function(){
+            var currentPage = Number($("#currentPage").val()-1);
+            if(currentPage < 1){
+                alert("当前第一页");
+            }else{
+                selData(currentPage);
+            }
+
+        })
+        //下一页
+        $("#downPage").live('click',function(){
+            var currentPage = Number($("#currentPage").val())+1;
+            var totalPage = Number($("#totalPage").val());
+            if(currentPage>totalPage){
+                alert("当前最后一页");
+            }else{
+                selData(currentPage);
+            }
+        })
+
+        function selData(currentPage){
+            $("#currentPage1").val(currentPage);
+            $("#form").submit();
+        }
+    })
+</script>
+

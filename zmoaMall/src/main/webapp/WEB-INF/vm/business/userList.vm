@@ -1,0 +1,295 @@
+#set($layout = "layout/decoration-layout.vm")
+#set($a=$page)
+#set($b=$a - 1)
+#set($c=$a + 1)
+
+<div id="overlay">
+
+</div>
+    <input type="hidden" value="$!activity" id="activityId"> #*是否激活*#
+    <input type="hidden" value="$!keyWord" id="keyId"> #*关键字*#
+    <input type="hidden" value="$!beforeTime" id="beforeTimeId">
+    <input type="hidden" value="$!afterTime" id="afterTimeId">
+    <input type="hidden" value="$!page" id="pageId">
+    <input type="hidden" value="$!text" id="checkText">
+
+
+    <div style="margin-bottom: 50px;">
+        <div style="height: 10px"></div>
+        <div class="divtbs">
+            &nbsp; &nbsp; &nbsp; &nbsp;
+            关键字查询:<input type="text"  value="" class="keyWord">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+            <select name="activity" id="activity" style="width: 120px;font-size: 15px;">
+                <option value="">
+                    --请选择--
+                </option>
+                <option value="0">
+                    冻结
+                </option>
+                <option value="1">
+                    激活
+                </option>
+            </select>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            注册时间:<input type="text" class="Wdate" id="d28" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>--<input type="text" class="Wdate1" id="d28" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+##            <input type="button" value="搜索" id="fond" style="width: 75px;">
+            <button class="button border-yellow" id="fond"><span class="icon-search"></span>搜索</button>&nbsp;
+            <a class=" button border-blue group1" title="账户充值" id="balance_01">账户充值</a>&nbsp;
+            <a class=" button border-blue group1" title="美豆充值" id="points_01">美豆充值</a>&nbsp;
+            <a class=" button border-blue group1" title="成长值充值" id="rankScore_01">成长值充值</a>&nbsp;
+            &nbsp; &nbsp; &nbsp; &nbsp;
+           #* <input type="submit" class="group1" value="账户充值" id="balance_01">*#
+           #* <input type="submit" class="group1" value="美豆充值" id="points_01">
+            <input type="submit" class="group1" value="成长值充值" id="rankScore_01">*#
+##            <input type="submit" class="userScore" value="用户评分">
+            <button class="button border-blue userScore">用户评分</button>&nbsp;
+          #*  <a href="" class="xiangxi">用户详细</a>
+            <a href="">日志</a>
+            <a href="" class="pointDetailed">美豆明细</a>*#
+##            <input type="submit" value="用户详细"  class="xiangxi"  />&nbsp;
+            <button class="button border-blue xiangxi">用户详细</button>&nbsp;
+            #*<input type="submit" value="日志" class="rizhi">*#
+##            <input type="submit" value="美豆明细"  class="pointDetailed"  />&nbsp;
+            <button class="button border-blue pointDetailed">美豆明细</button>&nbsp;
+##             <input type="submit" value="添加收货地址"  class="address"  />&nbsp;
+            <button class="button border-blue address" >添加收货地址</button>&nbsp;
+
+
+        </div>
+        <div style="height: 10px"></div>
+<table class="table text-center">
+    <tr>
+        <th> </th>
+        <th>编号</th>
+        <th>用户名</th>
+        <th>昵称</th>
+        <th>手机号码</th>
+        <th>性别</th>
+        <th>真实姓名</th>
+        <th>邮箱</th>
+        <th width="5%">美豆</th>
+        <th width="5%">余额</th>
+        <th width="5%">成长值</th>
+        <th width="5%">注册时间</th>
+        <th width="6%">是否激活</th>
+        <th width="6%">是否实名</th>
+        <th>分数</th>
+    </tr>
+    #foreach($info in $userList)
+        <tr style="cursor: pointer" class="top_01" id="b_$info.userId">
+            <th>
+                <input type="checkbox" class="check" value="$info.userId/$info.userName" name="check" >
+                <input type="hidden" value="$info.usersExp.balance/$info.usersExp.points/$info.usersExp.rankScore" class="check_01">
+                <input type="hidden" value="$!info.userScore.score" class="totalScore">
+            </th>
+            <td class="userId">$info.userId</td>
+            <td class="userName">$!info.userName</td>
+            <td>$info.nickName</td>
+            <td>
+                $!info.phone
+            </td>
+            <td>
+                #if($info.sex==0)
+                    女
+                #else
+                    男
+                #end
+            </td>
+            <td>$!info.trueName</td>
+            <td>$!info.email</td>
+            <td>$!info.usersExp.points</td>
+            <td>$!info.usersExp.balance</td>
+            <td>$!info.usersExp.rankScore</td>
+            <td title="$info.userDateCreate">$!date.format('yyyy/MM/dd',$info.userDateCreate)</td>
+            <td class="activity_01">
+                #if($info.activity==0)
+                    冻结
+                #else
+                    已激活
+                #end
+            </td>
+            <td>
+                #if($info.usersExp.isUserDPI==0)
+                    未实名
+                #else
+                    已实名
+                #end
+            </td>
+            <td style="color: red" class="one_">
+                $!info.userScore.score
+            </td>
+        </tr>
+    #end
+</table>
+
+
+<table style="width:100%;margin-top: 10px;margin-bottom: 10px;text-align: right">
+</c:forEach>
+<s:iterator value="pageBean">
+    <tr>
+        <td colspan="6">
+            共$count条记录&nbsp;
+            共$totalPage页&nbsp;
+            当前第$page页&nbsp;&nbsp;&nbsp;
+            #if($page==1)
+                第一页 &nbsp; 上一页
+            #else
+                <a href="/business/pageBeanUser.action?page=1&keyWord=$!keyWord&beforeTime=$!beforeTime&afterTime=$!afterTime&activity=$!activity">第一页</a>&nbsp;
+                <a href="/business/pageBeanUser.action?page=$b&keyWord=$!keyWord&beforeTime=$!beforeTime&afterTime=$!afterTime&activity=$!activity ">上一页</a>
+            #end
+            &nbsp;&nbsp;
+            #if($page!=$totalPage)
+                <a href="/business/pageBeanUser.action?page=$c&keyWord=$!keyWord&beforeTime=$!beforeTime&afterTime=$!afterTime&activity=$!activity">下一页</a>&nbsp;
+                <a href="/business/pageBeanUser.action?page=$totalPage&keyWord=$!keyWord&beforeTime=$!beforeTime&afterTime=$!afterTime&activity=$!activity">最后一页</a>
+            #else
+                下一页 &nbsp; 最后一页
+            #end
+        </td>
+    </tr>
+</s:iterator>
+</table>
+##<input type="button" value="冻结用户" id="freeze">
+##<input type="button" value="激活用户" id="activation">
+##<input type="button" value="导出Excel" id="excel"/>
+<div style="text-align: center">
+        <button class="button border-blue" id="freeze"><span class="">冻结用户</span></button>
+        <button class="button border-blue" id="activation"><span class="">激活用户</span></button>
+        <button class="button border-blue" id="excel"><span class="">导出Excel</span></button>
+</div>
+##<style>
+##
+##    #center
+##    {
+##        background-color: #ccc;
+##        color: #000000;
+##       font-weight: bolder;
+##    }
+##    #center_01
+##    {
+##        color: orange;
+##    }
+##</style>
+<script>
+    $(function(){
+        var aaa=$("#checkText").val();
+        if(aaa!=""){
+            var bbb=aaa.split(",");
+            for(var i=0;i<bbb.length;i++)
+            {
+                $("input[name=check]").each(function() {
+                    $(":checkbox[value='"+bbb[i]+"']").prop("checked",true);
+                });
+            }
+
+        }
+
+    })
+
+    $(function(){
+
+        $("#activation").click(function(){
+            var text="";
+            $("input[name=check]").each(function() {
+                if ($(this).prop("checked")) {
+                    text += $(this).val()+",";
+                }
+            });
+            var a=text.split(",");// 获取所以用户 判断长度
+            if(text==""){
+                alert("请输入要激活的用户!!!")
+                return false;
+            }else if(a.length>2){
+                var statu=confirm('你真的打算激活 选中的用户么 吗?')
+                if(!statu){
+                    return false;
+                }
+            }else
+            {
+                var name=text.split(",")[0].split("/")[1];//判断激活哪个用户的
+                var statu=confirm('你真的打算激活   '+name+'    吗?')
+                if(!statu){
+                    return false;
+                }
+            }
+            window.location.href="/business/freezeUser.action?frost=1&page=$page&keyWord=$!keyWord&beforeTime=$!beforeTime&afterTime=$!afterTime&activity=$!activity&text="+text;
+
+        });
+        $("#freeze").click(function(){//冻结用户
+            var text="";
+            $("input[name=check]").each(function() {
+                if ($(this).prop("checked")) {
+                    text += $(this).val()+",";
+                }
+            });
+            var a=text.split(",");// 获取所以用户 判断长度
+            if(text==""){
+                alert("请输入要冻结的用户!!!")
+                return false;
+            }else if(a.length>2){
+                var statu=confirm('你真的打算冻结 选中的用户么 吗?')
+                if(!statu){
+                    return false;
+                }
+            }else
+            {
+                var name=text.split(",")[0].split("/")[1];//判断冻结哪个用户的
+                var statu=confirm('你真的打算冻结   '+name+'    吗?')
+                if(!statu){
+                    return false;
+                }
+            }
+            window.location.href="/business/freezeUser.action?frost=0&page=$page&keyWord=$!keyWord&beforeTime=$!beforeTime&afterTime=$!afterTime&activity=$!activity&text="+text;
+
+        });
+        //导出excel
+        $("#excel").click(function(){
+            window.location.href="/business/pageExcel.action?page=$page&keyWord=$!keyWord&beforeTime=$!beforeTime&afterTime=$!afterTime&activity=$!activity";
+        });
+    });
+    $(function(){
+        //点击详细时候
+        $(".xiangxi").click(function(){
+            var text="";
+            var activityId = $("#activityId").val();//是否激活
+            var keyId = $("#keyId").val();//关键字
+            var beforeTimeId = $("#beforeTimeId").val();//开始时间
+            var afterTimeId = $("#afterTimeId").val();//结束时间
+            var pageId = $("#pageId").val();
+            $("input[name=check]").each(function() {
+                if ($(this).prop("checked")) {
+                    text += $(this).val()+",";
+                }
+            });
+            var a=text.split(",").length;
+            if(a==1){
+                alert("请选择查看的用户!!!");
+                return false;
+            }else if(a>2){//点击超过1个
+                alert("请选择一个用户进行操作!!!");
+                return false;
+            }else {
+                var id=text.split("/")[0];
+                var text1=text.split(",")[0];
+                window.location.href="/business/UserId.action?page=" + pageId + "&keyWord=" + keyId + "&beforeTime=" + beforeTimeId + "&afterTime=" + afterTimeId + "&activity=" + activityId + "&text="+text1+"&userId="+id;
+            }
+        })
+    })
+</script>
+<script type="text/javascript">
+    $(function(){
+        var c=$("#keyId").val();
+        $(".keyWord").val(c);
+        var b=$("#beforeTimeId").val();
+        var d=$("#afterTimeId").val();
+        $(".Wdate").val(b);
+        $(".Wdate1").val(d);
+        var activity=$("#activityId").val();//获取是否激活
+        $("#activity").find("option[value='"+activity+"']").attr("selected",true);
+    })
+
+
+</script>
+
+

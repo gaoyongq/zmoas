@@ -1,0 +1,46 @@
+#set($layout = "layout/user_layout.vm")
+<table border="1" style="text-align: center; width: 100%;height: 100%;">
+    <tr>
+        <td>卡号</td>
+        <td>用户名</td>
+        <td>值</td>
+        <td>会员卡状态</td>
+        <td>会员卡类型</td>
+        <td>创建时间</td>
+        <td>删除</td>
+
+    </tr>
+    #foreach($info in $userCardList)
+        <tr class="" id="">
+            <td>$info.cardCode</td>
+            <td>$info.users.userName</td>
+            <td>$info.cardValue<td>
+            <td>
+                #if($info.status==0)
+                    冻结
+                #end
+                #if($info.status==1)
+                    已激活
+                #end
+            </td>
+            <td>
+                #if($info.type==0)
+                   金额卡
+                #end
+                #if($info.type==1)
+                    计次卡
+                #end
+                #if($info.type==2)
+                    折扣卡
+                #end
+            </td>
+            <td>$date.format('yyyy-MM-dd HH:mm:ss',$info.createdDate)</td>
+            <td>
+                <a href="/business/deleteUser.action?rankId=$!info.rankId&name=$!name" onclick='return confirm("确认删除??")'>
+                    删除
+                </a>
+            </td>
+        </tr>
+    #end
+
+</table>

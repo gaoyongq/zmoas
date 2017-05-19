@@ -1,0 +1,223 @@
+#set($layout = "layout/empty.vm")
+<style>
+    .borderkuang td {
+        line-height: 25px;
+        color: #666;
+        padding-left: 10px;
+        background-color: #FFFFFF;
+    }
+    .newstitle {
+        font-size: 14px;
+        color: #06C;
+        font-weight: 600;
+        padding-left: 10px;
+        padding-top: 10px;
+    }
+    .newstitlebody {
+        line-height: 25px;
+        color: #666;
+        padding-left: 10px;
+    }
+    .td_class {
+        width: 150px;
+        text-align: right;
+        padding-bottom: 10px;
+        padding-top: 10px;
+    }
+</style>
+
+<input type="hidden" value="$!mapBalance" id="mapBalance">
+<input type="hidden" value="$!mapPoints" id="mapPoints">
+<input type="hidden" value="$!mapRankScore" id="mapRankScore">
+<input type="hidden" value="$!Users.userId" id="userIdOne">
+<input type="hidden" value="$!text" id="text_01">
+<div style="width: 100%">
+
+    <div class="newslistabout">
+        <div class="newslist_title">
+            <table class="borderkuang" cellspacing="0" cellpadding="0" border="0" width="100%">
+                <tbody><tr>
+                    <td class="newstitle" bgcolor="#FFFFFF">
+                        账户充值
+                    </td>
+                </tr>
+                <tr>
+                    <td class="newstitlebody" bgcolor="#FFFFFF">
+                        您可以对会员的<b class="topUp"></b>进行充值
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <table style="width: 100%;" class="border" cellspacing="1" cellpadding="2">
+            <tbody><tr>
+                <td class="tdbg">
+                    <table cellspacing="0" cellpadding="3" border="0" width="100%">
+                        <tbody>
+                        <tr style="display: none;">
+                            <td class="td_class">
+                                ID ：
+                            </td>
+                            <td align="left" height="25" width="*">
+                                <span id="">${Users.userId}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="td_class">
+                                用户名 ：
+                            </td>
+                            <td align="left" height="25" width="*">
+                                <span id="">${Users.userName}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="td_class">
+                                昵称 ：
+                            </td>
+                            <td align="left" height="25" width="*">
+                                <span id="">${Users.nickName}</span>
+                            </td>
+                        </tr>
+
+                        #*<tr style="display: none;">
+                            <td class="td_class">
+                                美豆 ：
+                            </td>
+                            <td align="left" height="25" width="*">
+                                <span id="ContentPlaceHolder1_lblPoints">${Users.usersExp.points}</span>
+                            </td>
+                        </tr>*#
+
+
+                        <tr class="balance">
+                            <td class="td_class">
+                                当前余额 ：
+                            </td>
+                            <td align="left" height="25" width="*">
+                                <span id=""> ${Users.usersExp.balance}</span>
+                            </td>
+                        </tr>
+                        <tr class="balance">
+                            <td class="td_class">
+                                充值金额 ：
+                            </td>
+                            <td align="left" height="25" width="*">
+                                <input name="" id="" class="OnBalance" type="text">
+                                <label class="msg-error"></label>
+                            </td>
+                        </tr>
+
+
+
+
+                        <tr class="points">
+                            <td class="td_class">
+                                当前美豆 ：
+                            </td>
+                            <td align="left" height="25" width="*">
+                                <span id=""> ${Users.usersExp.points}</span>
+                            </td>
+                        </tr>
+                        <tr class="points">
+                            <td class="td_class">
+                                充值美豆 ：
+                            </td>
+                            <td align="left" height="25" width="*">
+                                <input name="" id="" class="OnPoints" type="text">
+                                <label class="msg-error"></label>
+                            </td>
+                        </tr>
+
+
+                        <tr class="rankScore">
+                            <td class="td_class">
+                                当前成长值 ：
+                            </td>
+                            <td align="left" height="25" width="*">
+                                <span id=""> ${Users.usersExp.rankScore}</span>
+                            </td>
+                        </tr>
+                        <tr class="rankScore">
+                            <td class="td_class">
+                                充值成长值 ：
+                            </td>
+                            <td align="left" height="25" width="*">
+                                <input name="" id="" class="OnRankScore" type="text">
+                                <label class="msg-error"></label>
+                            </td>
+                        </tr>
+
+
+                        <tr>
+                            <td class="td_classshow">
+                            </td>
+                            <td height="25">
+                                <input name="" value="充值" id="recharge" class="recharge" type="submit" style="float: left; width: 150px;">
+                            </td>
+                        </tr>
+                        </tbody></table>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+
+    //判断哪个隐藏 和哪个显示
+    var mapBalance=$("#mapBalance").val();
+    var mapPoints=$("#mapPoints").val();
+    var mapRankScore=$("#mapRankScore").val();
+    if(mapBalance!=""){
+        $(".points").hide();
+        $(".rankScore").hide();
+        $(".topUp").text("账户");
+    }
+    if(mapPoints!=""){
+        $(".balance").hide();
+        $(".rankScore").hide();
+        $(".topUp").text("美豆");
+    }
+    if(mapRankScore!=""){
+        $(".points").hide();
+        $(".balance").hide();
+        $(".topUp").text("成长值");
+    }
+
+    $("#recharge").click(function(){
+
+        var text_01=$("#text_01").val();
+        var balance=$(".OnBalance").val();//获取余额的value
+        var points=$(".OnPoints").val();//获取美豆的value
+        var rankScore=$(".OnRankScore").val();//获取成长值的value
+        var a=$("#userIdOne").val();//用户Id
+
+        var rel=/^\+?[1-9][0-9]*$/;
+        if(balance!=''&balance!=null){
+            if(rel.test(balance)==false)
+            {
+                alert("请输入正确的余额!!!")
+                return false;
+            }
+            window.location.href="/business/updateRPB.action?text="+text_01+"&page=$!page&keyWord=$!keyWord&beforeTime=$!beforeTime&afterTime=$!afterTime&activity=$!activity&userId="+a+"&balance="+balance ;
+        }else
+        if(points!=''&points!=null){
+            if(rel.test(points)==false) {
+                alert("请输入正确的美豆!!!")
+                return false;
+            }
+            window.location.href="/business/updateRPB.action?text="+text_01+"&page=$!page&keyWord=$!keyWord&beforeTime=$!beforeTime&afterTime=$!afterTime&activity=$!activity&userId="+a+"&points="+points;
+        } else
+        if(rankScore!=''&rankScore!=null){
+            if(rel.test(rankScore)==false){
+                alert("请输入正确的成长值!!!")
+                return false;
+            }
+            window.location.href="/business/updateRPB.action?text="+text_01+"&page=$!page&keyWord=$!keyWord&beforeTime=$!beforeTime&afterTime=$!afterTime&activity=$!activity&userId="+a+"&rankScore="+rankScore;
+        } else
+        {
+            alert("请选择充值数量!!")
+            return false;
+        }
+    });
+</script>

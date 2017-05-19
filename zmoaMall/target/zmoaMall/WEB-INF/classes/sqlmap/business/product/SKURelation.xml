@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.product.SKURelationDao">
+
+    <!--�ж�ƽ̨Id-->
+    <sql id="b2c_condition">
+        <choose>
+            <when test="shopId != null">and shopId = #{shopId}</when>
+            <otherwise>and shopId is null</otherwise>
+        </choose>
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND pluteformid=#{pluteformid}
+        </if>
+    </sql>
+
+    <insert id="insetSKURelation" parameterType="skuRelation">
+        insert INTO b2c_shop_skurelation(skuid,specid,productid,shopId,pluteformid)
+        VALUES (#{skuId},#{specId},#{productId},#{shopId},#{pluteformid})
+    </insert>
+    <delete id="delSKURelation" parameterType="productInfo">
+        DELETE from b2c_shop_skurelation  WHERE productid=#{productId}
+        <include refid="b2c_condition"/>
+    </delete>
+</mapper>

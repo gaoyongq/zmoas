@@ -1,0 +1,218 @@
+#set($layout = "layout/empty.vm")
+<html>
+<head>
+##    <link rel="stylesheet" href="../../css/pintuer.css">
+##    <link rel="stylesheet" href="../../css/admin.css">
+    <script src="../../js/pintuer.js"></script>
+    <script type="text/javascript" src="../../js/jquery-1.8.3.js"></script>
+</head>
+<script type="text/javascript">
+    $(function(){
+
+        $("#dataTable tbody tr").each(function(i,v){
+            $(v).click(function(){
+                $("#dataTable tbody tr input[type='checkbox']").each(function(){
+                    $(this).removeAttr('checked');
+                });
+                var thisCheckBox = $(v).find('input[type="checkbox"]');
+                thisCheckBox.attr('checked','checked');
+
+                var value = $(v).find('td[a="productSku"]').children().eq(0).val();
+
+                sendRequestData({skuID:value},function(d){
+
+                    //supplierTable
+                    var review = thisCheckBox.attr('review');
+                    var _obj = undefined;
+                    if(review){
+                        _obj = JSON.parse(review);
+                    }
+                    var html = '';
+                    for(var i in d){
+                        var obj = d[i];
+                        html += '<tr>'
+                        html+='<td>'+obj.supplierInfo.name+'</td>';
+                        html+='<td>'+obj.prize+'</td>';
+                        html+='<td>'+obj.count+'</td>';
+                        html+='<td>'+obj.skuInfo.weight+'</td>';
+                        var _num="",_money="",_weight="",_tempView="";
+                        if(_obj){
+                            var o = _obj[obj.supplierInfo.supplierId];
+                            if(o){
+                                _num = o.num|'';
+                                _money= o.prize|'';
+                                _weight= o.weight|'';
+                                if(_num||_money||_weight){
+                                    _tempView = _num+","+_money+","+_weight;
+                                }
+                            }
+                        }
+                        html+='<td><input value="'+_num+'" type="text" t="num" size="4" prize="'+obj.prize+'" count="'+obj.count+'" weight="'+obj.skuInfo.weight+'"></td>';
+                        html+='<td><input value="'+_money+'" type="text" t="money" size="4" readonly/></td>';
+                        html+='<td><input value="'+_weight+'" type="text" t="weight" size="4" readonly/></td>';
+                        html+='<td style="display:none;" t="temp">'+_tempView+'</td>';
+                        html+='<td t="mark" style="display:none;">'+obj.supplierInfo.supplierId+'</td>';
+                        html+='</tr>';
+                    }
+                    $('#supplierTable tbody').html(html);
+
+                })
+            });
+        });
+        //dataTable
+        $("input[t='num']").live('input',function(e){
+            var testValue = $(e.target).val();
+
+            if(testValue){
+                if(isNaN(testValue)){
+                    $(e.target).val(this.num);
+                    return;
+                }else{
+                    this.num=testValue;
+                }
+            }else{
+                testValue = 0;
+            }
+
+            var money = Number($(e.target).attr('prize'))*Number(testValue);
+            var weight = Number($(e.target).attr('weight'))*Number(testValue);
+            $(e.target).parent().parent().find('[t="money"]').val(money);
+            $(e.target).parent().parent().find('[t="weight"]').val(weight);
+            $(e.target).parent().parent().find('[t="temp"]').text(testValue+","+money+","+weight);
+
+            var totalNum= 0,totalPrize= 0,totalWeight=0;
+            var temp = {};
+            $("#supplierTable tbody td[t='temp']").each(function(i,v){
+
+                var value = $(v).text();
+                var mark = $(v).next().text();
+                var temp2 = {};
+                if(value){
+                    var arr = value.split(',');
+                    totalNum+=Number(arr[0]);
+                    totalPrize+=Number(arr[1]);
+                    totalWeight+=Number(arr[2]);
+                    temp2.num=Number(arr[0]);
+                    temp2.prize=Number(arr[1]);
+                    temp2.weight=Number(arr[2]);
+                    temp2.supplierId=mark;
+                    temp2.supplierName=$(v).parent().children().eq(0).text();
+                    temp2.singlePrize=$(v).parent().children().eq(1).text();
+                    temp2.singleCount=$(v).parent().children().eq(2).text();
+                }
+                temp[mark]=temp2;
+            });
+            var son = JSON.stringify(temp);
+            var checkV = $("#dataTable tbody tr input[type='checkbox']:checked");
+            checkV.attr('review',son);
+            $(checkV).parent().parent().find('td[a="purchaseN"]').children().eq(0).val(totalNum);
+            $(checkV).parent().parent().find('td[a="purchaseW"]').children().eq(0).val(totalWeight);
+            $(checkV).parent().parent().find('td[a="purchaseM"]').children().eq(0).val(totalPrize);
+
+
+            //======================
+            //purchaseTable
+            var _totalNum_= 0,_totalPrize_=0,_totalWeight_=0;
+            $("#dataTable td[a='purchaseN'] input").each(function(i,v){
+                _totalNum_+=Number($(v).val());
+            });
+            $("#dataTable td[a='purchaseM'] input").each(function(i,v){
+                _totalPrize_+=Number($(v).val());
+            });
+            $("#dataTable td[a='purchaseW'] input").each(function(i,v){
+                _totalWeight_+=Number($(v).val());
+            });
+            $("#purchaseTable th[b='totalweight'] input").val(_totalWeight_);
+            $("#purchaseTable th[b='totalnumber'] input").val(_totalNum_);
+            $("#purchaseTable th[b='totalmoney'] input").val(_totalPrize_);
+        });
+
+        $("#createBtn").click(function(){
+            /*
+            *
+            * {
+            *   totlePrize:650,
+            *   totalNum:55,
+            *   totalWieight:44,
+            *   list:[
+            *       {code:11111111,object:{id:{},id{}},
+            *       {}
+            *   ]
+            * }
+            * */
+
+            var param = {};
+            var lists = [];
+
+            param.purchaseCode=$("#purchaseTable th[b='purchaseCode'] input").val();
+            param.totalweights=$("#purchaseTable th[b='totalweight'] input").val();
+            param.totalnumbers=$("#purchaseTable th[b='totalnumber'] input").val();
+            param.totalmoneys=$("#purchaseTable th[b='totalmoney'] input").val();
+            param.purchaser=$("#purchaseTable th[b='purchaser'] select").val();
+            $("#dataTable tbody tr").each(function(i,v){
+                var temp = {};
+                var review = $(v).find('input[type="checkbox"]').attr('review');
+                if(review){
+                    var reviewObj = JSON.parse(review);
+                    temp.object = reviewObj;
+                }else{
+                    return;
+                }
+                temp.orderItemId= $(this).find('td[a="orderItemId"]').children().eq(0).val();
+                temp.orderId = $(this).find('td[a="orderId"]').children().eq(0).val();
+                temp.orderCode = $(this).find('td[a="orderCode"]').children().eq(0).val();
+                temp.shipName = $(this).find('td[a="shipName"]').children().eq(0).val();
+                temp.shipAddress = $(this).find('td[a="shipAddress"]').children().eq(0).val();
+                temp.shipCellphone = $(this).find('td[a="shipCellphone"]').children().eq(0).val();
+                temp.orderWeight = $(this).find('td[a="orderWeight"]').children().eq(0).val();
+                temp.productName = $(this).find('td[a="productName"]').children().eq(0).val();
+                temp.productId = $(this).find('td[a="productId"]').children().eq(0).val();
+                temp.productCode = $(this).find('td[a="productCode"]').children().eq(0).val();
+                temp.productSku = $(this).find('td[a="productSku"]').children().eq(0).val();
+                temp.Quantity = $(this).find('td[a="orderQuantity"]').children().eq(0).val();
+                temp.orderCheckStatus = $(this).find('td[a="orderCheckStatus"]').children().eq(0).val();
+                temp.goodsType = $(this).find('td[a="goodsType"]').children().eq(0).val();
+                temp.purchaseNs = $(this).find('td[a="purchaseN"]').children().eq(0).val();
+                temp.purchaseMs = $(this).find('td[a="purchaseM"]').children().eq(0).val();
+                temp.purchaseWs = $(this).find('td[a="purchaseW"]').children().eq(0).val();
+                lists.push(temp);
+            });
+            param.list = lists;
+            var sendParam = JSON.stringify(param);
+            alert(sendParam);
+            //ajax
+            jQuery.ajax({
+                url: "/purchase/makePurchase.action",
+                type: "post",
+                data: {dataList:sendParam},
+                dataType: 'json',
+                success:function(data){
+                }
+
+            })
+        });
+    })
+    function sendRequestData(data,callback){
+        jQuery.ajax({
+            url:'/purchase/selectSupplier.action',
+            data:data,
+            dataType:'json',
+            success:function(d){
+                if(d){
+                    if(callback && typeof callback === 'function'){
+                        callback(d);
+                    }
+                }
+            }
+        });
+    }
+</script>
+<body>
+<div id="content">
+    $screen_content
+</div>
+</body>
+</html>
+<script>
+
+</script>

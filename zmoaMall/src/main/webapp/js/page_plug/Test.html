@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="../jquery-1.9.1.js"></script>
+    <script src="vue.js"></script>
+    <script src="page_support.js"></script>
+    <script src="../bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <link href="../bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <script>
+        $(function(){
+            $("#page").create({page:1,pageSize:10,pageList:[10,20,30],total:1000}).onPageChange(function(page){alert(JSON.stringify(page))});
+        })
+    </script>
+</head>
+<body>
+<div style="height:50px;"></div>
+<div id="page" style="position:fixed;bottom:0;left:0;right:0;height:50px;"></div>
+</body>
+</html>

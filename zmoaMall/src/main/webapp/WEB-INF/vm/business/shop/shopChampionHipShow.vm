@@ -1,0 +1,123 @@
+#set($layout = "layout/empty.vm")
+
+<script type="text/javascript" src="../../../../js/jquery-1.8.3.js"></script>
+<link rel="stylesheet" href="../../css/zmoaStyle.css">
+<link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+<script type="text/javascript" src="../../../../js/zooming.js"></script>
+<script type="text/javascript" src="../../../../js/zooming.js"></script>
+<script src="../../js/jquery.jqprint-0.3.js"></script>
+<script type="text/javascript" src="../../js/jquery.colorbox-min.js"></script>
+<script type="text/javascript" src="../../js/jquery.colorbox.js"></script>
+<script type="text/javascript" src="../../My97DatePicker/WdatePicker.js"></script>
+<link rel="stylesheet" type="text/css" href="../../css/colorbox.css">
+<link rel="stylesheet" type="text/css" href="../../css/WdatePicker.css">
+<link rel="stylesheet" href="../../css/print.css" type="text/css" media="print">
+<script type="text/javascript">
+    $(function(){
+        $("#query").live('click',function(){
+            var month = $("#month").val();
+            var shopId = $("#shopId").val();
+            window.location.href="/business/shop/selShopChampionHip.action?month="+month+"&shopId="+shopId;
+
+        })
+        $("#queryTime").live('click',function(){
+            var startTime = $("#startTime").val();
+            var endTime = $("#endTime").val();
+            window.location.href="/business/shop/selShopChampionHip.action?startTime="+startTime+"&endTime="+endTime;
+
+        })
+        $("#queryShop").live('click',function(){
+            var shopId = $("#shop").val();
+//            var startTime = $("#startTime").val();
+//            var endTime = $("#endTime").val();
+//            window.location.href="/business/shop/selShopChampionHip.action?startTime="+startTime+"&endTime="+endTime+"&shopId="+shopId;
+            window.location.href="/business/shop/selShopChampionHip.action?shopId="+shopId;
+        })
+
+        $("#upPage").live('click',function(){
+            var currentPage = Number($("#currentPage").val()-1);
+            if(currentPage < 1){
+                alert("当前第一页");
+            }else{
+                selData(currentPage);
+            }
+        })
+        //下一页
+        $("#downPage").live('click',function(){
+            var currentPage = Number($("#currentPage").val())+1;
+            var totalPage = Number($("#totalPage").val());
+            if(currentPage>totalPage){
+                alert("当前最后一页");
+            }else{
+                selData(currentPage);
+            }
+        })
+
+        function selData(currentPage){
+            var month = $("#month1").val();
+            var shopId = $("#shopId").val();
+            window.location.href="/business/shop/selShopChampionHip.action?month="+month+"&currentPage="+currentPage+"&shopId="+shopId;
+        }
+    });
+</script>
+<div style="height: 10px"></div>
+<div id="checkOrder">
+        <div class="divtbs">
+            查询月份：<select id="month">
+            <option value="0">请选择</option>
+            <option value="1">1月</option>
+            <option value="2">2月</option>
+            <option value="3">3月</option>
+            <option value="4">4月</option>
+            <option value="5">5月</option>
+            <option value="6">6月</option>
+            <option value="7">7月</option>
+            <option value="8">8月</option>
+            <option value="9">9月</option>
+            <option value="10">10月</option>
+            <option value="11">11月</option>
+            <option value="12">12月</option>
+            </select>
+            <button id="query" class="button border-yellow"><span class="icon-search">确定</span></button>
+##            &nbsp;开始时间：<input type="text" id="startTime" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})">
+##            &nbsp;结束时间：<input type="text" id="endTime" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})">
+##            <button id="queryTime" class="button border-yellow"><span class="icon-search">查询</span></button>
+            选择店铺：<select id="shop">
+                #foreach($shop in $shops)
+                    <option value="$shop.supplierId">$shop.name</option>
+                #end
+##                <option value="37">冯家店铺4</option>
+            </select>
+            <button id="queryShop" class="button border-yellow"><span class="icon-search">确定</span></button>
+            <h3 style=" text-align:center">$!shopName店铺$!month月产品销量</h3>
+            <input type="hidden" value="$!month" id="month1">
+            <input type="hidden" value="$!shopId" id="shopId">
+        </div>
+</div>
+    <table class="table text-center" id="orderTable">
+            <tr>
+                <th>产品编号</th>
+                <th>产品名称</th>
+                <th>产品单价</th>
+                <th>月销量</th>
+            </tr>
+            #foreach($order in $orderInfos)
+                #foreach($s in $order.orderItems)
+                    <tr>
+                        <td>$s.productId</td>
+                        <td>$s.name</td>
+                        <td>$s.sellPrice</td>
+                        <td>$s.quantity</td>
+                    </tr>
+                #end
+            #end
+    </table>
+</div>
+<div id="fenYe" align="right">
+    $!currentPage/$!totalPage &nbsp;&nbsp;<a href="#" id="upPage">上一页</a>&nbsp;&nbsp;<a href="#" id="downPage">下一页</a>
+    <input type="hidden" id="currentPage" value="$!currentPage">
+    <input type="hidden" id="totalPage" value="$!totalPage">
+    <input id="currentPage1" type="hidden" name="currentPage">
+</div>
+
+

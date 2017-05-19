@@ -1,0 +1,431 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>商家信息</title>
+    <link href="/css/style.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script src="../../js/jquery.js"></script>
+    <script type="text/javascript" src="/js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="../../My97DatePicker/WdatePicker.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            //获得产地
+            $("#Regionfirst").change(function () {
+                var select = "<option  value='0'  checked='checked'>请选择</option>";
+                var fatherId = $("#Regionfirst option:selected").val();
+                var depath = 2;
+                if (fatherId != null && fatherId != '') {
+                    jQuery.post("/supplierInfo/getAddress.action", {
+                        "fatherId": fatherId,
+                        "depath": depath
+                    }, function (data) {
+                        for (var r = 0; r < data.length; r++) {
+                            select += "<option value='" + data[r].regionId + "'>" + data[r].regionName + "</option>"
+                        }
+                        $("#Regionsecond option").remove();
+                        $("#Regionthree option").remove();
+                        $("#Regionsecond").append(select);
+                        $("#Regionthree").append("<option  value='0'  checked='checked'>请选择</option>");
+                    });
+                } else {
+                    $("#Regionsecond option").remove();
+                    $("#Regionsecond").append(select);
+                    $("#Regionthree option").remove();
+                    $("#Regionthree").append("<option  value='0'  checked='checked'>请选择</option>");
+                }
+            });
+            //二级产地
+            $("#Regionsecond").change(function () {
+                var select = "<option value='0' checked='checked'>请选择</option>";
+                var fatherId = $("#Regionsecond option:selected").val();
+                var depath = 3;
+                if (fatherId != null && fatherId != '') {
+                    jQuery.post("/supplierInfo/getAddress.action", {
+                        "fatherId": fatherId,
+                        "depath": depath
+                    }, function (data) {
+                        for (var r = 0; r < data.length; r++) {
+                            select += "<option value='" + data[r].regionId + "'>" + data[r].regionName + "</option>"
+                        }
+                        $("#Regionthree option").remove();
+                        $("#Regionthree").append(select);
+                    });
+                } else {
+                    $("#Regionthree option").remove();
+                    $("#Regionthree").append(select);
+                }
+            });
+            $("#province").change(function () {
+                var select = "<option  value='0'  checked='checked'>请选择</option>";
+                var fatherId = $("#province option:selected").val();
+                var depath = 2;
+                if (fatherId != null && fatherId != '') {
+                    jQuery.post("/supplierInfo/getAddress.action", {
+                        "fatherId": fatherId,
+                        "depath": depath
+                    }, function (data) {
+                        for (var r = 0; r < data.length; r++) {
+                            select += "<option value='" + data[r].regionId + "'>" + data[r].regionName + "</option>"
+                        }
+                        $("#city option").remove();
+                        $("#county option").remove();
+                        $("#city").append(select);
+                        $("#county").append("<option  value='0'  checked='checked'>请选择</option>");
+                    });
+                } else {
+                    $("#city option").remove();
+                    $("#city").append(select);
+                    $("#county option").remove();
+                    $("#county").append("<option  value='0'  checked='checked'>请选择</option>");
+                }
+            });
+            //二级地址
+            $("#city").change(function () {
+                var select = "<option value='0' checked='checked'>请选择</option>";
+                var fatherId = $("#city option:selected").val();
+                var depath = 3;
+                if (fatherId != null && fatherId != '') {
+                    jQuery.post("/supplierInfo/getAddress.action", {
+                        "fatherId": fatherId,
+                        "depath": depath
+                    }, function (data) {
+                        for (var r = 0; r < data.length; r++) {
+                            select += "<option value='" + data[r].regionId + "'>" + data[r].regionName + "</option>"
+                        }
+                        $("#county option").remove();
+                        $("#county").append(select);
+                    });
+                } else {
+                    $("#county option").remove();
+                    $("#county").append(select);
+                }
+            })
+        })
+    </script>
+</head>
+<body>
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li><a>修改</a></li>
+    </ul>
+</div>
+
+<form class="form-x" method="post" action="/supplierInfo/updateSupplierInfo.action">
+    <input type="hidden" name="supplierId" value="$supplierInfoResult.supplierId" >
+    <div class="form-group">
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">商店名称:</div>
+            </div>
+            <div class="field">
+                <input type="text" name="name" class="input w50" value="$supplierInfoResult.name">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">成立时间:</div>
+            </div>
+            <div class="field">
+                <input type="text" name="establishedDate" class="input w50" value="$!date.format('yyyy-MM-dd',$supplierInfoResult.establishedDate)" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">注册资本:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="registeredCapital" value="$supplierInfoResult.registeredCapital">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">账户余额:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="balance" value="$supplierInfoResult.balance">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename"> 电话:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="telPhone" value="$supplierInfoResult.telPhone">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">手机:</div>
+            </div>
+            <div class="field">
+                <input type="text" name="cellPhone" class="input w50" value="$supplierInfoResult.cellPhone">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">联系邮箱:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50"  name="contactMail" value="$supplierInfoResult.contactMail">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">省/市/县:</div>
+            </div>
+            <div class="field">
+                <select id="Regionfirst" name="Regionfirst">
+                    <option value="0">请选择</option>
+                    #foreach($r in $regionInfos)
+                        <option value="$r.regionId" #if($r.regionId==$supplierInfoResult.establishedPlace.provinceId)
+                                selected="selected"
+                        #end
+                                >$r.regionName</option>
+                    #end
+                </select>
+                <select id="Regionsecond" name="Regionsecond" >
+                    <option value="0">请选择</option>
+                    #foreach($c in $regionInfosNext)
+                        <option value="$c.regionId" #if($c.regionId==$supplierInfoResult.establishedPlace.cityId)
+                                selected="selected"
+                        #end>$c.regionName</option>
+                    #end
+                </select>
+                <select id="Regionthree" name="establishedCity" >
+                    <option value="0">请选择</option>
+                    #foreach($c in $regionInfosLast)
+                        <option value="$c.regionId" #if($c.regionId==$supplierInfoResult.establishedPlace.countyId)
+                                selected="selected"
+                        #end>$c.regionName</option>
+                    #end
+                </select>
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">注册地:</div>
+            </div>
+            <div class="field">
+                <select id="province">
+                    <option value="0"
+                            selected="selected">请选择</option>
+                    #foreach($r in $regionInfos)
+                        <option value="$r.regionId" #if($r.regionId==$supplierInfoResult.aaregionpriceimport.provinceId)
+                                selected="selected"
+                        #end
+                                >$r.regionName</option>
+                    #end
+                </select>
+                <select id="city">
+                    <option value="0">请选择</option>
+                    #foreach($c in $city)
+                        <option value="$c.regionId" #if($c.regionId==$supplierInfoResult.aaregionpriceimport.cityId)
+                                selected="selected"
+                        #end>$c.regionName</option>
+                    #end
+                </select>
+                <select id="county" name="regionId">
+                    <option value="0">请选择</option>
+                    #foreach($c in $county)
+                        <option value="$c.regionId" #if($c.regionId==$supplierInfoResult.aaregionpriceimport.countyId)
+                                selected="selected"
+                        #end>$c.regionName</option>
+                    #end
+                </select>
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">详细地址:</div>
+            </div>
+            <div class="field">
+                <input type="text" name="address" class="input w50" value="$supplierInfoResult.address">
+            </div>
+        </div>
+        <<div class="body-content">
+            <div class="label">
+                <div for="sitename">联系人:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="contact" value="$supplierInfoResult.contact">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">传真:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="fax" value="$supplierInfoResult.fax">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">邮编:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="postCode" value="$supplierInfoResult.postCode">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">主页:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="homePage" value="$supplierInfoResult.homePage">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">法人:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="artiPerson" value="$supplierInfoResult.artiPerson">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">商家等级:</div>
+            </div>
+            <div class="field">
+                <select name="rank" class="input w50">
+                    <option value="0">请选择</option>
+                    <option value="1" #if($supplierInfoResult.rank==1)selected="selected" #end>一星级</option>
+                    <option value="2" #if($supplierInfoResult.rank==2)selected="selected" #end>二星级</option>
+                    <option value="3" #if($supplierInfoResult.rank==3)selected="selected" #end>三星级</option>
+                    <option value="4" #if($supplierInfoResult.rank==4)selected="selected" #end>四星级</option>
+                    <option value="5" #if($supplierInfoResult.rank==5)selected="selected" #end>五星级</option>
+                </select>
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">商家分类:</div>
+            </div>
+            <div class="field">
+                <select name="categoryId" class="input w50">
+                    <option value="0">请选择</option>
+                    <option value="1" #if($supplierInfoResult.categoryId==1)selected="selected" #end>合资</option>
+                    <option value="2" #if($supplierInfoResult.categoryId==2)selected="selected" #end>独资</option>
+                    <option value="3" #if($supplierInfoResult.categoryId==3)selected="selected" #end>国有</option>
+                    <option value="4" #if($supplierInfoResult.categoryId==4)selected="selected" #end>私营</option>
+                    <option value="5" #if($supplierInfoResult.categoryId==5)selected="selected" #end>全民所有制</option>
+                    <option value="6" #if($supplierInfoResult.categoryId==6)selected="selected" #end>集体所有制</option>
+                    <option value="7" #if($supplierInfoResult.categoryId==7)selected="selected" #end>股份制</option>
+                    <option value="8" #if($supplierInfoResult.categoryId==8)selected="selected" #end>有限责任制</option>
+                </select>
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">公司性质:</div>
+            </div>
+            <div class="field">
+                <select name="companyType" class="input w50">
+                    <option value="0">请选择</option>
+                    <option value="1" #if($supplierInfoResult.companyType==1)selected="selected" #end>个体工商</option>
+                    <option value="2" #if($supplierInfoResult.companyType==2)selected="selected" #end>私营独资商家</option>
+                    <option value="3" #if($supplierInfoResult.companyType==3)selected="selected" #end>国营商家</option>
+                </select>
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">税务登记:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="taxNumber" value="$supplierInfoResult.taxNumber">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">开户银行:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="accountBank" value="$supplierInfoResult.accountBank">
+            </div>
+        </div>
+
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">账号信息:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="accountInfo" value="$supplierInfoResult.accountInfo">
+            </div>
+        </div>
+
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">MSN:</div>
+            </div>
+            <div class="field">
+                <input type="text" class="input w50" name="msn" value="$supplierInfoResult.msn">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">状态:</div>
+            </div>
+            <div class="field" style="padding-top:8px;">
+                未审核<input type="radio" value="0"  name="status" #if($supplierInfoResult.status==0)checked="checked" #end>
+                已审核<input type="radio" value="1" name="status"  #if($supplierInfoResult.status==1)checked="checked" #end>
+                冻结<input type="radio" value="2" name="status"  #if($supplierInfoResult.status==2)checked="checked" #end>
+                删除<input type="radio" value="3" name="status"  #if($supplierInfoResult.status==3)checked="checked" #end>
+            </div>
+        </div>
+
+        <div class="body-content">
+            <div class="label">
+                <div>商家介绍:</div>
+            </div>
+            <div class="field">
+                <textarea name="introduction" class="input" style="height:80px;width: 25%;">$supplierInfoResult.introduction</textarea>
+            </div>
+        </div>
+
+        <div class="body-content">
+            <div class="label">
+                <div>备注:</div>
+            </div>
+            <div class="field">
+                <textarea name="reMark" class="input" style="height:80px;width: 25%;">$supplierInfoResult.reMark</textarea>
+            </div>
+        </div>
+
+        <div class="body-content">
+            <div class="label">
+                <div>关联商品品牌：</div>
+            </div>
+            <div class="field" style="padding-top:8px;">
+                #foreach($b in $brands)
+                    $b.brandName<input type="checkbox" value="$b.brandId" name="ids"
+                        #foreach($b1 in $supplierInfoResult.brandInfos)
+                            #if($b1.brandId==$b.brandId)
+                                checked="checked"
+                            #end
+                        #end>
+                #end
+            </div>
+        </div>
+
+        <div class="form-foot">
+            <button class="button border-green icon-check" type="submit"> 提交</button>&nbsp;
+            <input type="button" class="button border-blue" value="返回" class="input-button" onclick="history.back(-1);" />
+        </div>
+    </div>
+##
+##        <div class="form-group">
+##            <div class="label">
+##            </div>
+##            <div class="field">
+##                <input type="submit" class="button border-green" value="修改">
+##                <input type="button" class="button border-green" value="返回" onclick="javascript:history.back(-1);">
+##            </div>
+##        </div>
+</form>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.product.ProductAttributeDao">
+       <resultMap id="ProductAttributeMap" type="com.zm.mall.domain.business.product.ProductAttribute">
+              <result column="productId" property="productId" jdbcType="BIGINT"></result>
+              <result column="attributeId" property="attributeId" jdbcType="BIGINT"></result>
+              <result column="valueId" property="valueId" jdbcType="BIGINT"></result>
+       </resultMap>
+
+    <!--平台Id-->
+    <sql id="b2c_condition">
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND pluteformid=#{pluteformid}
+        </if>
+    </sql>
+    <insert id="insertProductAttribute" parameterType="productAttribute">
+        insert INTO
+         b2c_shop_productattributes(productId,attributeId,valueId,shopId,pluteformid)
+        VALUES (#{productId},#{attributeId},#{valueId},#{shopId},#{pluteformid})
+    </insert>
+    <delete id="delProductAttribute" parameterType="productInfo">
+        DELETE
+        from  b2c_shop_productattributes
+        WHERE productId=#{productId}
+        <include refid="b2c_condition"/>
+    </delete>
+</mapper>

@@ -1,0 +1,132 @@
+#set($layout = "layout/user_layout.vm")
+<input type="hidden" value="$!text" id="text_01">
+<input type="hidden" value="$!activity" id="activityId"> #*是否激活*#
+<input type="hidden" value="$!keyWord" id="keyId"> #*关键字*#
+<input type="hidden" value="$!beforeTime" id="beforeTimeId">
+<input type="hidden" value="$!afterTime" id="afterTimeId">
+<input type="hidden" value="$!page" id="pageId">
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li><a>$!Users.userName的详细信息</a></li>
+    </ul>
+</div>
+<div style="width: 45%">
+        <table class="table text-center">
+                <tr>
+                   <td>
+                       <span>用户名:</span>
+                   </td>
+                    <td>
+                        $!Users.userName
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span>昵称:</span>
+                    </td>
+                    <td>
+                        $!Users.nickName
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span>性别:</span>
+                    </td>
+                    <td>
+                        #if($Users.sex==0)
+                            女
+                        #else
+                            男
+                        #end
+                    </td>
+                </tr>
+                <tr>
+                      <td>
+                          <span>电话:</span>
+                      </td>
+                    <td>
+                        $!Users.phone
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span>Email:</span>
+                    </td>
+                    <td>
+                        $!Users.email
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span>状态:</span>
+                    </td>
+                    <td>
+                        #if($Users.activity==0)
+                            未激活
+                        #else
+                            已激活
+                        #end
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span>美豆:</span>
+                    </td>
+                    <td>
+                        $!Users.usersExp.points
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span>成长值:</span>
+                    </td>
+                    <td>
+                        $!Users.usersExp.balance
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span>个性签名:</span>
+                    </td>
+                    <td>
+                        $!Users.usersExp.singature
+                    </td>
+                 </tr>
+                  <tr>
+                    <td>
+                        <span>注册时间:</span>
+                    </td>
+                      <td>
+                          $!Users.userDateCreate
+                      </td>
+                  </tr>
+                 <tr>
+                     <td>
+                         <span>最后登录时间:</span>
+                     </td>
+                     <td>
+                         $date.format('yyyy-MM-dd HH:mm:ss',$!Users.usersExp.lastLoginTime)
+                     </td>
+                 </tr>
+        </table>
+
+##<input type="button" value="返回" id="return" style="font-size: 20px;">
+</div>
+<div style="height: 10px"></div>
+<div style="width: 45%;text-align: center">
+    <input type="button" class="button border-blue input-button" value="返回"  onclick="history.back(-1);" />
+</div>
+<script>
+            $(function(){
+                $("#return").click(function(){
+                    var activityId = $("#activityId").val();//是否激活
+                    var keyId = $("#keyId").val();//关键字
+                    var beforeTimeId = $("#beforeTimeId").val();//开始时间
+                    var afterTimeId = $("#afterTimeId").val();//结束时间
+                    var pageId = $("#pageId").val();
+                    var text=$("#text_01").val();
+                   window.location.href="/business/pageBeanUser.action?page=" + pageId + "&keyWord=" + keyId + "&beforeTime=" + beforeTimeId + "&afterTime=" + afterTimeId + "&activity=" + activityId + "&text="+text;
+                });
+            })
+</script>

@@ -1,0 +1,363 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>111111</title>
+    <script type="text/javascript" src="../../js/jquery-1.9.1.js"></script>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script type="text/javascript" src="../../js/jquery.colorbox.js"></script>
+#* <script type="text/javascript" src="../../js/jquery.colorbox-min.js"></script>*#
+    <script type="text/javascript" src="../../My97DatePicker/WdatePicker.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../css/colorbox.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/WdatePicker.css"/>
+
+
+##    <style type="text/css">
+##        body,table, #activity
+##        {
+##            text-align: center;
+##        }
+##        .top_01 td
+##        {
+##            height: 10px;
+##            width: 150px;
+##        }
+##        .group1
+##        {
+##            text-decoration: none;
+##        }
+##        .group1:visited {
+##            color:#00FF00;
+##            text-decoration:none;
+##        }
+##
+##        .group1:hover {
+##            color:#000000;
+##            text-decoration:none;
+##        }
+##
+##        .group1:active {
+##            color:#FFFFFF;
+##            text-decoration:none;
+##        }
+##
+##    </style>
+
+    <script type="text/javascript">
+
+        $(document).ready(function(){
+            //Examples of how to assign the Colorbox event to elements
+            $(".group1").colorbox({rel:'group1'});
+        });
+
+                /*  用户地址的添加*/
+            $(function(){
+                $(".address").click(function(){
+                    var text="";
+                    var activityId = $("#activityId").val();//是否激活
+                    var keyId = $("#keyId").val();//关键字
+                    var beforeTimeId = $("#beforeTimeId").val();//开始时间
+                    var afterTimeId = $("#afterTimeId").val();//结束时间
+                    var pageId = $("#pageId").val();
+                    $("input[name=check]").each(function () {
+                        if ($(this).prop("checked")) {
+                            text += $(this).val() + ",";
+                        }
+                    });
+                    var a = text.split(",").length;
+                    if (a == 1) {//没有点击
+                        alert("请选择要添加的用户!!");
+                        return false;
+                    } else if (a > 2) {//点击超过1个
+                        alert("请选择一个用户进行操作!!!");
+                        return false;
+                    } else {
+                        var id = text.split("/")[0];
+                        var name = text.split("/")[1];
+                        var text1=text.split(",")[0];
+                        window.location.href="/business/userAddress.action?page="+pageId+"&keyWord="+keyId+"&beforeTime="+beforeTimeId+"&afterTime="+afterTimeId+"&activity="+activityId+"&name="+name+"&text="+text1+"&id="+id;
+                    }
+                });
+          });
+
+
+        //对用户的分数进行 操作
+        $(function(){
+            $(".userScore").click(function(){
+                var text="";
+                var totalScore="";
+                var activityId = $("#activityId").val();//是否激活
+                var keyId = $("#keyId").val();//关键字
+                var beforeTimeId = $("#beforeTimeId").val();//开始时间
+                var afterTimeId = $("#afterTimeId").val();//结束时间
+                var pageId = $("#pageId").val();
+                $("input[name=check]").each(function () {
+                    if ($(this).prop("checked")) {
+                        text += $(this).val() + ",";
+                        totalScore = $(this).siblings(".totalScore").val();//获取总分数
+                    }
+                });
+                var a = text.split(",").length;
+                if (a == 1) {//没有点击
+                    alert("请选择要查看的用户!!");
+                    return false;
+                } else if (a > 2) {//点击超过1个
+                    alert("请选择一个用户进行操作!!!");
+                    return false;
+                } else {
+                    var id = text.split("/")[0];
+                    var text1=text.split(",")[0];
+                    window.location.href = "/business/userScore.action?totalScore="+totalScore+"&text="+text1+"&page="+pageId+"&keyWord="+keyId+"&beforeTime="+beforeTimeId+"&afterTime="+afterTimeId+"&activity="+activityId+"&userId="+id;
+                }
+
+             })
+        })
+
+        /**
+         * 点击账户充值等
+         */
+        $(function() {
+            $("#balance_01").click(function(){
+                var text = "";
+                var text1 = "";
+                var activityId = $("#activityId").val();//是否激活
+                var keyId = $("#keyId").val();//关键字
+                var beforeTimeId = $("#beforeTimeId").val();//开始时间
+                var afterTimeId = $("#afterTimeId").val();//结束时间
+                var pageId = $("#pageId").val();
+                $("input[name=check]").each(function () {
+                    if ($(this).prop("checked")) {
+                        text += $(this).val() + ",";
+                        text1 = $(this).siblings('input').val();//账户余额/美豆/成长值
+                    }
+                });
+                var a = text.split(",").length;
+                if (a == 1) {//没有点击
+                    alert("请选择要充值的用户!!");
+                    return false;
+                } else if (a > 2) {//点击超过1个
+                    alert("请选择一个用户进行操作!!!");
+                    return false;
+                } else {
+                    var id = text.split("/")[0];
+                    var balance = text1.split("/")[0];
+                    var text1=text.split(",")[0];
+                    var href="/business/TopUp.action?text="+text1+"&page="+pageId+"&keyWord="+keyId+"&beforeTime="+beforeTimeId+"&afterTime="+afterTimeId+"&activity="+activityId+"&userId="+id+"&balance="+balance;
+                    $("#balance_01").attr("href",href);
+                   // window.location.href = "/shopItemRank/TopUp.action?page="+pageId+"&keyWord="+keyId+"&beforeTime="+beforeTimeId+"&afterTime="+afterTimeId+"&activity="+activityId+"&userId="+id+"&balance="+balance;
+                }
+            })
+        });
+            /**
+             * 点击美豆充值等
+             */
+            $(function() {
+                $("#points_01").click(function () {
+                    var text = "";
+                    var text1 = "";
+                    var activityId = $("#activityId").val();//是否激活
+                    var keyId = $("#keyId").val();//关键字
+                    var beforeTimeId = $("#beforeTimeId").val();//开始时间
+                    var afterTimeId = $("#afterTimeId").val();//结束时间
+                    var pageId = $("#pageId").val();
+                    $("input[name=check]").each(function () {
+                        if ($(this).prop("checked")) {
+                            text += $(this).val() + ",";
+                            text1 = $(this).siblings('input').val();//账户余额/美豆/成长值
+                        }
+                    });
+                    var a = text.split(",").length;
+                    if (a == 1) {//没有点击
+                        alert("请选择要充值的用户!!");
+                        return false;
+                    } else if (a > 2) {//点击超过1个
+                        alert("请选择一个用户进行操作!!!");
+                        return false;
+                    } else {
+                        var id = text.split("/")[0];
+                        var point = text1.split("/")[1];
+                        var text1=text.split(",")[0];
+                        var href= "/business/TopUp.action?text="+text1+"&page=" + pageId + "&keyWord=" + keyId + "&beforeTime=" + beforeTimeId + "&afterTime=" + afterTimeId + "&activity=" + activityId + "&userId=" + id + "&points=" + point;
+                        $("#points_01").attr("href",href)
+                    }
+                })
+            })
+                /**
+                 * 点击成长值充值等
+                 */
+                $(function() {
+                    $("#rankScore_01").click(function () {
+                        var text = "";
+                        var text1 = "";
+                        var activityId = $("#activityId").val();//是否激活
+                        var keyId = $("#keyId").val();//关键字
+                        var beforeTimeId = $("#beforeTimeId").val();//开始时间
+                        var afterTimeId = $("#afterTimeId").val();//结束时间
+                        var pageId = $("#pageId").val();
+                        $("input[name=check]").each(function () {
+                            if ($(this).prop("checked")) {
+                                text += $(this).val() + ",";
+                                text1 = $(this).siblings('input').val();//账户余额/美豆/成长值
+                            }
+                        });
+                        var a = text.split(",").length;
+                        if (a == 1) {//没有点击
+                            alert("请选择要充值的用户!!");
+                            return false;
+                        } else if (a > 2) {//点击超过1个
+                            alert("请选择一个用户进行操作!!!");
+                            return false;
+                        } else {
+                            var id = text.split("/")[0];
+                            var rankScore = text1.split("/")[2];
+                            var text1=text.split(",")[0];
+                            var href="/business/TopUp.action?text="+text1+"&page=" + pageId + "&keyWord=" + keyId + "&beforeTime=" + beforeTimeId + "&afterTime=" + afterTimeId + "&activity=" + activityId + "&userId=" + id + "&rankScore=" + rankScore;
+                            $("#rankScore_01").attr("href",href)
+                        }
+                    })
+                });
+
+
+        $(function(){
+            //获取美豆明细
+            $(".pointDetailed").click(function(){
+                var text="";
+                var activityId = $("#activityId").val();//是否激活
+                var keyId = $("#keyId").val();//关键字
+                var beforeTimeId = $("#beforeTimeId").val();//开始时间
+                var afterTimeId = $("#afterTimeId").val();//结束时间
+                var pageId = $("#pageId").val();
+
+                $("input[name=check]").each(function() {
+                    if ($(this).prop("checked")) {
+                        text += $(this).val()+",";
+                    }
+                });
+                var a=text.split(",").length;
+                if(a==1){//没有点击
+                    alert("请选择查看的用户!!!");
+                    return false;
+                }else if(a>2){//点击超过1个
+                    alert("请选择一个用户进行操作!!!");
+                    return false;
+                }else
+                {
+                    var id=text.split("/")[0];
+                    var name=text.split("/")[1].split(",")[0];
+                    var text1=text.split(",")[0];
+                    window.location.href="/business/PointDetail.action?page=" + pageId + "&keyWord=" + keyId + "&beforeTime=" + beforeTimeId + "&afterTime=" + afterTimeId + "&activity=" + activityId + "&text="+text1+"&userId="+id+"&nickName="+name;
+                }
+            })
+
+        })
+        //点击用户一行时  展示珠子列表
+       $(function(){
+            $(".top_01 td").click(function(){
+               var userId= $(this).siblings(".userId").text();//获取点击的用户Id*/
+                var userName= $(this).siblings(".userName").text();//获取用户名
+                if($(this).parents().siblings().hasClass("a_"+userId+"")){
+                    $(".a_" + userId + " ").hide();
+                    $(this).parents().siblings().removeClass("a_"+ userId+"");
+                }else{
+                    jQuery.ajax({
+                        url: "/business/address.action",
+                        type: 'POST',
+                        data: {userId: userId},
+                        dataType: 'json',
+                        success: function (data) {
+                            var arr = eval(data);
+                            var path="";
+                            var str = "<tr class='a_"+userId+"' id='disp' ><td></td><td colspan='14'><table class='tableson' border='1'><tr><th>用户名</th><th>省份</th><th>收货地址</th><th>电话</th><th>邮箱</th></tr>";
+                            for (var i = 0; i < arr.length; i++) {
+                                //显示在页面
+                                str+="<tr class='a_" + userId + "'>";
+                                str +="<td>"+arr[i]['users']['userName']+"</td>";//用户名
+                               /* str +="<td>"+arr[i]['msRegions']['path']+"</td>";*/
+                                str +="<td limit='8' class='marks' title='"+arr[i]['msRegions']['regionName']+"'>"+arr[i]['msRegions']['regionName']+"</td>";//省份
+                                str +="<td>"+arr[i]['address']+"</td>";//地址
+                                str +="<td>"+arr[i]['telPhone']+"</td>";//电话号码
+                                str +="<td>"+arr[i]['zipcode']+"</td>";
+                                str+="</tr>";
+                            }
+                                 str+="</table></td></tr>";
+                            $("#b_" + userId + " ").siblings(".a_"+userId+"").remove();//原先有的给删除掉
+                            $("#b_" + userId + " ").after(str);//后面追加
+                             $(".marks").each(function(){
+                                 var text=$(this).text().length;
+                                 var text1=$(this).text();
+                                 var  limit=$(this).attr("limit");
+                                 if(text>limit){
+                                     $(this).text(text1.substring(0,8)+"....")
+                                 }
+                             })
+                        }
+                    })
+                }
+            })
+        });
+
+            //模糊查询
+            $(function(){
+                $("#fond").click(function(){
+                    var a=$(".keyWord").val();//获取关键字
+                    var b=$("#activity option:selected").val();//获取是否激活
+                    var c=$(".Wdate").val();//前面日期
+                    var d=$(".Wdate1").val();//后面日期
+                    window.location.href="/business/pageBeanUser.action?keyWord="+a+"&activity="+b+"&beforeTime="+c+"&afterTime="+d+" ";
+                })
+        });
+    </script>
+    <script>
+        window.createIndex = function () {
+            //添加 等待层
+            jQuery.blockUI({
+                css: {
+                    border: 'none',
+                    padding: '15px',
+                    backgroundColor: '#000',
+                    '-webkit-border-radius': '10px',
+                    '-moz-border-radius': '10px',
+                    opacity: .5,
+                    color: '#fff',
+                    baseZ: 9999
+                } ,
+                message: '<img src="/images/loading.gif" /><h3>正在处理中，请稍后！</h3>'
+            });
+
+        }
+        window.delUI = function (){
+            jQuery.unblockUI();
+        }
+
+
+
+        function doLoad(url,divId) {
+            if(divId ==null){
+                divId = "content";
+            }
+            if(parseInt(url.indexOf("?"))!=-1){
+                url=url+ "&rand=" + Math.random();
+            }else{
+                url=url+ "?rand=" + Math.random();
+            };
+            createIndex();
+
+            $("#"+divId).load(url, function(data) {
+                delUI();
+                if (data == null || data == '') {
+                    alert("页面加载失败,请重试");
+                }
+            });
+        }
+    </script>
+
+
+</head>
+<body>
+<div id="content">
+    $screen_content
+</div>
+</body>
+</html>

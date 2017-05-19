@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.user.UserDao">
+    <select id="login" parameterType="user" resultMap="getUser">
+        select b2c_user.id,b2c_user.passWord,b2c_user.realname,b2c_user.pluteformid,b2c_user.shopId as shopId,b2c_user.ParentPluteformId,b2c_user.loginState,b2c_department.id as  departmentId,
+        b2c_department.name as departmentName, b2c_role.id as roleId,b2c_role.name as roleName from b2c_user LEFT JOIN b2c_role_user
+        on b2c_user.id= b2c_role_user.user_id LEFT JOIN b2c_role
+        ON  b2c_role_user.role_id= b2c_role.id left join b2c_department on b2c_user.department_Id=b2c_department.id
+        where realName=#{realName} and password=#{password} and loginState=1
+    </select>
+    <sql id="all_column_user">u.id,u.name,u.password,u.gender,u.description,u.department_id,u.phone,u.realName</sql>
+    <sql id="all_column_department">d.id as departmentId,d.name as departmentName,d.description</sql>
+    <sql id="all_column_role">r.id as roleId ,r.name as roleName </sql>
+    <resultMap id="getUser" type="user">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="password" column="password"/>
+        <result property="realName" column="realName"/>
+        <result property="gender" column="gender"/>
+        <result property="phone" column="phone"/>
+        <result property="email" column="email"/>
+        <result property="email" column="email"/>
+        <result property="state" column="state"/>
+        <result property="description" column="description"/>
+        <result property="ParentPluteformId" column="ParentPluteformId"/>
+        <result property="PluteformStatus" column="PluteformStatus"/>
+        <result property="loginState" column="loginState"/>
+        <result property="shopId" column="shopId"/>
+        <result property="pluteformid" column="pluteformid"/>
+        <result property="openId" column="openId"/>
+        <association property="department" javaType="Department">
+            <id property="id" column="departmentId"/>
+            <result property="name" column="departmentName"/>
+            <result property="description" column="Dde"/>
+            <result property="pluteformid" column="pluteformid"/>
+        </association>
+        <collection property="roles" ofType="role">
+            <id property="id" column="roleId"/>
+            <result property="name" column="roleName"/>
+            <result property="description" column="roleDescription"/>
+            <collection property="privileges" ofType="role" select="selectPrivileges" column="{id=roleId}" >
+            <id property="id" column="Pid" jdbcType="BIGINT"/>
+            <result property="name" column="PrivilegeName" jdbcType="VARCHAR"/>
+            <result property="url" column="urlName" jdbcType="VARCHAR"/>
+            <result property="cion" column="cion" jdbcType="VARCHAR"/>
+            <result property="url" column="urlName" jdbcType="VARCHAR"/>
+            <result property="privilegeid" column="privilegeid" jdbcType="BIGINT"/>
+            <result property="pluteformid" column="pluteformid" jdbcType="VARCHAR"/>
+        </collection>
+        </collection>
+    </resultMap>
+    <resultMap id="getprivilege" type="privileges"></resultMap>
+   <!--根据roleID通过查询privilege_role关联表得到相关权限-->
+    <select id="selectPrivileges" resultMap="getprivilege" >
+        select *  FROM b2c_privilege
+        WHERE b2c_privilege.id IN (SELECT privilege_id FROM b2c_privilege_role WHERE role_privilege=#{id})
+<!--AND b2c_privilege.pluteformid=#{pluteformid}-->
+    </select>
+    <!-- 查询所有的-->
+    <select id="select" resultMap="UserMap"  parameterType="userPage"  >
+        SELECT  b2c_user.id,b2c_user.state, b2c_user.name,b2c_user.realName,b2c_user.phone,b2c_user.gender,b2c_user.shopId,
+        b2c_user.loginState,b2c_department.name as departmentName,b2c_department.id as departmentId,b2c_department.description,
+        b2c_role.name as roleName,b2c_role.id as roleId,b2c_role.description as roleDescription from
+        b2c_user ,b2c_department ,b2c_role ,b2c_role_user
+        where b2c_user.Parentpluteformid=#{pluteformid}
+        AND b2c_user.department_id=b2c_department.id
+        AND b2c_user.state='在职'
+        <if test="dId !=null  and  dId  !='' ">
+        and  b2c_department.id=#{dId}
+        </if>
+        and b2c_user.id=b2c_role_user.user_id and b2c_role_user.role_id=b2c_role.id
+        <if test="realName !=null  and  realName  !='' ">
+            and b2c_user.realName like CONCAT(CONCAT('%', #{realName}), '%')
+        </if>
+        Limit #{beginNumber},#{pageSize}
+    </select>
+    <!--人员分页展示-->
+    <select id="selectUserCount" resultType="integer" parameterType="userPage">
+        SELECT  COUNT(*) from
+        b2c_user ,b2c_department ,b2c_role ,b2c_role_user
+        where b2c_user.parentpluteformid=#{pluteformid}
+        AND b2c_user.department_id=b2c_department.id
+        AND b2c_user.state='在职'
+        <if test="dId !=null  and  dId  !='' ">
+            and  b2c_department.id=#{dId}
+        </if>
+        and b2c_user.id=b2c_role_user.user_id and b2c_role_user.role_id=b2c_role.id
+        <if test="realName !=null  and  realName  !='' ">
+            and b2c_user.realName like CONCAT(CONCAT('%', #{realName}), '%')
+        </if>
+    </select>
+
+
+
+    <!-- 插入记录 -->
+    <insert id="insertEntry" parameterType="user" useGeneratedKeys="true" keyProperty="id">
+         INSERT INTO b2c_user
+         (   name,  password ,state , realName ,gender ,phone,email,description,department_id,pluteformid,ParentPluteformId,PluteformStatus,loginState) VALUES
+         (   #{name} , #{password}, #{state},#{realName} ,#{gender} ,#{phone},#{email},#{description},#{department.id},#{pluteformid},#{ParentPluteformId },#{PluteformStatus},1)
+     </insert>
+    <insert id="insertRoleUser" parameterType="user">
+      insert into b2c_role_user(user_id,role_id,pluteformid)VALUES(#{id},#{roleId},#{pluteformid})
+    </insert>
+
+    <!--  通过主键更新-->
+    <update id="update" parameterType="user">
+        update b2c_user set
+        <if test="name !=null  and  name  !='' ">
+            name=#{name},
+        </if>
+        <if test="realName !=null  and  realName  !='' ">
+            realName=#{realName},
+        </if>
+        <if test="realName !=null  and  realName  !='' ">
+            realName=#{realName},
+        </if>
+        <if test="phone !=null  and  phone  !='' ">
+            phone=#{phone},
+        </if>
+        <if test="gender !=null  and  gender  !='' ">
+            gender=#{gender},
+        </if>
+        <if test="email !=null  and  email  !='' ">
+            email=#{email},
+        </if>
+        <if test="description !=null  and  description  !='' ">
+            description=#{description},
+        </if>
+        <if test="department !=null  and  department !='' and department.id !=null  and  department.id  !='' ">
+            department_id=#{department.id},
+        </if>
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            pluteformid=#{pluteformid}
+        </if>
+        <if test="PluteformStatus !=null  and  PluteformStatus  !='' ">
+            PluteformStatus=#{PluteformStatus}
+        </if>
+		where id = #{id}
+        <if test="ParentPluteformId !=null  and  ParentPluteformId  !='' ">
+            AND Parentpluteformid=#{ParentPluteformId}
+        </if>
+        <if test="openId !=null  and  openId  !='' ">
+            AND openId=#{openId}
+        </if>
+     </update>
+    <!--初始化密码-->
+    <update id="updatePass" parameterType="user">
+        update b2c_user set password='1234'
+        where id = #{id} AND pluteformid=#{pluteformid}
+    </update>
+    <!--修改密码-->
+    <update id="updatePassWord" parameterType="user">
+        update b2c_user set password=#{password}
+        where id = #{id}
+    </update>
+    <update id="updateState" parameterType="user">
+        update b2c_user set state='离职'
+        where id = #{id} AND pluteformid=#{pluteformid}
+    </update>
+    <!--校验用户手机号-->
+    <select id="checkPhoneNum" parameterType="user" resultType="user">
+        SELECT * FROM b2c_user WHERE realName=#{phone}
+    </select>
+    <!--开启商户-->
+    <update id="updateShopState" parameterType="user">
+        update b2c_user set loginState=1
+        where id = #{id}
+    </update>
+    <!--开店铺增加手机号-->
+    <update id="addPhone" parameterType="user">
+        update b2c_user set realName=#{realName}
+        where id = #{id}
+    </update>
+    <resultMap id="UserMap" type="user">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="password" column="password"/>
+        <result property="realName" column="realName"/>
+        <result property="gender" column="gender"/>
+        <result property="phone" column="phone"/>
+        <result property="email" column="email"/>
+        <result property="state" column="state"/>
+        <result property="description" column="description"/>
+        <result property="PluteformStatus" column="PluteformStatus"/>
+        <result property="ParentPluteformId" column="ParentPluteformId"/>
+        <result property="loginState" column="loginState"/>
+        <result property="pluteformid" column="pluteformid"/>
+        <result property="openId" column="openId"/>
+        <association property="department" javaType="Department">
+            <id property="id" column="departmentId"/>
+            <result property="name" column="departmentName"/>
+            <result property="description" column="Dde"/>
+            <result property="pluteformid" column="pluteformid"/>
+        </association>
+        <collection property="roles" ofType="role">
+            <id property="id" column="Id"/>
+            <result property="name" column="Name"/>
+            <result property="description" column="Description"/>
+            <result property="pluteformid" column="pluteformid"/>
+        </collection>
+    </resultMap>
+    <select id="selectOne" resultMap="UserMap" parameterType="user">
+         SELECT  b2c_user.id,b2c_user.state,b2c_user.email,b2c_user.description,b2c_user.pluteformid, b2c_user.name,b2c_user.realName,b2c_user.phone,b2c_user.gender,b2c_department.name as departmentName,
+         b2c_department.id as departmentId,b2c_department.description as Dde, b2c_role.name as roleName,b2c_role.description as roleDescription from
+         b2c_user ,b2c_department ,b2c_role ,b2c_role_user
+        where  b2c_user.department_id=b2c_department.id and b2c_user.id=b2c_role_user.user_id and b2c_role_user.role_id=b2c_role.id and b2c_user.id=#{id} AND b2c_user.Parentpluteformid=#{pluteformid}
+     </select>
+    <select id="getPurchaser" resultMap="UserMap" parameterType="user">
+        select b2c_user.id,b2c_department.id, b2c_role.id as roleId ,b2c_user.name,b2c_user.realname ,b2c_user.department_id  from b2c_user, b2c_role,b2c_department
+        where   b2c_department.id=b2c_user.department_id and  b2c_user.department_id=#{id}
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            pluteformid=#{pluteformid}
+        </if>
+    </select>
+    <select id="selectWX" resultType="user" parameterType="user" >
+      SELECT b2c_user.id ,b2c_user.openId,b2c_user.ParentPluteformId,b2c_user.realName,b2c_user.password from b2c_user
+      where b2c_user.ParentPluteformId=#{ParentPluteformId} and b2c_user.openId=#{openId};
+    </select>
+    <!--增加微信用户-->
+    <insert id="insertUserWX"  parameterType="user" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO b2c_user
+         (   name,  password ,state , realName ,imgUrl,gender ,phone,email,description,department_id,ParentPluteformId,PluteformStatus,loginState,openId) VALUES
+         (   #{name} , #{password}, #{state},#{realName} ,#{imgUrl},#{gender} ,#{phone},#{email},#{description},#{depaedmentId},#{pluteformid},#{PluteformStatus},#{loginState},#{openId})
+    </insert>
+    <!--根据商户查询用户-->
+    <select id="selUserBypId" resultType="user" parameterType="mallConfig">
+           select b2c_user.id,b2c_user.state,b2c_user.email,b2c_user.description,b2c_user.openId,b2c_user.ParentPluteformId,b2c_user.password,b2c_user.pluteformid, b2c_user.name,b2c_user.realName,b2c_user.phone,b2c_user.gender,b2c_user.imgUrl from b2c_user
+         where   b2c_user.openId=#{openId} AND b2c_user.Parentpluteformid=#{parentpId}
+    </select>
+    <!--完善店铺下用户的资料-->
+    <update id="perfectUser" parameterType="user">
+        update b2c_user set password=#{password},realName=#{realName},gender=#{gender},name=#{name}
+        where  Parentpluteformid=#{ParentPluteformId} and openId=#{openId}
+    </update>
+</mapper>
+

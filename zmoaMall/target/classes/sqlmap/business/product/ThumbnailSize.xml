@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.product.ThumbnailSizeDao">
+    <resultMap id="ThumbnailSizeMap" type="com.zm.mall.domain.business.product.ThumbnailSize">
+        <result property="thumName" column="ThumName"/>
+        <result property="thumWidth" column="ThumWidth"/>
+        <result property="thumHeight" column="ThumHeight"/>
+        <result property="type" column="Type"/>
+        <result property="remark" column="Remark"/>
+        <result property="cloudSizeName" column="CloudSizeName"/>
+        <result property="cloudType" column="CloudType"/>
+        <result property="thumMode" column="ThumMode"/>
+        <result property="isWatermark" column="IsWatermark"/>
+        <result property="theme" column="Theme"/>
+    </resultMap>
+    <sql id="b2c_condition">
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND pluteformid=#{pluteformid}
+        </if>
+    </sql>
+
+    <select id="selThumbnailSizeAllByProduct"  resultMap="ThumbnailSizeMap">
+        select * FROM b2c_ms_thumbnailsize
+        where Type='2' and Theme=''
+        <include refid="b2c_condition"/>
+    </select>
+
+</mapper>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.product.SKUInfoDao">
+       <resultMap id="SKUInfoMap" type="com.zm.mall.domain.business.product.SKUInfo">
+              <result column="SkuId" property="skuId" jdbcType="BIGINT"></result>
+              <result column="ProductId" property="productId" jdbcType="BIGINT"></result>
+              <result column="SKU" property="sku" jdbcType="VARCHAR"></result>
+              <result column="Weight" property="weight" jdbcType="BIGINT"></result>
+              <result column="Stock" property="stock" jdbcType="BIGINT"></result>
+              <result column="AlertStock" property="alertStock" jdbcType="BIGINT"></result>
+              <result column="CostPrice" property="costPrice" jdbcType="DOUBLE"></result>
+              <result column="SalePrice" property="salePrice" jdbcType="DOUBLE"></result>
+              <result column="singlePrice" property="singlePrice" jdbcType="DOUBLE"></result>
+              <result column="Upselling" property="upSelling" jdbcType="BIGINT"></result>
+              <result column="Profit" property="profit" jdbcType="DOUBLE"></result>
+              <result property="pluteformid" column="pluteformid" jdbcType="VARCHAR"/>
+              <result property="shopId" column="shopId" jdbcType="BIGINT"/>
+              <result column="singlePrice" property="singlePrice" jdbcType="DOUBLE"></result>
+              <collection property="attributeInfos" ofType="com.zm.mall.domain.business.product.AttributeInfo">
+                     <result column="AttributeId" property="attributeId" jdbcType="BIGINT"></result>
+                     <result column="AttributeName" property="attributeName" jdbcType="VARCHAR"></result>
+                     <result column="DisplaySequence" property="displaySequence" jdbcType="BIGINT"></result>
+                     <result column="TypeId" property="typeId" jdbcType="BIGINT"></result>
+                     <result column="UsageMode" property="usageMode" jdbcType="BIGINT"></result>
+                     <result column="UseAttributeImage" property="useAttributeImage" jdbcType="BOOLEAN"></result>
+                     <collection property="listAttributeValues" ofType="com.zm.mall.domain.business.product.AttributeValue">
+                            <result property="valueId" column="ValueId" jdbcType="BIGINT"></result>
+                            <result property="attributeId" column="AttributeId" jdbcType="BIGINT"></result>
+                            <result property="displaySequence" column="DisplaySequence" jdbcType="BIGINT"></result>
+                            <result property="valueStr" column="ValueStr" jdbcType="VARCHAR"></result>
+                     </collection>
+              </collection>
+       </resultMap>
+
+       <!--判断平台Id-->
+       <sql id="b2c_condition">
+              <choose>
+                     <when test="shopId != null">and shopId = #{shopId}</when>
+                     <otherwise>and shopId is null</otherwise>
+              </choose>
+              <if test="pluteformid !=null  and  pluteformid  !='' ">
+                     AND pluteformid=#{pluteformid}
+              </if>
+       </sql>
+
+       <sql id="all_column">skuid,productid,sku,weight,stock,alertstock,costprice,saleprice,upselling,profit</sql>
+
+       <!--查询库存-->
+       <select id="selectSkuCount" resultType="Integer" parameterType="skuInfo">
+              SELECT
+              sum(Stock)
+              FROM b2c_shop_skus
+              WHERE productid = #{productId}
+              <include refid="b2c_condition"/>
+       </select>
+
+       <!-- 通过产品主键查询 -->
+       <select id="selectById" resultMap="SKUInfoMap" parameterType="int">
+              SELECT
+              <include refid="all_column"/>
+              FROM b2c_shop_skus
+              WHERE productid = #{productId}
+              <include refid="b2c_condition"/>
+       </select>
+       <insert id="insertSKUInfo" parameterType="skuInfo">
+              INSERT INTO b2c_shop_skus(productid,sku,weight,stock,alertstock,costprice,saleprice,upselling,profit,shopId,pluteformid,singlePrice)
+              VALUES (#{productId},#{sku},#{weight},#{stock},#{alertStock},#{costPrice},#{salePrice},#{upSelling},#{profit},#{shopId},#{pluteformid},#{singlePrice})
+       </insert>
+       <select id="selSKUInfo" resultType="skuInfo" parameterType="skuInfo">
+              SELECT  *
+              FROM b2c_shop_skus
+              WHERE sku = #{sku}
+              <include refid="b2c_condition"/>
+       </select>
+       <select id="selPrice" resultType="double" parameterType="long">
+              SELECT MIN(salePrice) FROM b2c_shop_skus WHERE productid = #{productId}
+              <include refid="b2c_condition"/>
+       </select>
+       <select id="selSkuById" resultMap="SKUInfoMap" parameterType="skuInfo">
+              SELECT sk.*,a.*,v.*
+              from b2c_shop_skus sk,b2c_shop_attributes a,b2c_shop_attributevalues v,b2c_shop_skurelation r,b2c_shop_skuitems s
+              WHERE s.AttributeId = a.AttributeId and sk.SkuId = r.SkuId and  s.valueid = v.ValueId and s.SpecId = (SELECT r.SpecId FROM b2c_shop_skurelation r where r.ProductId = #{productId} )
+              <if test="pluteformid !=null  and  pluteformid  !='' ">
+                     AND sk.pluteformid=#{pluteformid}
+              </if>
+              ORDER BY sk.SkuId ASC,a.AttributeId ASC
+       </select>
+       <delete id="delSKUInfo" parameterType="skuInfo">
+              DELETE FROM b2c_shop_skus WHERE productid = #{productId}
+              <include refid="b2c_condition"/>
+       </delete>
+       <select id="selSkuInfoById" resultMap="SKUInfoMap" parameterType="skuInfo">
+              SELECT * from b2c_shop_skus WHERE ProductId=#{productId}
+              <include refid="b2c_condition"/>
+       </select>
+</mapper>
+

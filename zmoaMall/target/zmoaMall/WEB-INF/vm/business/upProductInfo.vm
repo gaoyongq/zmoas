@@ -1,0 +1,1246 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>编辑产品</title>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script type="text/javascript" src="../../../js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="../../../js/gavinsoft.jquery.min.js"></script>
+    <link href="../../../uploadify-v2.1.4/uploadify.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="../../../uploadify-v2.1.4/js/swfobject.js"></script>
+    <script type="text/javascript" src="../../../uploadify-v2.1.4/js/jquery.uploadify.v2.1.4.min.js"></script>
+    <script type="text/javascript" src="/ueditor/ueditor.config.js"></script>
+    <script type="text/javascript" src="/ueditor/ueditor.all.js"></script>
+    <script type="text/javascript" src="/ueditor/lang/zh-cn/zh-cn.js"></script>
+    <script type="text/javascript" src="/layer/layer.js"></script>
+    <script type="text/javascript">
+        var ue =  UE.getEditor('myEditor',{ initialFrameHeight:300,initialFrameWidth:910 })
+        ue.ready(function() {
+            //异步回调
+            setContent();
+        });
+        function setContent() {
+            var description = $("#description").val();
+            UE.getEditor('myEditor').setContent(description);
+        }
+    </script>
+    <script type="text/javascript">
+        $(function(){
+            var categoryList = new Array();
+            var priceChange = "";
+            var currentPage = "1";//默认页数
+            AttributeInfo();
+            AttributeSku();
+            //回显规格组合
+            skuInfoBack();
+            productRelated();
+            ImageBack();
+            CategoryBack();
+            StationBack();
+            //动态插入分类
+            jQuery.post("/business/selCategory.action",function(data){
+                var select = "<option value='' checked='checked'>全部</option>";
+                for(var i = 0;i<data.length;i++){
+                    select +="<option name='"+data[i].name+"' value='"+data[i].categoryId+"' checked='checked'>"+data[i].name+"</option>";
+                }
+                $("#first").append(select);
+            });
+            //获得二级分类
+            $("#first").change(function(){
+                var select = "<option value='' checked='checked'>全部</option>";
+                var fatherId = $("#first option:selected").val();
+                var depath = "2";
+                if(fatherId != null && fatherId !=''){
+                    jQuery.post("/business/selCategory.action",{"fatherId":fatherId,"depath":depath},function(data){
+                        for(var s = 0;s<data.length;s++){
+                            select +="<option name='"+data[s].name+"' value='"+data[s].categoryId+"'>"+data[s].name+"</option>"
+                        }
+                        $("#second option").remove();
+                        $("#three option").remove();
+                        $("#second").append(select);
+                        $("#three").append("<option value='' checked='checked'>全部</option>");
+                    });
+                }else{
+                    $("#second option").remove();
+                    $("#second").append(select);
+                    $("#three option").remove();
+                    $("#three").append("<option value='' checked='checked'>全部</option>");
+                }
+            });
+            //获得三级分类
+            $("#second").change(function(){
+                var select = "<option value='' checked='checked'>全部</option>";
+                var fatherId = $("#second option:selected").val();
+                var depath = "3";
+                if(fatherId != null && fatherId !=''){
+                    jQuery.post("/business/selCategory.action",{"fatherId":fatherId,"depath":depath},function(data){
+                        for(var s = 0;s<data.length;s++){
+                            select +="<option name='"+data[s].name+"' value='"+data[s].categoryId+"'>"+data[s].name+"</option>"
+                        }
+                        $("#three option").remove();
+                        $("#three").append(select);
+                    });
+                }else{
+                    $("#three option").remove();
+                    $("#three").append(select);
+                }
+            });
+            //分类路径
+            function cateUrl(){
+                var cate='';
+                for(var c = 0;c<categoryList.length;c++){
+                    cate+="*"+ categoryList[c];
+                }
+                //插入
+                $("#searchProductCategories").val(cate);
+            }
+            $("#selcategoryName").click(function(){
+                if($("#first").val()==""){
+                    return;
+                }
+                var cateNameList="";
+                var cateName="<tr><td width='70%'>";
+                if($("#first").val()!=""){
+                    var first = $("#first").val();
+                    cateName+=$("#first option:selected").attr("name");
+                    cateNameList+=$("#first option:selected").attr("name");
+                }
+                if($("#second").val()!=""){
+                    var second = $("#second").val();
+                    cateName+=">>"+$("#second option:selected").attr("name");
+                    cateNameList+=">>"+$("#second option:selected").attr("name");
+                }
+                if($("#three").val()!=""){
+                    var three = $("#three").val();
+                    cateName+=">>"+$("#three option:selected").attr("name");
+                    cateNameList+=">>"+$("#three option:selected").attr("name");
+                }
+                cateName+="</td><td><a class='cancelCate' href='#' cateNameList='"+cateNameList+"' style='text-decoration: none'>删除</a></td></tr>";
+                var category = new Array();
+                category[0]=cateNameList;
+                if (typeof(first) != "undefined"){
+                    category[1]=first;
+                }
+                if (typeof(second) != "undefined"){
+                    category[2]=second;
+                }
+                if (typeof(three) != "undefined"){
+                    category[3]=three;
+                }
+                var catetr = $("#cateshow tr").length;
+                for(var c = 0;c<categoryList.length;c++){
+                    if(categoryList[c][0]==cateNameList){
+                        layer.msg("已存在分类");
+                        return;
+                    }
+                }
+                categoryList[catetr]=category;
+                $("#cateshow").append(cateName);
+            });
+            //删除分类
+            $(".cancelCate").live("click",function(){
+                $(this).closest("tr").remove();
+                var cateNameList = $(this).attr("cateNameList");
+                for(var c = 0;c<categoryList.length;c++){
+                    if(categoryList[c][0]==cateNameList){
+                        categoryList.remove(c);
+                    }
+                }
+            });
+//            --------------------------------------产地------------------------------------------------------------------------------------------------
+            //获得产地
+            $("#Regionfirst").change(function(){
+                var select = "<option  value='0'  checked='checked'>请选择</option>";
+                var fatherId = $("#Regionfirst option:selected").val();
+                var depath = 2;
+                if(fatherId != null && fatherId !=''){
+                    jQuery.post("/business/selRegionInfo.action",{"fatherId":fatherId,"depath":depath},function(data){
+                        for(var r = 0;r<data.length;r++) {
+                            select += "<option value='" + data[r].regionId + "'>" + data[r].regionName + "</option>"
+                        }
+                        $("#Regionsecond option").remove();
+                        $("#Regionthree option").remove();
+                        $("#Regionsecond").append(select);
+                        $("#Regionthree").append("<option  value='0'  checked='checked'>请选择</option>");
+                    });
+                }else{
+                    $("#Regionsecond option").remove();
+                    $("#Regionsecond").append(select);
+                    $("#Regionthree option").remove();
+                    $("#Regionthree").append("<option  value='0'  checked='checked'>请选择</option>");
+                }
+            });
+            //二级产地
+            $("#Regionsecond").change(function(){
+                var select = "<option value='0' checked='checked'>请选择</option>";
+                var fatherId = $("#Regionsecond option:selected").val();
+                var depath = 3;
+                if(fatherId != null && fatherId !=''){
+                    jQuery.post("/business/selRegionInfo.action",{"fatherId":fatherId,"depath":depath},function(data){
+                        for(var r = 0;r<data.length;r++) {
+                            select += "<option value='" + data[r].regionId + "'>" + data[r].regionName + "</option>"
+                        }
+                        $("#Regionthree option").remove();
+                        $("#Regionthree").append(select);
+                    });
+                }else{
+                    $("#Regionthree option").remove();
+                    $("#Regionthree").append(select);
+                }
+            });
+
+            //产地
+            function regio(){
+                var regio = '';
+                if($("#Regionthree").val()!=0){
+                    regio = $("#Regionthree option:selected").val();
+                }else if($("#Regionsecond").val()!=0){
+                    regio = $("#Regionsecond option:selected").val();
+                }else if($("#Regionfirst").val()!=0){
+                    regio = $("#Regionfirst option:selected").val();
+                }
+                $("#regionId").val(regio);
+            }
+//----------------------类型属性-------------------------------------------------------
+            function brandInfo(){
+                var id = $("#typeId option:selected").val();
+                var brand="<option value=''>请选择</option>";
+                jQuery.post("/business/selBrandInfo.action",{"id":id},function(data){
+                    for(var i= 0;i<data.length;i++){
+                        brand +="<option value='"+data[i].brandId+"'>"+data[i].brandName+"</option>";
+                    }
+                    $("#brandId option").remove();
+                    $("#brandId").append(brand);
+                });
+            }
+            //截取字符串
+            function cutstr(str, len) {
+                var str_length = 0;
+                var str_len = 0;
+                if (!str) {
+                    return "";
+                }
+                var str_cut = new String();
+                str_len = str.length;
+                for (var i = 0; i < str_len; i++) {
+                    var a = str.charAt(i);
+                    str_length++;
+                    if (escape(a).length > 4) {
+                        //中文字符的长度经编码之后大于4
+                        str_length++;
+                    }
+                    str_cut = str_cut.concat(a);
+                    if (str_length >= len) {
+                        str_cut = str_cut.concat("...");
+                        return str_cut;
+                    }
+                }
+                //如果给定字符串小于指定长度，则返回源字符串；
+                if (str_length < len) {
+                    return str;
+                }
+            }
+
+            //属性
+            function AttributeInfo(){
+                $("#fujiashuxing").show();
+                var id = $("#typeId option:selected").val();
+                var status = 0;
+                jQuery.post("/business/selAttributeInfo.action",{"id":id,"status":status},function(data){
+                    var propoty ="<tbody>";
+                    for(var i=0;i<data.length;i++){
+//                        if((i)%2==0){
+//                            propoty+="<tr>";
+//                        }
+                        propoty +="<tr><td>"+data[i].attributeName+":<input type='hidden' value='"+data[i].usageMode+"|"+data[i].attributeId+"'/><div style='float:right;width:75%;'>";
+                        if(data[i].usageMode==2){
+                            propoty +="<input type='text' id='"+data[i].attributeId+"'/></td>";
+                        }else if(data[i].usageMode==1){
+                            propoty+="<ul>";
+                            for(var j=0;j<data[i].listAttributeValues.length;j++) {
+                                propoty+="<li style='float: left;width: 120px;display: block;line-height: 20px;vertical-align: middle;'><input type='checkbox' name='"+data[i].attributeId+"' value='"+data[i].listAttributeValues[j].valueId +"' />"+data[i].listAttributeValues[j].valueStr+"</li>";
+                            }
+                        }else{
+                            propoty+="<ul>";
+                            for(var j=0;j<data[i].listAttributeValues.length;j++){
+                                propoty+="<li style='float: left;width: 120px;display: block;line-height: 20px;vertical-align: middle;'><input type='radio' name='"+data[i].attributeId+"' value='"+data[i].listAttributeValues[j].valueId +"' />"+data[i].listAttributeValues[j].valueStr+"</li>";
+                            }
+                            propoty +="</div></td></tr>";
+                        }
+                    }
+                    propoty+="</tbody>";
+                    $("#prepety tbody").remove();
+                    $("#prepety").append(propoty);
+                    //回显属性
+                    specBack();
+                });
+            }
+            //开启规格
+            $("#btnSpec").click(function(){
+                if($("#typeId option:checked").val()==""){
+                    layer.msg("请选择类型");
+                    return;
+                }
+                if($("#productCode").val()==""){
+                    layer.msg("请填写编码");
+                    return;
+                }
+                AttributeSku();
+            });
+            function AttributeSku(){
+                price();
+                $("#hasSku").val(1);
+                var id = $("#typeId option:selected").val();
+                var status = 1;
+                jQuery.post("/business/selAttributeInfo.action",{"id":id,"status":status},function(data){
+                    var spec ="";
+                    for(var i=0;i<data.length;i++){
+                        spec +="<tr><td colspan='2'><table width='99%'><tr><td width='20%'>"+data[i].attributeName+"<input type='hidden' value='"+data[i].attributeId+"'/></td><td>";
+                        spec+="<div><ul id='AttributeConten'>";
+                        for(var j=0;j<data[i].listAttributeValues.length;j++){
+                            spec+="<li id='li_"+data[i].listAttributeValues[j].valueId+"' style='float: left;width: 150px;display: block;line-height: 30px;vertical-align: middle;'><input type='checkbox' attrid='"+data[i].attributeId+"' attrname='"+data[i].attributeName+"' valuestr='"+data[i].listAttributeValues[j].valueStr+"' name='AttributeValue"+data[i].attributeId+"' value='"+data[i].listAttributeValues[j].valueId+"' id='AttributeValue"+data[i].listAttributeValues[j].valueId+"' style='cursor: pointer;'><label  id='attrValuelabel_"+data[i].listAttributeValues[j].valueId+"' title='"+data[i].listAttributeValues[j].valueStr+"' style='cursor: pointer;'>"+cutstr(data[i].listAttributeValues[j].valueStr, 10)+"</li>";
+                        }
+                        spec+="</div></td></tr></table><hr></td></tr>";
+                    }
+                    $("#Spec tr").remove();
+                    $("#btnSpec").hide();
+                    $("#Spec").append(spec);
+                    //回显规格
+                    skusBack();
+                });
+            }
+            //类型选择
+            $("#typeId").change(function(){
+                $("#hasSku").val(0);
+                $("#btnSpec").show();
+                $("#Spec tr").remove();
+                $("#Skus tr").remove();
+                brandInfo();
+                AttributeInfo();
+            });
+            //规格计算事件
+            $("#AttributeContent :input").live("click",function(){
+                GeneralSKUs();
+            });
+            //规格组合
+            function GeneralSKUs(){
+                price();
+                var skusContent = $("#contetSKUs ul").length;
+                var selectedCountTR =  $("#contetSKUs ul").find('input:checked:first').length;
+
+                if(skusContent==selectedCountTR){
+                    var htSkuData = new jQuery.Hashtable();
+                    var attributeIds = new Array(skusContent);
+                    var attributeIdIndex = 0;
+                    $("#contetSKUs ul").find('input:checked').each(function(){
+                        var attributeId = $(this).attr('attrid');
+                        var attributeName = $(this).attr('attrname');
+                        var valueId = $(this).val();
+                        var value = $(this).attr('valuestr');
+                        if (htSkuData.containsKey(attributeId)) {
+                            //存在 Add
+                            htSkuData.get(attributeId).Values.push({
+                                "AttributeId": attributeId,
+                                "ValueId": valueId,
+                                "Value": value
+                            });
+                        } else {
+                            //不存在 New
+                            attributeIds[attributeIdIndex++] = attributeId;
+                            var checkedValues = new Array();
+                            checkedValues.push({
+                                "AttributeId": attributeId,
+                                "ValueId": valueId,
+                                "Value": value
+                            });
+                            var attributInfo = {
+                                "AttributeId": attributeId,
+                                "AttributeName": attributeName,
+                                "Values": checkedValues
+                            };
+                            htSkuData.add(attributeId, attributInfo);
+                        }
+                    });
+
+                    var skuValues = htSkuData.get(attributeIds[0]).Values;
+                    var skuArray = new Array(skuValues.length);
+
+                    jQuery.each(skuValues, function (i, skuValue) {
+                        skuArray[i] = new Array(1);
+                        skuArray[i][0] = skuValue;
+                    });
+                    //组合规格
+                    for (var index = 1; index < attributeIds.length; index++) {
+                        skuValues = htSkuData.get(attributeIds[index]).Values;
+                        var tmpArray = new Array(skuArray.length * skuValues.length);
+                        var rowCounter = 0;
+                        for (var sindex = 0; sindex < skuValues.length; sindex++) {
+                            for (var cindex = 0; cindex < skuArray.length; cindex++) {
+                                tmpArray[rowCounter] = new Array(index + 1);
+                                for (var rindex = 0; rindex < (index + 1); rindex++) {
+                                    if (rindex == index)
+                                        tmpArray[rowCounter][rindex] = skuValues[sindex];
+                                    else {
+                                        tmpArray[rowCounter][rindex] = skuArray[cindex][rindex];
+                                    }
+                                }
+                                rowCounter++;
+                            }
+                        }
+                        skuArray = tmpArray;
+                    }
+                    //拼串table头
+                    var SKUS ="<tbody id='mytbody'><tr class='GridViewHeaderStyle'>";
+                    for(var i=0;i<attributeIds.length;i++) {
+                        var attr= htSkuData.get(attributeIds[i]);
+                        SKUS += "<td style='font-weight: normal' class='specNumber'>" + attr.AttributeName + "</td>";
+                        if(i==attributeIds.length-1){
+                            SKUS += "<td><a style='color: red;'>*</a>商品编码</td><td width='15%'align='center'><a style='color: red;'>*</a>销售价<a style='color: red'></br>(销售价=（采购价+销售利润+统一调整价）*版面(平方米))</a></td><td><a style='color: red;'>*</a>采购价</td><td><a style='color: red;'>*</a>销售利润</td><td>统一调整价</td><td><a style='color: red;'>*</a>库存</td><td><a style='color: red;'>*</a>警戒库存</td><td>重量</td><td>上架</td></tr>";
+                        }
+                    }
+                    //拼串table  tr
+                    for (var v = 0; v<skuArray.length; v++) {
+                        for(var item = 0;item<skuArray[v].length;item++){
+                            SKUS +="<td><input type='hidden' value='"+skuArray[v][item].AttributeId+"|"+skuArray[v][item].ValueId +"'/><label>"+skuArray[v][item].Value+"</td>"
+                        }
+                        SKUS +="<td><input type='text'  style='width:90px' value='"+$("#productCode").val()+"-"+(v+1)+"'/></td>" +
+                        "<td><input type='text' style='width:90px' id='lowestSalePrice' value='"+Dou($("#lowestSalePrice").val())+"'/></td>" +
+                        "<td><input type='text' style='width:90px' id='CostPrice' class='reckon' value='"+Dou($("#costPrice").val())+"'/></td>" +
+                        "<td><input type='text' style='width:90px' id='PriceChange' class='reckon' value='0'/></td>";
+                        if(priceChange==""){
+                            SKUS +="<td><input type='text' style=width:90px' readonly='readonly' value='0.00'/></td>";
+                        }else{
+                            SKUS +="<td><input type='text' style='width:90px' readonly='readonly' value='"+priceChange+"'/></td>";
+                        }
+                        SKUS +="<td><input type='text' style='width:90px' value='0'/></td>" +
+                        "<td><input type='text' style='width:90px' value='"+Int($("#alertStock").val())+"'/></td>";
+                        if($("#weight").val()==""){
+                            SKUS +="<td><input type='type' style='width:90px' class='wigth'  value='0'/></td>";
+                        }else{
+                            SKUS +="<td><input type='type' style='width:90px' class='wigth'  value='"+$("#weight").val()+"'/></td>";
+                        }
+                        SKUS += "<td><input type='checkbox' class='specll' value='0'/></td></tr>";
+                    }
+                    SKUS +="</tbody>";
+                    $("#Skus tbody").remove();
+                    $("#Skus").append(SKUS);
+                }else{
+                    $("#Skus tbody").remove();
+                }
+            }
+            //判断是否为空Double
+            function Dou(str){
+                if(str){
+                    return str;
+                }else{
+                    return "0.00";
+                }
+            }
+            //判断是否为空Integer
+            function Int(str){
+                if(str){
+                    return str;
+                }else{
+                    return "0";
+                }
+            }
+            //获得统一调整价
+            function price(){
+//                cateUrl();
+                var priceurl ="";
+                if(categoryList.length>=0){
+                    var pathlist = categoryList[0];
+                    for(var p=1;p<categoryList.length;p++){
+                        if(p==1){
+                            priceurl+=pathlist[p];
+                        }else{
+                            priceurl+="|"+pathlist[p];
+                        }
+                    }
+                    jQuery.post("/business/selPrice.action",{"path":priceurl},function(data){
+                        if(data!=null) {
+                            priceChange = data;
+                        }
+                    });
+                }
+            }
+
+            $(".reckon").live("focus",function(){
+                $(this).select();
+            });
+            //价格计算
+            $(".reckon").live("blur",function(){
+                var arr = $(this).closest("tr");
+                //获得成本价
+                var Cp = arr.find("input#CostPrice").val();
+                //获得销售利润
+                var pc = arr.find("input#PriceChange").val();
+                //获得版面索引
+                var banmain = getPos("版面");
+                var pie = $(this).closest("tr").children("td").eq(banmain).text();
+                //获得版面值
+                if (pie.indexOf('*') == -1) return;
+                var banmain =pie.indexOf('（') ;
+                if(banmain> -1){
+                    pie= pie.substring(0,banmain);
+                }
+                var qumm = pie.replace('mm','');
+                var strs = qumm.split("*");
+                //平方米
+                var a = ((strs[0] *0.001)*(strs[1] *0.001));
+                //计算
+                var saleprice = (parseFloat(Cp)+parseFloat(pc)+parseFloat(priceChange))*a;
+                arr.find("input#lowestSalePrice").val(saleprice.toFixed(2));
+
+            });
+            //重量计算
+            $("#jswight").click(function(){
+                var hdinx = getPos("厚度");
+                var bminx = getPos("版面");
+                var prices = $("#mytbody").children("tr");
+                for(var w=1;w<prices.length;w++){
+                    //获得厚度
+                    var hd = prices.eq(w).children("td").eq(hdinx).text();
+                    hd = hd.replace('mm', '');
+                    if (hd == '-4') hd = 3.5;
+                    if (hd == '-5') hd = 4.5;
+                    //获得版面
+                    var bm = prices.eq(w).children("td").eq(bminx).text();
+                    if (bm.indexOf('*') == -1) return;
+                    var banmain =bm.indexOf('（') ;
+                    if(banmain> -1){
+                        bm= bm.substring(0,banmain);
+                    }
+                    var bm = bm.replace('mm','');
+                    var strs = bm.split("*");
+                    //平方米
+                    var bmprice = ((strs[0] *0.001)*(strs[1] *0.001));
+
+                    var wt = bmprice * hd * 2.5 * 1000;
+                    if(isNaN(wt)){
+                        return false;
+                    }
+                    prices.eq(w).find('input.wigth').val(Math.ceil(wt))
+                }
+            });
+
+            //找索引
+            function getPos(str) {
+                var pos = 0;
+                var tds = $(".GridViewHeaderStyle").find("td");
+                for(var i =0;i<tds.length;i++){
+                    var cell = tds[i];
+                    if ($(cell).text().indexOf(str) > -1) {
+                        pos = i;
+                        break;
+                    }
+                }
+                return pos;
+            }
+            //规格拼串
+            function specStr(){
+                //规格价格
+                var skuPrice = "";
+                //获得索引
+                var salePriceindex = getPos("销售价");
+                var rows = $("#mytbody").children("tr").length;
+                var cols = $("#mytbody").children("tr").eq(0).children("td").length;
+                var specNumber = $("#mytbody").children("tr").eq(0).children(".specNumber").length;
+                var u = "";
+                for(var s = 0;s<rows;s++){
+                    var specStrArr = $("#mytbody tr").eq(s).children("td").find("input");
+                    if(s>0){
+                        //"|"分割规格和值得id，“-”分割td，“+”分割sku和SKUitem，“*”分割tr
+                        for(var sp= 0;sp<specStrArr.length;sp++){
+                            if(sp==salePriceindex){
+                                skuPrice+=specStrArr.eq(sp).val()+",";
+                            }
+                            u+=specStrArr.eq(sp).val();
+                            if(sp!=specNumber-1){
+                                u+="^";
+                            }else{
+                                u+="+";
+                            }
+                        }
+
+                        //添加单价
+                        if ($("#singlePrice").val() != undefined && $("#singlePrice").val() != '') {
+                            u+= $("#singlePrice").val() + "^";
+                        } else {
+                            u+= 0 + "^";
+                        }
+
+                        u+="*"
+                    }
+
+                }
+
+                if(skuPrice!=""){
+                    var arr = skuPrice.split(",");
+                    arr.sort(function(a,b){return a-b;})
+                    $("#lowestSalePrice").val(arr[1]);
+                }
+
+                $("#skusStr").val(u);
+            }
+            //属性拼串
+            function attrStrs(){
+                var Strss ="" ;
+                var attr =  $("#prepety tr").children("td");
+                for(var attrstr=0;attrstr<attr.length;attrstr++){
+                    Strss+=attr.eq(attrstr).find("input").eq(0).val();
+                    if(attr.eq(attrstr).find("input").eq(1).attr("type")=="radio"){
+                        var radio=attr.eq(attrstr).find("input:radio:checked").val();
+                        if(typeof (radio)!="undefined"){
+                            Strss+="|"+radio+"+";
+                        }else{
+                            Strss+="+";
+                        }
+                    }else if(attr.eq(attrstr).find("input").eq(1).attr("type")=="checkbox"){
+                        var checkbox=attr.eq(attrstr).find("input:checkbox:checked");
+                        if(checkbox.length>0){
+                            Strss+="|";
+                            jQuery.each(checkbox,function(){
+                                Strss+=$(this).val()+"^";
+                            });
+                            Strss+="+";
+                        }else{
+                            Strss+="+";
+                        }
+                    }else{
+                        var text=attr.eq(attrstr).find("input").eq(1).val();
+                        if(text!=""){
+                            Strss+="|"+text+"+";
+                        }else{
+                            Strss+="+";
+                        }
+                    }
+                }
+                $("#SpecStr").val(Strss);
+            }
+            //关联商品
+            $("#btnProduct").click(function(){
+                jQuery.post("/business/selCategory.action",function(data){
+                    var select = "<option value='' checked='checked'>全部</option>";
+                    for(var i = 0;i<data.length;i++){
+                        select +="<option value='"+data[i].categoryId+"' checked='checked'>"+data[i].name+"</option>";
+                    }
+                    $("#productCategory").append(select);
+                    selData();
+                });
+                $("#Product").show();
+            });
+            function selData(){
+                var cate = $("#productCategory option:selected").val();
+                jQuery.post("/business/selectProduct.action",{"category":cate,"currentPage":currentPage},function(data){
+                    if(data.resultProductInfo==null){
+                        $("#mytbody").html("<tr><td colspan='2' algin='center'>查无结果</td></tr>");
+                    }else {
+                        var resultData = "";
+                        for (var j = 0; j < data.resultProductInfo.length; j++) {
+                            resultData += "<tr><td><input type='checkbox' name='check'value='" + data.resultProductInfo[j].productId + "'/></td>";
+                            resultData += "<td><label  title='"+data.resultProductInfo[j].productName+"' style='cursor: pointer;'>" + cutstr(data.resultProductInfo[j].productName,10) + "</td></tr>";
+                        }
+                        $("#myproduttbody").html(resultData);
+                        currentPage = data.currentPage;
+                    }
+                });
+            }
+            //上一页
+            $("#upPage").click(function(){
+                currentPage = currentPage-1;
+                if (currentPage < 0) {
+                    currentPage=1;
+                    selData();
+                    layer.msg("当前第一页");
+                } else {
+                    selData();
+                }
+            });
+            //下一页
+            $("#downPage").click(function () {
+                currentPage=currentPage+1;
+                selData();
+            });
+            //查询
+            $("#productCategory").change(function(){
+                selData();
+            });
+            //添加
+            $("#productBtn").click(function(){
+                var arr = $("#myproduttbody :checked").closest("tr");
+                var tr="";
+                jQuery.each(arr,function(){
+                    tr+= "<tr>"+$(this).html()+"</tr>";
+                    $(this).remove();
+                });
+                $("#spanpro").show();
+                $("#myprodutdeltbody").append(tr);
+            });
+            //删除
+            $("#productBtndel").click(function(){
+                var arr = $("#myprodutdeltbody :checked").closest("tr");
+                jQuery.each(arr,function(){
+                    $(this).remove();
+                });
+                panduan();
+            });
+            //删除时判断
+            function panduan(){
+                var arr = $("#myprodutdeltbody :checkbox").closest("tr");
+                if(arr.length==0){
+                    $("#spanpro").hide();
+                }
+            }
+            //关联
+            function guanlian(){
+                var proguanlian="";
+                var arr = $("#myprodutdeltbody :checkbox").closest("tr");
+                if(arr.length!=0){
+                    jQuery.each(arr,function(){
+                        proguanlian += $(this).children("td").eq(0).children("input").val()+"+";
+                    });
+                    $("#productGuanLian").val(proguanlian);
+                }
+            }
+            //判断商品编码是否重复
+            $("#productCode").blur(function(){
+                var productCode = $("#productCode").val();
+                if(productCode!=""){
+                    jQuery.post("/business/productCode.action",{"productCode":productCode},function(data){
+                        if(data.productCode==productCode){
+                            layer.msg("编码重复");
+                            $("#productCode").val("");
+                        }
+                        GeneralSKUs();
+                    });
+                }
+            });
+            //回显属性
+            function specBack(){ var propo = $("#prepety tbody");
+                var id = $("#productId").val();
+                jQuery.post("/business/selUpdateSpecs.action",{"ProductId":id},function(data){
+                    for(var i= 0;i<data.length;i++){
+                        if(data[i].usageMode==2){
+                            var text = $("#prepety tbody").find("input:text");
+                            jQuery.each(text,function(){
+                                var id = $(this).attr("id");
+                                if(data[i].attributeId==id){
+                                    $(this).val(data[i].listAttributeValues[0].valueStr);
+                                }
+                            });
+                        }else if(data[i].usageMode==1){
+                            var checkbox = $("#prepety tbody").find("input:checkbox");
+                            jQuery.each(checkbox,function(){
+                                var id = $(this).attr("name");
+                                if(data[i].attributeId==id){
+                                    for(var v = 0;v<data[i].listAttributeValues.length;v++){
+                                        var value = $(this).attr("value");
+                                        if(data[i].listAttributeValues[v].valueId==value)
+                                            $(this).attr("checked",true);
+                                    }
+                                }
+                            });
+                        }else{
+                            var radio = $("#prepety tbody").find("input:radio");
+                            jQuery.each(radio,function(){
+                                var id = $(this).attr("name");
+                                if(data[i].attributeId==id){
+                                    for(var v = 0;v<data[i].listAttributeValues.length;v++){
+                                        var value = $(this).attr("value");
+                                        if(data[i].listAttributeValues[v].valueId==value)
+                                            $(this).attr("checked",true);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+            //回显规格
+            function skusBack(){
+                var id = $("#productId").val();
+                jQuery.post("/business/selUpdateSku.action",{"ProductId":id},function(data){
+                    for(var i= 0;i<data.length;i++) {
+                        var checkbox = $("#Spec").find("input:checkbox");
+                        jQuery.each(checkbox, function () {
+                            var id = $(this).attr("attrid");
+                            if (data[i].attributeId == id) {
+                                for (var v = 0; v < data[i].listAttributeValues.length; v++) {
+                                    var value = $(this).attr("value");
+                                    if (data[i].listAttributeValues[v].valueId == value)
+                                        $(this).attr("checked", true);
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+            //回显库存
+            function skuInfoBack(){
+                price();
+                var id = $("#productId").val();
+                jQuery.post("/business/selUpdateSkuInfo.action",{"ProductId":id},function(data){
+                    var SKUS ="<tbody id='mytbody'><tr class='GridViewHeaderStyle'>";
+                    for(var i=0;i<data.length;i++){
+                        if(i==0){
+                            for(var j=0;j<data[i].attributeInfos.length;j++){
+                                SKUS += "<td style='font-weight: normal' class='specNumber'>" + data[i].attributeInfos[j].attributeName + "</td>";
+                            }
+                            SKUS += "<td><a style='color: red;'>*</a>商品编码</td><td width='15%'align='center'><a style='color: red;'>*</a>销售价<a style='color: red'></br>(销售价=（采购价+销售利润+统一调整价）*版面(平方米))</a></td><td><a style='color: red;'>*</a>采购价</td><td><a style='color: red;'>*</a>销售利润</td><td>统一调整价</td><td><a style='color: red;'>*</a>库存</td><td><a style='color: red;'>*</a>警戒库存</td><td>重量</td><td>上架</td></tr>";
+                        }
+                    }
+                    for(var v = 0;v<data.length;v++){
+                        for(var s=0;s<data[v].attributeInfos.length;s++){
+                            SKUS +="<td><input type='hidden' value='"+data[v].attributeInfos[s].attributeId+"|"+data[v].attributeInfos[s].listAttributeValues[0].valueId +"'/><label>"+data[v].attributeInfos[s].listAttributeValues[0].valueStr+"</td>"
+                        }
+                        SKUS +="<td><input type='text'  style='width:90px' value='"+data[v].sku+"'/></td>" +
+                        "<td><input type='text' style='width:90px' id='lowestSalePrice' value='"+data[v].salePrice+"'/></td>" +
+                        "<td><input type='text' style='width:90px' id='CostPrice' class='reckon' value='"+data[v].costPrice+"'/></td>" ;
+                        if(data[v].profit==null){
+                            SKUS += "<td><input type='text' style='width:90px' id='PriceChange' class='reckon' value='0'/></td>" ;
+                        }else{
+                            SKUS += "<td><input type='text' style='width:90px' id='PriceChange' class='reckon' value='"+data[v].profit+"'/></td>";
+                        }
+                        if(priceChange==""){
+                            SKUS +="<td><input type='text' style='width:90px' readonly='readonly' value='0.00'/></td>";
+                        }else{
+                            SKUS +="<td><input type='text' style='width:90px' readonly='readonly' value='"+priceChange+"'/></td>";
+                        }
+                        SKUS += "<td><input type='text' style='width:90px' value='"+data[v].stock+"'/></td>" +
+                        "<td><input type='text' style='width:90px' value='"+data[v].alertStock+"'/></td>" +
+                        "<td><input type='text' style='width:90px' class='wigth'  value='"+data[v].weight+"'/></td>" ;
+                        if(data[v].upSelling==1){
+                            SKUS +="<td><input type='checkbox' value='1' class='specll' checked='cehcked'/></td></tr>";
+                        }else{
+                            SKUS +="<td><input type='checkbox' value='0' class='specll' /></td></tr>";
+                        }
+                    }
+                    SKUS +="</tbody>";
+                    $("#Skus tbody").remove();
+                    $("#Skus").append(SKUS);
+                });
+            }
+            //回显关联
+            function productRelated(){
+                jQuery.post("/business/selCategory.action",function(data){
+                    var select = "<option value='' checked='checked'>全部</option>";
+                    for(var i = 0;i<data.length;i++){
+                        select +="<option value='"+data[i].categoryId+"' checked='checked'>"+data[i].name+"</option>";
+                    }
+                    $("#productCategory").append(select);
+                    selData();
+                });
+                $("#Product").show();
+                var id = $("#productId").val();
+                jQuery.post("/business/selProductRelated.action",{"ProductId":id},function(data){
+                    var tr="";
+                    for(var i=0;i<data.length;i++){
+                        tr+= "<tr><td><input type='checkbox' name='check'value='" + data[i].productId + "'/></td>" +
+                        "<td><label  title='"+data[i].productName+"' style='cursor: pointer;'>" + cutstr(data[i].productName,10) +"</td></tr>";
+                        $("#spanpro").show();
+                    }
+                    $("#myprodutdeltbody").append(tr);
+                });
+            }
+            //改变状态
+            $(".specll").live("change",function(){
+                var v = (this).value;
+                if(v==1){
+                    $(this).val("0");
+                }else{
+                    $(this).val("1");
+                }
+            });
+            //回显图片
+            function ImageBack(){
+                var id = $("#productId").val();
+                jQuery.post("/business/selProductImageByProductId.action",{"productId":id},function(data){
+                    for(var i=0; i<data.length;i++){
+                        var thumbnailUrl1 = data[i].thumbnailUrl1;
+                        var imageUrl = data[i].imageUrl;
+                        $("#fileUpload").find("td").eq(i).find("input[type=hidden]").val(imageUrl+"*"+thumbnailUrl1);
+                        $("#fileUpload").find("td").eq(i).children("div").css("background","url("+imageUrl+")");
+//                        $("#fileUpload").find("td").eq(i).children("div").css("background","url(../../"+thumbnailUrl1.replace("{0}","T128X130_").replace("\"","")+")");
+                    }
+                });
+            }
+            //回显分类
+            function CategoryBack(){
+                var id = $("#productId").val();
+                jQuery.post("/business/selProductCategoryByProductId.action",{"productId":id},function(data){
+                    for(var i = 0;i<data.length;i++){
+                        var category = new Array();
+                        var cateName = "";
+                        if(data[i].firstDome!=null){
+                            cateName+=data[i].firstDome.name;
+                            category[1]=data[i].firstId;
+                        }
+                        if(data[i].secondDome!=null){
+                            cateName+=">>"+data[i].secondDome.name;
+                            category[2]=data[i].secondId;
+                        }
+                        if(data[i].threeDome!=null){
+                            cateName+=">>"+data[i].threeDome.name;
+                            category[3]=data[i].threeId;
+                        }
+                        category[0]=cateName;
+                        categoryList[i]=category;
+                        $("#cateshow").append("<tr><td>"+cateName+"</td><td><a class='cancelCate' href='#' cateNameList='"+cateName+"' style='text-decoration: none'>删除</a></td></tr>");
+                    }
+                });
+            }
+            //回显热销属性
+            function StationBack(){
+                var id = $("#productId").val();
+                jQuery.post("/business/preUpDateStation.action",{"productId":id},function(data){
+                    var Recommend="<input type='checkbox' name='Station' value='0'/><span>推荐商品</span>";
+                    var BestSellers="<input type='checkbox' name='Station' value='1'/><span>热卖商品</span>";
+                    var Specialoffer="<input type='checkbox' name='Station' value='2'/><span>特价商品</span>";
+                    var New="<input type='checkbox' name='Station' value='3'/><span>新品商品</span>";
+                    var Page="<input type='checkbox' name='Station' value='4'/><span>分类首页推荐</span>";
+                    for(var i=0;i<=4;i++){
+                        for(var j=0;j<data.length;j++){
+                            if(i==data[j].type && i==0 ){
+                                Recommend="<input type='checkbox' name='Station' checked='checked' value='0'/><span>推荐商品</span>";
+                            }
+                            if(i==data[j].type && i==1 ){
+                                BestSellers="<input type='checkbox' name='Station' checked='checked' value='1'/><span>热卖商品</span>";
+                            }
+                            if(i==data[j].type && i==2 ){
+                                Specialoffer="<input type='checkbox' name='Station' checked='checked' value='2'/><span>特价商品</span>";
+                            }
+                            if(i==data[j].type && i==3 ){
+                                New="<input type='checkbox' name='Station' checked='checked' value='3'/><span>新品商品</span>";
+                            }
+                            if(i==data[j].type && i==4 ){
+                                Page="<input type='checkbox' name='Station' checked='checked' value='4'/><span>分类首页推荐</span>";
+                            }
+                        }
+                    }
+                    $("#StatioMode").append(Recommend+BestSellers+Specialoffer+New+Page);
+                });
+            }
+            //图片
+            $(".file_upload").uploadify({
+                'uploader'       : '../../../uploadify-v2.1.4/swf/uploadify.swf',
+                'script'         : '/business/insertProductFile.action',
+                'cancelImg'      : '../../../uploadify-v2.1.4/cancel.png',
+                'wmode': 'transparent',
+                'hideButton': true,
+                'auto': true,               //选定文件后是否自动上传，默认false
+                'multi': false,               //是否允许同时上传多文件，默认false
+                'fileExt': '*.jpg;*.bmp;*.png;*.gif',      //控制可上传文件的扩展名，启用本项时需同时声明fileDesc
+                'sizeLimit': 2097152,
+                'fileDataName':"file",
+                'onComplete':function(event,queueId,fileObj,response,data){
+                    $(event.target).parent().css("background","url("+response.replace("{0}","T128X130_").replace("\"","")+")");
+                    $(event.target).parents('.ImgUpload').find("input[type=hidden]").val(response);
+                }
+            });
+            //校验数字
+            $(".checknum").live("blur",function(){
+                var exp = /^([1-9][\d]{0,7}|0)(\.[\d]{1,2})?$/;
+                if($(this).val()!=""){
+                    if(!exp.test($(this).val())){
+                        $(this).val("");
+                        $(this).select();
+                        layer.msg("内容格式错误");
+                    }
+                }
+            });
+            //提交
+            $("#btn").click(function(){
+                cateUrl();
+                regio();
+                specStr();
+                attrStrs();
+                guanlian();
+                var content = UE.getEditor('myEditor').getContent();
+                $("#description").val(content);
+                if($("#typeId option:checked").val()==""){
+                    layer.msg("请选择类型");
+                    return;
+                }
+
+                if($("#productCode").val()==""){
+                    layer.msg("请填写编码");
+                    return;
+                }
+                if($("#productName").val()==""){
+                    layer.msg("请填写产品名称");
+                    return;
+                }
+                if($("#lowestSalePrice").val()==""){
+                    layer.msg("请填写销售价格");
+                    return;
+                }
+                document.getElementById("formOne").submit();
+            });
+        });
+    </script>
+</head>
+<body>
+<div class="place">
+    <span>位置：</span>
+    <ul class="placeul">
+        <li><a>编辑</a></li>
+    </ul>
+</div>
+<div class="formbody">
+    <form action="/business/updateProduct.action" method="post" enctype="multipart/form-data" id="formOne" >
+        <div class="formtitle"><span>基本信息</span></div>
+        <input type="hidden" id="productId" name="productId" value="$productInfoResult.productId"/>
+        <input type="hidden" id="hasSku" name="hasSku"/>
+        <input type="hidden" id="SpecStr" name="SpecStr"/>
+        <input type="hidden" id="skusStr" name="skusStr">
+        <input type="hidden" id="productGuanLian" name="productGuanLian">
+        <table width="100%" class="formtable">
+            <tr><td  width="7%"></td><td  width="32%" align="center"><table width="90%" id="cateshow"></table></td></tr>
+
+            <tr>
+                <td width="7%">商品分类：</td><td width="32%">
+                <select id="first" name="first">
+                </select>
+                <select id="second" name="second">
+                    <option value="">全部</option>
+                </select>
+                <select id="three" name="three">
+                    <option value="">全部</option>
+                </select><input type="hidden" id="searchProductCategories" name="searchProductCategories" >
+                &nbsp;
+                <input type="button" id="selcategoryName" value="添加"/>
+            </td>
+                <td width="7%">商品名称：</td><td  width="22%"><input type="text" value="$!productInfoResult.productName" name="productName"id="productName"/></td>
+                <td width="7%">商品编码：</td><td  width="28%"><input type="text" value="$!productInfoResult.productCode" name="productCode"id="productCode"/></td>
+            </tr>
+            <tr>
+                <td width="7%">显示顺序：</td><td><input class="checknum" type="text" value="$!productInfoResult.displaySequence" name="displaySequence"id="displaySequence"/></td>
+                <td width="7%">销售价：</td><td><input type="text" class="checknum" value="$!productInfoResult.lowestSalePrice" name="lowestSalePrice"id="lowestSalePrice"/></td>
+            </tr>
+            <tr>
+                <td width="7%">商品类型：</td><td><select id="typeId" name="typeId">
+                <option value="">请选择</option>
+                #foreach($productType in $productInfoResult.productTypeList)
+                    #if($productType.typeId==$productInfoResult.typeId)
+                        <option value="$productType.typeId" selected="selected">$productType.typeName</option>
+                    #else
+                        <option value="$productType.typeId">$productType.typeName</option>
+                    #end
+                #end
+            </select></td>
+                <td width="7%">商品品牌：</td><td><select id="brandId" name="brandId">
+                <option  value="">请选择</option>
+                #foreach($brandInfo in $productInfoResult.brandInfos)
+                    #if($brandInfo.brandId==$productInfoResult.brandId)
+                        <option  value="$brandInfo.brandId" selected="selected">$brandInfo.brandName</option>
+                    #else
+                        <option  value="$brandInfo.brandId">$brandInfo.brandName</option>
+                    #end
+                #end
+            </select>
+            </td>
+            </tr>
+        </table>
+        <div style="display: none" id="fujiashuxing">
+            <div style="height: 10px">
+            </div>
+            <table width="50%" class="table table-hover text-center" id="prepety">
+            </table>
+            <div style="height: 10px">
+            </div>
+        </div>
+        <table width="100%" class="formtable">
+            <tr>
+                <td width="7%">商家：</td><td width="32%">
+                <select id="supplierId" name="supplierId">
+                    <option  value="">$productInfoResult.supplierId</option>
+                    #foreach($supplierInfo in $productInfoResult.supplierInfoList)
+                        #if($supplierInfo.supplierId==$productInfoResult.supplierId)
+                            <option value="$supplierInfo.supplierId" selected="selected">$supplierInfo.name</option>
+                        #else
+                            <option value="$supplierInfo.supplierId">$supplierInfo.name</option>
+                        #end
+                    #end
+                </select>
+            </td>
+                <td width="7%">计量单位：</td><td width="22%"><input value="$!productInfoResult.unit" type="text" name="unit"id="unit"/></td>
+                <td width="7%">产地：</td><td width="28%"><select id="Regionfirst" name="Regionfirst">
+                <option value="0">请选择</option>
+                #foreach($RegionInfo in $regionInfos.first)
+                    #if($RegionInfo.regionId==$regionInfos.firstId)
+                        <option value="$RegionInfo.regionId" selected="selected">$RegionInfo.regionName</option>
+                    #else
+                        <option value="$RegionInfo.regionId">$RegionInfo.regionName</option>
+                    #end
+                #end
+            </select>
+                <select id="Regionsecond" name="Regionsecond" >
+                    <option value="0">请选择</option>
+                    #foreach($RegionInfo in $regionInfos.second)
+                        #if($RegionInfo.regionId==$regionInfos.secondId)
+                            <option value="$RegionInfo.regionId" selected="selected">$RegionInfo.regionName</option>
+                        #else
+                            <option value="$RegionInfo.regionId">$RegionInfo.regionName</option>
+                        #end
+                    #end
+                </select>
+                <select id="Regionthree" name="Regionthree">
+                    <option value="0">请选择</option>
+                    #foreach($RegionInfo in $regionInfos.three)
+                        #if($RegionInfo.regionId==$regionInfos.threeId)
+                            <option value="$RegionInfo.regionId" selected="selected">$RegionInfo.regionName</option>
+                        #else
+                            <option value="$RegionInfo.regionId">$RegionInfo.regionName</option>
+                        #end
+                    #end
+                </select>
+                <input type="hidden" id="regionId" name="regionId"/>
+            </td>
+            </tr>
+            <tr>
+                <td width="7%">市场价：</td><td><input class="checknum" type="text" value="$!productInfoResult.marketPrice" name="marketPrice"id="marketPrice"/></td>
+                <td width="7%">成本价：</td><td><input class="checknum" type="text" name="costPrice"id="costPrice"/></td>
+                <td width="7%">警戒库存：</td><td><input class="checknum" type="text" name="alertStock"id="alertStock"/></td>
+            </tr>
+            <tr>
+                <td width="7%">商品重量：</td><td><input class="checknum" type="text" name="weight"id="weight" value=""/></td>
+                <td width="7%">可得美豆：</td><td><input class="checknum" type="text" value="$!productInfoResult.points" name="points"id="points"/></td>
+                <td width="7%">是否上架：</td><td>
+                #if($productInfoResult.saleStatus==1)
+                    <input type="radio" name="saleStatus" checked="checked" value="1">是
+                    <input type="radio" name="saleStatus" value="0">否</td>
+                #else
+                    <input type="radio" name="saleStatus" value="1">是
+                    <input type="radio" name="saleStatus" checked="checked" value="0">否
+                #end
+                </td>
+            </tr>
+            <tr>
+                #if($session.getAttribute($constants.userLoginSessionKey()).getPluteformid() != $constants.zmPlatformId())
+                    <td width="7%">单价：</td><td><input type="text" class="checknum" name="singlePrice" id="singlePrice" /></td>
+                #end
+                <td width="7%">销售类型：</td><td width="26%">
+                #if($productInfoResult.salesType==1)
+                    <input type="radio" name="salesType" checked="checked" value="1">正常
+                    <input type="radio" name="salesType" value="0">赠品
+                #else
+                    <input type="radio" name="salesType" value="1">正常
+                    <input type="radio" name="salesType" checked="checked" value="0">赠品
+                #end
+            </td>
+            </tr>
+            <tr>
+                <td width="7%">商品属性</td><td id="StatioMode">
+            </td>
+            </tr>
+        </table>
+</div>
+<div class="formbody">
+    <div class="formtitle"><span>详细介绍</span></div>
+    <textarea name="remark" id="myEditor"></textarea>
+    <input type="hidden" name="description" id="description" value='$!productInfoResult.description'>;
+</div>
+<div class="formbody">
+    <div class="formtitle"><span>规格</span></div>
+    <input type="button" class="button border-blue" value="开启规格" id="btnSpec" />
+    <div id="contetSKUs">
+        <table width="99%" id="AttributeContent">
+            <tbody id="Spec"></tbody>
+        </table>
+        <table width="99%" class="table table-hover text-center" border="1" align="center" id="Skus">
+        </table>
+    </div>
+    <div align="center"><input type="button" class="button border-blue" value="计算重量" id="jswight"/></div>
+</div>
+<div class="formbody">
+    <div class="formtitle"><span>关联商品</span></div>
+    <input type="button" class="button border-blue" value="关联商品" id="btnProduct" />
+    <div style="height: 15px"></div>
+    <div id="Product" style="display:none;">
+        <table width="66%">
+            <tr>
+                <td style="float: left;margin: 0px;padding: 0px;"  width="45%">
+                    &nbsp;&nbsp;
+                    <select id="productCategory">
+                    </select>
+                    &nbsp;&nbsp;
+                    <input type="button" id="productBtn" class="button border-blue" value="添加关联"/>
+                    <div style="height: 10px"></div>
+                    <table id="productshow" class="table table-hover text-center"  width="100%">
+                        <thead></thead>
+                        <tbody id="myproduttbody">
+                        </tbody>
+                        <tr><td colspan="2" align="right"><a id="upPage" style="cursor: pointer">上一页</a>&nbsp;&nbsp;<a id="downPage" style="cursor: pointer">下一页</a></td></tr>
+                    </table>
+                </td>
+                <td style="float: left;margin: 0px;padding: 0px;" width="45%">
+                        <span style="display:none;" id="spanpro" >
+                        &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="button" id="productBtndel" class="button border-blue" value="删除"/>
+                        <div style="height: 10px"></div>
+                        <table id="productInsert" class="table table-hover text-center" width="100%">
+                            <tbody id="myprodutdeltbody">
+                            </tbody>
+                        </table>
+                        </span>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="formbody">
+    <div class="formtitle"><span>添加图片</span></div>
+    <div id="fileUpload">
+        <table width="100%" align="center">
+            <tr>
+                <td>
+                    <div class="ImgUpload" style="width: 127px; height: 128px;background:url(../../images/AddImage.gif)center center no-repeat">
+                        <div style="height: 45px"></div>
+                        <input type="hidden" name="filePath"/>
+                        <input type="file" class="file_upload" name="files"  id="file_upload0" width="127" height="127" style="display: none;">
+                    </div>
+                </td>
+                <td>
+                    <div class="ImgUpload" style="width: 127px; height: 128px;background:url(../../images/AddImage.gif)center center no-repeat">
+                        <div style="height: 45px"></div>
+                        <input type="hidden" name="filePath"/>
+                        <input type="file" class="file_upload" name="files" id="file_upload1" width="127" height="127" style="display: none;">
+                    </div>
+                </td>
+                <td>
+                    <div class="ImgUpload" style="width: 127px; height: 128px;background:url(../../images/AddImage.gif)center center no-repeat">
+                        <div style="height: 45px"></div>
+                        <input type="hidden" name="filePath"/>
+                        <input type="file" class="file_upload" name="files" id="file_upload2" width="127" height="127" style="display: none;">
+                    </div>
+                </td>
+                <td>
+                    <div class="ImgUpload" style="width: 127px; height: 128px;background:url(../../images/AddImage.gif)center center no-repeat">
+                        <div style="height: 45px"></div>
+                        <input type="hidden" name="filePath"/>
+                        <input type="file" class="file_upload" name="files" id="file_upload3" width="127" height="127" style="display: none;">
+                    </div>
+                </td>
+                <td>
+                    <div class="ImgUpload" style="width: 127px; height: 128px;background:url(../../images/AddImage.gif)center center no-repeat">
+                        <div style="height: 45px"></div>
+                        <input type="hidden" name="filePath"/>
+                        <input type="file" class="file_upload" name="files" id="file_upload4" width="127" height="127" style="display: none;">
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</form>
+</div>
+<div style="height: 10px"></div>
+<div align="center" style="height: 15px" >
+    <a class="button border-green" id="btn" href='#'><span class="icon-check"></span>提交</a>
+</div>
+</div>
+</body>
+</html>

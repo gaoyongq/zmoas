@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.system.DistributionSonDao">
+   <resultMap id="DistributionSonMap" type="com.zm.mall.domain.system.DistributionSon">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="distributionSonCode" property="distributionSonCode" jdbcType="VARCHAR"/>
+        <result column="distributionCode" property="distributionCode" jdbcType="VARCHAR"/>
+        <result column="purchaseCode" property="purchaseCode" jdbcType="VARCHAR"/>
+        <result column="orderCode" property="orderCode" jdbcType="VARCHAR"/>
+        <result column="kind" property="kind" jdbcType="VARCHAR"/>
+        <result column="orderNumber" property="orderNumber" jdbcType="VARCHAR"/>
+        <result column="practicalNumber" property="practicalNumber" jdbcType="VARCHAR"/>
+        <result column="weight" property="weight" jdbcType="VARCHAR"/>
+        <result column="address" property="address" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="kilometre" property="kilometre" jdbcType="VARCHAR"/>
+        <result column="consume" property="consume" jdbcType="VARCHAR"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="wornNumber" property="wornNumber" jdbcType="VARCHAR"/>
+        <result column="wornMoney" property="wornMoney" jdbcType="DOUBLE"/>
+    </resultMap>
+
+    <sql id="all_column">id, distributionSonCode,distributionCode, purchaseCode,orderCode , kind ,orderNumber ,practicalNumber , weight ,address,phone , kilometre ,consume,remark,wornNumber,wornMoney </sql>
+
+    <sql id="update_set">
+        <set>
+
+            <if test="kilometre != null">kilometre = #{kilometre},</if>
+            <if test="consume != null">consume = #{consume},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="kind != null">kind = #{kind},</if>
+            <if test="orderNumber != null">orderNumber = #{orderNumber},</if>
+            <if test="practicalNumber != null">practicalNumber = #{practicalNumber},</if>
+            <if test="weight != null">weight = #{weight},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="wornNumber != null">wornNumber = #{wornNumber},</if>
+            <if test="wornMoney != null">wornMoney = #{wornMoney},</if>
+            <if test="wornName != null">wornName = #{wornName},</if>
+
+        </set>
+    </sql>
+
+    <!-- 插入记录 -->
+    <insert id="insertDistributionSon" parameterType="distributionSon" >
+        INSERT INTO wl_distributionson
+        (distributionSonCode,distributionCode,purchaseCode, orderCode,kind,orderNumber,practicalNumber,weight,address,phone,kilometre,consume,remark) VALUES
+        (#{distributionSonCode},#{distributionCode},#{purchaseCode},#{orderCode},#{kind},#{orderNumber},#{practicalNumber},#{weight},#{address},#{phone},#{kilometre},#{consume},#{remark})
+    </insert>
+
+
+    <select id="selectAllDistributionSon" resultMap="DistributionSonMap" parameterType="String">
+        SELECT
+        <include refid="all_column"/>
+        FROM wl_distributionson
+        WHERE distributionCode=#{distributionCode}
+    </select>
+
+    <update id="distributionSonUpdate" parameterType="distributionSon">
+        update wl_distributionson
+        <include refid="update_set"/>
+        where orderCode = #{orderCode}
+    </update>
+    <update id="distributionSonSaveLaterData" parameterType="distributionSon">
+        update wl_distributionson
+        <include refid="update_set"/>
+        where distributionSonCode = #{distributionSonCode}
+    </update>
+</mapper>

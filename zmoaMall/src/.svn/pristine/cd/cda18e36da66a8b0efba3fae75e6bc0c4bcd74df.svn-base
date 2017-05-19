@@ -1,0 +1,267 @@
+#set($layout = "layout/empty.vm")
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>设置分类分区域显示</title>
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/default/easyui.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/js/ztree/zTreeStyle.css">
+
+    <script type="text/javascript" src="/js/jeasyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-filter.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-detailview.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/locale/easyui-lang-zh_CN.js"></script>
+    <script>
+        var url = '/business/prodCat/getProdCatListByRegionId.action';
+        var regionId = '';
+    </script>
+    <script type="text/javascript" src="/js/ztree/jquery.ztree.all-3.5.js"></script>
+    <SCRIPT LANGUAGE="JavaScript">
+        var zTreeObj;
+        // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
+        var setting = {
+            check: {
+                enable: true
+            },
+            data: {
+                simpleData: {
+                    enable: true
+                }
+            },
+            callback: {
+                onClick: function(event, treeId, treeNode, clickFlag) {
+                    return false;
+                },
+                beforeClick: function(treeId, treeNode, clickFlag) {
+                    return false;
+                }
+            }
+        };
+        // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
+        var zNodes =[];
+
+        jQuery.ajax({
+            url: '/business/prodCat/getZTreeCatListByRegionId',
+            type: 'post',
+            dataType: 'json',
+            success: function(data) {
+                zNodes = data;
+                zTreeObj = jQuery.fn.zTree.init($("#treeDemo"), setting, zNodes);
+            },
+            error: function(data) {
+                jQuery.messager.alert('提示','<b>请求失败！</b>','error');
+            }
+        });
+    </SCRIPT>
+</head>
+<body>
+
+<div class="easyui-panel" title="设置分类分区域显示" style="padding:10px" data-options="
+        fit:true,
+        tools:'#tb',
+        iconCls:'fa fa-chain'
+        ">
+
+    <div style="margin-bottom: 10px;">
+        <b style="display: inline-block;width: 20%;text-align: center;">选择分类应用地址：</b>
+        <input id="province" class="easyui-combobox" name="province" style="width:25%;" data-options="
+                        url: '/business/selRegionInfo.action?depath=1',
+                        valueField: 'regionId',
+                        textField: 'regionName',
+                        panelHeight: '300',
+                        editable: false,
+                        onSelect: function(record) {
+                            $('#city').combobox('clear');
+                            var url = '/business/selRegionInfo.action?depath=2&fatherId='+record.regionId;
+                            $('#city').combobox('reload', url);
+
+                            $('#district').combobox('clear');
+                            $('#district').combobox('loadData', []);
+
+                            regionId = record.regionId;
+                            jQuery.messager.progress({
+                                title:'请稍后',
+                                msg:'正在加载地区数据...'
+                            });
+                            jQuery.ajax({
+                                url: '/business/prodCat/getZTreeCatListByRegionId?regionId='+regionId,
+                                type: 'post',
+                                dataType: 'json',
+                                success: function(data) {
+                                    zNodes = data;
+                                    zTreeObj = jQuery.fn.zTree.init($('#treeDemo'), setting, zNodes);
+                                    jQuery.messager.progress('close');
+                                },
+                                error: function(data) {
+                                    jQuery.messager.alert('提示','<b>请求失败！</b>','error');
+                                }
+                            });
+                        }
+                        ">
+        <input id="city" class="easyui-combobox" name="city" style="width:25%;" data-options="
+                        valueField: 'regionId',
+                        textField: 'regionName',
+                        panelHeight:'300',
+                        editable: false,
+                        onSelect: function(record) {
+                            $('#district').combobox('clear');
+                            var url = '/business/selRegionInfo.action?depath=3&fatherId='+record.regionId;
+                            $('#district').combobox('reload', url);
+
+                            regionId = record.regionId;
+                            jQuery.messager.progress({
+                                title:'请稍后',
+                                msg:'正在加载地区数据...'
+                            });
+                            jQuery.ajax({
+                                url: '/business/prodCat/getZTreeCatListByRegionId?regionId='+regionId,
+                                type: 'post',
+                                dataType: 'json',
+                                success: function(data) {
+                                    zNodes = data;
+                                    zTreeObj = jQuery.fn.zTree.init($('#treeDemo'), setting, zNodes);
+                                    jQuery.messager.progress('close');
+                                },
+                                error: function(data) {
+                                    jQuery.messager.alert('提示','<b>请求失败！</b>','error');
+                                }
+                            });
+                        }
+                        ">
+        <input id="district" class="easyui-combobox" name="district" style="width:25%;" data-options="
+                        valueField: 'regionId',
+                        textField: 'regionName',
+                        panelHeight:'300',
+                        editable: false,
+                        onSelect: function(record) {
+                            regionId = record.regionId;
+                            jQuery.messager.progress({
+                                title:'请稍后',
+                                msg:'正在加载地区数据...'
+                            });
+                            jQuery.ajax({
+                                url: '/business/prodCat/getZTreeCatListByRegionId?regionId='+regionId,
+                                type: 'post',
+                                dataType: 'json',
+                                success: function(data) {
+                                    zNodes = data;
+                                    zTreeObj = jQuery.fn.zTree.init($('#treeDemo'), setting, zNodes);
+                                    jQuery.messager.progress('close');
+                                },
+                                error: function(data) {
+                                    jQuery.messager.alert('提示','<b>请求失败！</b>','error');
+                                }
+                            });
+                        }
+                        ">
+    </div>
+
+    <div style="margin-bottom: 10px;">
+        <ul id="treeDemo" class="ztree"></ul>
+    </div>
+
+    <div style="margin-bottom: 10px;">
+        <a href="#" class="easyui-linkbutton c4" data-options="iconCls:'icon-save'" style="width:100%" onclick="save();">保存</a>
+    </div>
+</div>
+
+<!-- toolbar -->
+<div id="tb">
+    <a href="javascript:void(0)" class="icon-add" onclick="test()"></a>
+    <a href="javascript:void(0)" class="icon-edit" onclick="javascript:alert('edit')"></a>
+    <a href="javascript:void(0)" class="icon-cut" onclick="javascript:alert('cut')"></a>
+    <a href="javascript:void(0)" class="icon-help" onclick="javascript:alert('help')"></a>
+</div>
+
+
+<script>
+    /*$(function(){
+        jQuery.messager.progress({
+            title:'请稍后',
+            msg:'正在加载数据...'
+        });
+        $('#tt').tree({
+            url: '/business/prodCat/getPageProdCatListByParentId.action',
+            method: 'get',
+            lines: true,
+            animate: true,
+            checkbox: true,
+            onLoadSuccess: function(node, data) {
+                jQuery.messager.progress('close');
+            }
+        });
+    });*/
+
+    function test() {
+        console.log(zTreeObj.getChangeCheckedNodes());
+        console.log(zTreeObj.getCheckedNodes(true));
+    }
+
+    function save() {
+        var win = jQuery.messager.progress({
+            title:'请稍后',
+            msg:'正在操作...'
+        });
+
+        // 如果是确定的，添加自身和子孙。
+        var checkedNodes = zTreeObj.getCheckedNodes(true);
+
+        //将对象数组转为对应Id数组
+        var checkedIds = checkedNodes.map(function(item) { return item.id });
+
+        //获取省份Id
+        var province = $("#province").combobox('getValue');
+        //获取市县Id
+        var city = $("#city").combobox('getValue');
+        //获取区乡Id
+        var district = $("#district").combobox('getValue');
+        if (province == '') {
+            jQuery.messager.alert('提示','<b>请至少指定一个地区！</b>','info');
+            jQuery.messager.progress('close');
+            return;
+        }
+        //获取最精确的区域Id
+        var regionId = district == '' ? (city == '' ? province : city) : district;
+        jQuery.ajax({
+            url: '/business/prodCat/catAuth/addRegionCat',
+            type: 'post',
+            data: 'regionId='+regionId+'&checkedIds='+checkedIds,
+            dataType: 'json',
+            success: function(data) {
+                jQuery.ajax({
+                    url: '/business/prodCat/getZTreeCatListByRegionId',
+                    type: 'post',
+                    dataType: 'json',
+                    success: function(data) {
+                        zNodes = data;
+                        zTreeObj = jQuery.fn.zTree.init($("#treeDemo"), setting, zNodes);
+                        jQuery.messager.progress('close');
+                    },
+                    error: function(data) {
+                        jQuery.messager.alert('提示','<b>请求失败！</b>','error');
+                    }
+                });
+                $('#province').combobox('clear');
+                $('#city').combobox('clear');
+                $('#district').combobox('clear');
+                jQuery.messager.show({
+                    title:'数据修改成功提示！',
+                    msg: '您在 ' + new Date().toLocaleString() + ' 更新数据成功',
+                    showType:'slide'
+                });
+            },
+            error: function(data) {
+                jQuery.messager.alert('提示','<b>请求失败！</b>','error');
+            }
+        });
+
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    		http://www.springframework.org/schema/beans/spring-beans.xsd
+       		http://www.springframework.org/schema/context
+     		http://www.springframework.org/schema/context/spring-context.xsd http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd"
+       default-lazy-init="false" default-autowire="byName">
+    <import resource="classpath:META-INF/cxf/cxf.xml"/>
+    <!--<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml"/>-->
+   <!-- <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>-->
+    <!--<bean id="inMessageInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
+    <bean id="outLoggingInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
+  -->
+
+   <!-- <jaxws:endpoint id="userList" implementor="com.zm.mall.service.business.impl.UserListServiceImpl"
+                    address="/HelloWorld"/>
+    <bean id="clientFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+        <property name="serviceClass" value="com.zm.mall.client.service.business.accountsUsers.UserListService"/>
+        <property name="address" value="http://localhost:8080/zmoaMall/webservice/HalloWord"/>
+    </bean>-->
+   <!-- <jaxws:endpoint id = "userManager" address = "/accountsUsers" implementorClass = "com.zm.mall.client.service.business.accountsUsers.UserListService" >
+        <jaxws:implementor>
+            <bean id = "userListService" class = "com.zm.mall.service.business.impl.UserListServiceImpl">
+              &lt;!&ndash;  <property  name = "userListDao">
+                    <ref bean = "userListDaoImpl"/>
+                </property>&ndash;&gt;
+            </bean >
+        </jaxws:implementor>
+    </jaxws:endpoint >-->
+
+
+ <!--<bean id="userListServiceBean" class="com.zm.mall.service.business.impl.UserListServiceImpl"/>-->
+    <!--<jaxws:endpoint id="helloWorld" implementor="#userListServiceBean"-->
+                    <!--address="/accountsUsers" />-->
+    <!--<bean id="userListDaoImpl"  class="com.zm.mall.dao.business.accountsUsers.impl.UserListDaoImpl"/>-->
+  <!--<jaxws:endpoint-->
+            <!--id="accountsUsers"-->
+            <!--implementor="com.zm.mall.service.business.impl.UserListServiceImpl"-->
+            <!--address="/accountsUsers"/>-->
+
+    <!--<bean id="client" class="com.zm.mall.client.service.business.accountsUsers.UserListService"-->
+          <!--factory-bean="clientFactory" factory-method="create">-->
+        <!--<property name="userListDao" ref="userListDaoImpl" />-->
+            <!--</bean>-->
+
+    <!--<bean id="clientFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">-->
+        <!--<property name="serviceClass" value="com.zm.mall.client.service.business.accountsUsers.UserListService"/>-->
+        <!--<property name="address"-->
+                  <!--value="http://localhost:8080/webservice/accountsUsers"/>-->
+    <!--</bean>-->
+  <!-- <jaxws:server id="userList" serviceClass="com.zm.mall.client.service.business.accountsUsers.UserListService"  address="/accountsUsers">
+        <jaxws:serviceBean>
+            <ref bean="userListServiceBean"/>
+        </jaxws:serviceBean>
+        <jaxws:inInterceptors>
+            <ref bean="inMessageInterceptor"/>
+        </jaxws:inInterceptors>
+        <jaxws:outInterceptors>
+            <ref bean="outLoggingInterceptor"/>
+        </jaxws:outInterceptors>
+    </jaxws:server>-->
+
+
+
+</beans>

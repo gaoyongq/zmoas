@@ -1,0 +1,358 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script type="text/javascript" src="../../../js/jquery-1.8.3.js"></script>
+    <script type="text/javascript">
+        //checkbox全选
+        function selectAll(tag) {
+            if ($(tag).is(':checked')) {
+                $(tag).parent().parent().parent().find(":checkbox").attr("checked","checked");
+            } else {
+                $(tag).parent().parent().parent().find(":checkbox").removeAttr("checked");
+            }
+
+        }
+
+
+        $(function () {
+            var currentPage = 1;
+            var totalPages = 1;
+            var cate = "";
+            //动态插入分类
+            jQuery.post("/business/selCategory.action", function (data) {
+                var select = "<option value='' checked='checked'>全部</option>";
+                for (var i = 0; i < data.length; i++) {
+                    select += "<option value='" + data[i].categoryId + "' checked='checked'>" + data[i].name + "</option>";
+                }
+                $("#categoryId").append(select);
+            });
+            //获得二级分类
+            $("#categoryId").change(function () {
+                var select = "<option value='' checked='checked'>全部</option>";
+                var fatherId = $("#categoryId option:selected").val();
+                var depath = "2";
+                cate = "";
+                if (fatherId != null && fatherId != '') {
+                    jQuery.post("/business/selCategory.action", {
+                        "fatherId": fatherId,
+                        "depath": depath
+                    }, function (data) {
+                        for (var s = 0; s < data.length; s++) {
+                            select += "<option value='" + data[s].categoryId + "' checked='checked'>" + data[s].name + "</option>"
+                        }
+                        $("#second option").remove();
+                        $("#three option").remove();
+                        $("#second").append(select);
+                        $("#three").append(select);
+                    });
+                } else {
+                    $("#second option").remove();
+                    $("#second").append(select);
+                    $("#three option").remove();
+                    $("#three").append(select);
+                }
+            });
+            //获得三级分类
+            $("#second").change(function () {
+                var select = "<option value='' checked='checked'>全部</option>";
+                var fatherId = $("#second option:selected").val();
+                var depath = "3";
+                if (fatherId != null && fatherId != '') {
+                    jQuery.post("/business/selCategory.action", {
+                        "fatherId": fatherId,
+                        "depath": depath
+                    }, function (data) {
+                        for (var s = 0; s < data.length; s++) {
+                            select += "<option value='" + data[s].categoryId + "' checked='checked'>" + data[s].name + "</option>"
+                        }
+                        $("#three option").remove();
+                        $("#three").append(select);
+                    });
+                } else {
+                    $("#three option").remove();
+                    $("#three").append(select);
+                }
+            });
+            //获得分类路径
+            function cateUrl() {
+                if ($("#categoryId option:selected").val() != null && $("#categoryId option:selected").val() != "") {
+                    cate = "";
+                    cate += $("#categoryId option:selected").val() + "|";
+                }
+                if ($("#second option:selected").val() != null && $("#second option:selected").val() != "") {
+                    cate += $("#second option:selected").val() + "|";
+                }
+                if ($("#three option:selected").val() != null && $("#three option:selected").val() != "") {
+                    cate += $("#three option:selected").val();
+                }
+                return cate;
+            }
+
+            //点击查询
+            $("#btn").click(function () {
+                currentPage = "1";
+                cateUrl();
+                selData();
+            });
+            function selData() {
+                var productName = $("#productName").val();
+                var productCode = $("#productCode").val();
+                var saleStatus = $("#saleStatus option:selected").val();
+                jQuery.post("/business/selectProduct.action", {
+                    "productN": productName,
+                    "productC": productCode,
+                    "category": cate,
+                    "saleStatus": saleStatus,
+                    "currentPage": currentPage
+                }, function (data) {
+                    if (data.resultProductInfo == null) {
+                        alert("无查询结果")
+                    } else {
+                        var resultData = ""
+                        for (var j = 0; j < data.resultProductInfo.length; j++) {
+                            resultData += "<tr class='product' id='" + data.resultProductInfo[j].productId + "'>";
+                            resultData += "<td> <label  title='"+data.resultProductInfo[j].productName+"' style='cursor: pointer;'>" + cutstr(data.resultProductInfo[j].productName,10) + "</td>";
+                            resultData += "<td>" + data.resultProductInfo[j].productCode + "</td>";
+                            resultData += "<td>" + data.resultProductInfo[j].productType + "</td><tr>";
+                        }
+                        $("#tbody").html(resultData);
+                        currentPage = data.currentPage;
+                        totalPages = data.totalPages;
+                        $("#page").html(currentPage + " / " + data.totalPages);
+                        //珠子列表
+                        $(".product").click(function () {
+                            var id = $(this).attr("id")
+                            //如果珠子列表打开关闭
+                            if ($("tr").hasClass("s" + id + "")) {
+                                $("tr").remove(".s" + id + "");
+                                return false;
+                            }
+                            jQuery.post("/supplierProduct/selectByProductId.action", {"id": id,"supplierId":$id}, function (message) {
+//                                var str = "<tr class='s" + id + "'><th><a href='#' onclick='selectAll(this)'>选择</a></th>   <th>商品规格</th></tr>"
+//                                for (var i = 0; i < message.length; i++) {
+//                                    str += "<tr class='s" + id + "'><td><input attr='check' type='checkbox' value='" + message[i].skuId + "'></td>   "
+//                                    str += "<td>" + message[i].sku + "</td><tr>";
+//                                }
+                                var str = "<tr class='s" + id + "'><td colspan='3'><table width='100%' border='1'><tr><th><input onclick='selectAll(this)' type='checkbox' /></th><th>商品规格</th></tr>"
+                                for (var i = 0; i < message.length; i++) {
+                                    str += "<tr class='s" + id + "'><td><input attr='check' type='checkbox' value='" + message[i].skuId + "'></td>   "
+                                    str += "<td>" + message[i].sku + "</td><tr>";
+                                }
+                                str += "</table></td></tr>";
+                                $(".s" + id + "").remove()
+                                $("#" + id + "").after(str)
+                            })
+                        })
+
+                    }
+
+                });
+            }
+            function cutstr(str, len) {
+                var str_length = 0;
+                var str_len = 0;
+                if (!str) {
+                    return "";
+                }
+                var str_cut = new String();
+                str_len = str.length;
+                for (var i = 0; i < str_len; i++) {
+                    var a = str.charAt(i);
+                    str_length++;
+                    if (escape(a).length > 4) {
+                        //中文字符的长度经编码之后大于4
+                        str_length++;
+                    }
+                    str_cut = str_cut.concat(a);
+                    if (str_length >= len) {
+                        str_cut = str_cut.concat("...");
+                        return str_cut;
+                    }
+                }
+                //如果给定字符串小于指定长度，则返回源字符串；
+                if (str_length < len) {
+                    return str;
+                }
+            }
+
+            //上一页
+            $("#upPage").click(function () {
+                currentPage = currentPage - 1;
+                if (currentPage < 1) {
+                    /*  currentPage=1;
+                      selData();*/
+                    alert("已经到第一页")
+                } else {
+                    selData();
+                }
+            });
+            //下一页
+            $("#downPage").click(function () {
+                if (currentPage + 1 > totalPages) {
+                    alert("已经到最后一页了")
+                } else {
+                    currentPage = currentPage + 1;
+                    selData();
+                }
+            });
+            //复选按钮添加
+            $("#addBTN").click(function () {
+                var ids = '';
+                $("input[attr='check']").each(function (i, v) {
+                    if ($(v).is(":checked")) {
+                        ids = $(v).val();
+                        var all = "";
+                        jQuery.post("/supplierProduct/selectBySkuId.action", {"id": ids}, function (info) {
+
+                            all += "<tr><input type='hidden' name='ids' value='" + info.skuInfo.skuId + "'>"
+                            all += "<td>" + info.productName + "</td>"
+                            all += "<td>" + info.skuInfo.sku + "</td>"
+                            all += "<td><input type='text' name='counts'></td>"
+                            all += "<td><input type='text' name='prizes'></td></tr>"
+                            //重复性检测
+                            var flag = false;
+                            $("#addSkuTable").find("tr").each(function(){
+                                var aaa = 0;
+                                $(this).children().each(function(){
+                                    if ($(this).text() == info.productName) {aaa++;}
+                                    if ($(this).text() == info.skuInfo.sku) {aaa++;}
+                                });
+                                if (aaa>=2) {flag = true;}
+                            });
+                            if (flag) {return true;} //each中的return true相当于continue
+                            $("#addSkuTable").append(all);
+                        })
+                    }
+                });
+                if (!ids) {
+                    alert("你没选中任何记录");
+                    return false;
+                }
+            });
+
+
+        })
+    </script>
+</head>
+<body>
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li><a>添加供应商新产品</a></li>
+    </ul>
+</div>
+<div class="divtbs">&nbsp;
+商品分类:<select id="categoryId" class="input" ></select>
+<select id="second" class="input" >
+    <option value="">全部</option>
+</select>
+<select id="three" class="input" >
+    <option value="">全部</option>
+</select>&nbsp;
+状态:
+<select id="saleStatus" name="saleStatus" class="input" >
+    <option value="" checked="checked">全部</option>
+    <option value="1">在售</option>
+    <option value="0">下架</option>
+</select>&nbsp;
+##商品名称:<input type="text" id="productName" class="input" style="width:15%; line-height:17px; display:inline-block">
+##商品编号:<input type="text" id="productCode" class="input" style="width:15%; line-height:17px; display:inline-block">
+商品名称:<input type="text" id="productName" class="input">&nbsp;
+商品编号:<input type="text" id="productCode" class="input">&nbsp;
+##<input id="btn" type="button" class="button border-main icon-search" value="搜索">
+<button id="btn" class="button border-yellow"><span class="icon-search">搜索</span></button>
+<input type="button" class="button border-blue" value="返回" onclick="javascript:history.back(-1);">
+</div>
+
+<div>
+##    <div align="left">
+##        <div class="pagelist" style="width: 40%" align="center">
+##        <a id="upPage">上一页</a>&nbsp;&nbsp;<a id="downPage">下一页</a>
+##        </div>
+##        <form class="form-x" method="post" action="/supplierProduct/add.action">
+##        <div align="right">
+##            <input  type="submit" class="button border-main icon-search" value="添加新规格产品">
+##        </div>
+##        <div id="page" style="width: 40%" align="center"></div>
+##        <table align="left" style="width: 40%" class="table table-hover text-center">
+##            <tr id="productI">
+##                <th>产品名称</th>
+##                <th>产品编码</th>
+##                <th>类型</th>
+##            </tr>
+##            <tbody id="tbody">
+##            </tbody>
+##        </table>
+##        <div align="right">
+##                <table align="right" style="width:57%" id="addSkuTable" class="table table-hover text-center">
+##                    <input type="hidden" name="id" value="$id">
+##                    <tr>
+##                        <th>商品名称</th>
+##                        <th>商品规格</th>
+##                        <th>商品库存</th>
+##                        <th>商品价格</th>
+##                    </tr>
+##                       #* <input type="submit" value="添加新规格产品">*#
+##                </table >
+##            </form>
+##        </div>
+##        <div style="width: 40%" align="center">
+##            <input type="button" class="button border-green" id="addBTN" value="添加">
+##        </div>
+##        <br>
+##    </div>
+    <div align="left">
+        <form class="form-x" method="post" action="/supplierProduct/add.action">
+##            <div align="right">
+##                <input  type="submit" class="button border-main icon-search" value="添加新规格产品">
+##            </div>
+            <div>
+                <div style="float: left;width: 40%;">
+                    <table class="table text-center">
+                        <tr id="productI">
+                            <th>产品名称</th>
+                            <th>产品编码</th>
+                            <th>类型</th>
+                        </tr>
+                        <tbody id="tbody">
+                        </tbody>
+                    </table>
+                    <div id="page" style="text-align: right;margin-top: 5px;margin-bottom: 5px" ></div>
+                </div>
+                <div>
+                    <table align="right" style="width:60%" id="addSkuTable" class="table text-center">
+                        <input type="hidden" name="id" value="$id">
+                        <tr>
+                            <th>商品名称</th>
+                            <th>商品规格</th>
+                            <th>商品库存</th>
+                            <th>商品价格</th>
+                        </tr>
+                    #* <input type="submit" value="添加新规格产品">*#
+                    </table >
+                </div>
+            </div>
+            <div style="height: 10px"></div>
+            <div class="form-foot" style="width: 100%;clear: both" align="center">
+                <div style="width: 40%;float: left" align="center">
+                    <input type="button" class="button border-green" id="addBTN" value="添加">
+                </div>
+                <div  align="center">
+                    <input  type="submit" class="button border-green " value="添加新规格产品">
+                </div>
+            </div>
+        </form>
+    </div>
+##    <div style="width: 40%" align="center">
+##        <input type="button" class="button border-green" id="addBTN" value="添加">
+##    </div>
+</div>
+</div>
+</body>
+</html>
+
+

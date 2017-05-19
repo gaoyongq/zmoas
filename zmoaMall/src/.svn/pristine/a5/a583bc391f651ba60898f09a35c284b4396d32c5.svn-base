@@ -1,0 +1,233 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>优惠活动管理</title>
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/default/easyui.css">
+    <script type="text/javascript" src="/js/jeasyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-filter.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-detailview.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/locale/easyui-lang-zh_CN.js"></script>
+    <style type="text/css">
+        .c-label{
+            display:inline-block;
+            width:100px;
+            font-weight:bold;
+        }
+    </style>
+</head>
+<body>
+
+<table id="tt" class="easyui-datagrid" data-options="
+        toolbar:'#tb',
+        title:'广告列表',
+        fit:true,
+        singleSelect:true,
+        fitColumns:true,
+        url:'/business/ad/getAdList.action',
+        idField: 'id',
+        view:cardview,
+        pagination:true
+        ">
+    <thead>
+    <tr>
+        <th field="id" width="10%">广告Id</th>
+        <th field="name" width="20%">广告名称</th>
+        <th field="url" width="20%">广告链接</th>
+        <th field="imgUrl" width="20%">图片路径</th>
+        <th field="createDate" width="20%">创建时间</th>
+        <th field="status" width="10%">状态</th>
+    </tr>
+    </thead>
+</table>
+
+<!-- toolbar -->
+<div id="tb" style="padding:2px 5px;">
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="addAdDlg();">添加广告</a>
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'" onclick="updateAdDlg();">修改广告</a>
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" onclick="updateAdStatus(-1);">删除广告</a>
+    &nbsp;&nbsp;
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-reload'" onclick="updateAdStatus(1);">启用广告</a>
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-remove'" onclick="updateAdStatus(0);">禁用广告</a>
+
+</div>
+
+<div id="add-dlg" style="width:500px"></div>
+<div id="update-dlg" style="width:500px"></div>
+
+<script>
+    function updateAdStatus(status) {
+        var row = $('#tt').datagrid('getSelected');
+        if (row) {
+            jQuery.ajax({
+                url: '/business/ad/updateAdStatus',
+                type: 'post',
+                data: 'id='+row.id+'&status='+status,
+                dataType: 'json',
+                success: function(data) {
+                    if (data.success) {
+                        $('#tt').datagrid('reload');
+                        jQuery.messager.show({
+                            title:'数据修改成功提示！',
+                            msg: '您在 ' + new Date().toLocaleString() + ' 成功更新了一条数据',
+                            showType:'show'
+                        });
+                    }
+                }
+            });
+        } else {
+            //TODO 操作提示
+        }
+
+    }
+
+    function updateAdDlg() {
+        var row = $('#tt').datagrid('getSelected');
+        console.log(row);
+
+        if (row) {
+            $('#update-dlg').dialog({
+                title: '修改广告轮播图',
+                width: 700,
+                height: 400,
+                href: '/business/ad/updateAdDlg?id='+row.id+'&platformId='+row.platformId,
+                buttons:[{
+                    text:'修改',
+                    iconCls:'icon-ok',
+                    handler:function(){
+                        updateAd();
+                    }
+                },{
+                    text:'取消',
+                    iconCls:'icon-cancel',
+                    handler:function(){
+                        $('#update-dlg').dialog('close');
+                    }
+                }]
+            });
+
+            $('#update-fm').form('load',row);
+        }
+    }
+
+
+    function addAdDlg() {
+        //$('#dlg').dialog('open').dialog('center').dialog('setTitle','新增活动');
+
+        $('#add-dlg').dialog({
+            title: '新增广告轮播图',
+            width: 700,
+            height: 400,
+            href: '/business/ad/addAdDlg',
+            buttons:[{
+                text:'增加',
+                iconCls:'icon-ok',
+                handler:function() {
+                    addAd();
+                }
+            },{
+                text:'取消',
+                iconCls:'icon-cancel',
+                handler:function(){
+                    $('#add-dlg').dialog('close');
+                }
+            }]
+        });
+        //$('#add-fm').form('clear');
+    }
+
+    function updateAd() {
+        //提交form表单
+        $('#update-fm').form('submit', {
+            url:'/business/ad/updateAd.action',
+            success: function(data) {
+                var data = eval('(' + data + ')');  // change the JSON string to javascript object
+                if (data.success) {
+                    $('#update-dlg').dialog('close');
+                    $('#tt').datagrid('reload');
+                    jQuery.messager.show({
+                        title:'数据修改成功提示！',
+                        msg: '您在 ' + new Date().toLocaleString() + ' 成功更新了一条数据',
+                        showType:'show'
+                    });
+                }
+
+            },
+            error: function() {
+                jQuery.messager.show({
+                    title:'请求失败！',
+                    msg: new Date().toLocaleString() + ' 请求服务器失败',
+                    showType:'show'
+                });
+            }
+        });
+
+    }
+
+
+    function addAd() {
+        //提交form表单
+        $('#add-fm').form('submit', {
+            url:'/business/ad/addAd.action',
+            success: function(data) {
+                var data = eval('(' + data + ')');  // change the JSON string to javascript object
+                if (data.success) {
+                    $('#add-dlg').dialog('close');
+                    $('#tt').datagrid('reload');
+                    jQuery.messager.show({
+                        title:'数据修改成功提示！',
+                        msg: '您在 ' + new Date().toLocaleString() + ' 成功更新了一条数据',
+                        showType:'show'
+                    });
+                }
+
+            },
+            error: function() {
+                jQuery.messager.show({
+                    title:'请求失败！',
+                    msg: new Date().toLocaleString() + ' 请求服务器失败',
+                    showType:'show'
+                });
+            }
+        });
+
+    }
+
+
+    var cardview = jQuery.extend({}, jQuery.fn.datagrid.defaults.view, {
+        renderRow: function(target, fields, frozen, rowIndex, rowData){
+            var cc = [];
+            cc.push('<td colspan=' + fields.length + ' style="padding:10px 5px;border:0;">');
+            if (!frozen && rowData.id){
+                var img = rowData.imgUrl;
+                cc.push('<a title="查看大图" href="$image.showImageUrl()?relUrl=' + img + '" target="_blank"><img src="$image.showImageUrl()?relUrl=' + img + '" style="height:200px;float:left"></a>');
+                cc.push('<div style="float:left;margin-left:20px;">');
+                for(var i=0; i<fields.length; i++){
+                    var copts = $(target).datagrid('getColumnOption', fields[i]);
+                    if (fields[i] == 'status') {
+                        var status = rowData[fields[i]] == 1 ? '已启用' : '已禁用';
+                        cc.push('<p><span class="c-label">' + copts.title + ':</span> ' + status + '</p>');
+                    } else if (fields[i] == 'createDate') {
+
+                    } else {
+                        cc.push('<p><span class="c-label">' + copts.title + ':</span> ' + rowData[fields[i]] + '</p>');
+                    }
+
+                }
+                cc.push('</div>');
+            }
+            cc.push('</td>');
+            return cc.join('');
+        }
+    });
+
+
+</script>
+
+
+</body>
+</html>

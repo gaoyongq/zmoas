@@ -1,0 +1,17 @@
+<div class="module-col #if($!fontFloorResult.isDefineFloor && $!fontFloorResult.isDefineFloor == 0)ui-elevator-floor#end"
+     {moduleAttribute}
+     style="margin-bottom: $!{fontFloorResult.downDistance}px;margin-left: $!{fontFloorResult.leftDistance}px; margin-right: $!{fontFloorResult.rigthDistance}px;margin-top: $!{fontFloorResult.upDistance}px;clear: both;">
+    <!-- 楼层标题模块 -->
+    <div>
+        <div class="m-floor-hd-2"
+             style="margin-top:20px;margin-bottom:10px;"> #set ( $value = $!{fontFloorResult.downLine}/2)
+            <div class="ct"
+                 style="margin-top: -${value}px;border-bottom:$!{fontFloorResult.downLine}px solid $!{fontFloorResult.lineColour};"></div>
+            <h2><a href="javascript:void(0)" class="floor-hd-tt">$!fontFloorResult.floorName</a></h2></div>
+        <!-- 模块编辑、删除 -->
+        <div class="module-action">
+            <div class="bd"><a href="javascript:;" class="edit edit-floorhd-2"><i class="sp02"></i>编辑</a> <a
+                    href="javascript:;" class="delete"><i class="sp02"></i>删除</a></div>
+        </div>
+    </div>
+</div>

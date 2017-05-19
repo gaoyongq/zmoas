@@ -1,0 +1,1106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.accountsUsers.UserListDao">
+    <resultMap id="UserListMap" type="com.zm.mall.domain.business.accountsUsers.Users">
+        <result column="UserId" property="userId" jdbcType="INTEGER"/>
+        <result column="UserName" property="userName" jdbcType="VARCHAR"/>
+        <result column="NickName" property="nickName" jdbcType="VARCHAR"/>
+        <result column="Phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="Sex" property="sex" jdbcType="VARCHAR"/>
+        <result column="TrueName" property="trueName" jdbcType="VARCHAR"/>
+        <result column="Email" property="email" jdbcType="VARCHAR"/>
+        <result column="Activity" property="activity" jdbcType="INTEGER"/>
+        <result column="User_dateCreate" property="userDateCreate" jdbcType="VARCHAR"/>
+        <result column="followWay" property="followWay" jdbcType="INTEGER"/>
+        <association property="usersExp" javaType="UsersExp">
+            <id column="UserID" property="userId"></id>
+            <result column="Points" property="points" jdbcType="INTEGER"/><!--美豆-->
+            <result column="Balance" property="balance" jdbcType="DOUBLE"/><!--余额-->
+            <result column="RankScore" property="rankScore" jdbcType="INTEGER"/><!--成长值 -->
+            <result column="Singature" property="singature" jdbcType="VARCHAR"/><!--个性签名 -->
+            <result column="LastLoginTime" property="lastLoginTime" jdbcType="DATE"/><!--最后登录时间 -->
+            <result column="IsUserDPI" property="isUserDPI" jdbcType="INTEGER"/><!--是否实名认证 -->
+        </association>
+
+        <association property="userScore" javaType="UserScore">
+            <id column="id" property="id"></id>
+            <result column="userId" property="userId" jdbcType="INTEGER"/>
+            <result column="score" property="score" jdbcType="DOUBLE"/>
+       </association>
+
+        <association property="rankDetail" javaType="RankDetail">
+            <id column="DetailID" property="detailId"></id>
+            <result column="RuleId" property="ruleId" jdbcType="INTEGER"/>
+            <result column="UserID" property="userID" jdbcType="INTEGER"/>
+            <result column="Score" property="score" jdbcType="INTEGER"/>
+            <result column="ExtData" property="extData" jdbcType="VARCHAR"/>
+            <result column="Description" property="description" jdbcType="VARCHAR"/>
+            <result column="CreatedDate" property="createdDate" jdbcType="DATE"/>
+            <result column="Type" property="type" jdbcType="INTEGER"/>
+        </association>
+
+        <association property="pointsDetail" javaType="PointsDetail">
+            <id column="DetailID" property="detailId"></id>
+            <result column="RuleId" property="ruleId" jdbcType="INTEGER"/>
+            <result column="UserID" property="userId" jdbcType="INTEGER"/>
+            <result column="Score" property="score" jdbcType="INTEGER"/>
+            <result column="ExtData" property="extData" jdbcType="VARCHAR"/>
+            <result column="CurrentPoints" property="currentPoints" jdbcType="INTEGER"/>
+            <result column="Description" property="description" jdbcType="VARCHAR"/>
+            <result column="CreatedDate" property="createdDate" jdbcType="DATE"/>
+            <result column="Type" property="type" jdbcType="INTEGER"/>
+        </association>
+
+
+    </resultMap>
+    <!--判断平台Id-->
+    <sql id="b2c_condition">
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND pluteformid=#{pluteformid}
+        </if>
+    </sql>
+
+    <sql id="all_column">a.userId,userName,nickName,phone,sex,trueName,email,b.points,b.balance,b.rankScore,b.isUserDPI,activity,a.user_DateCreate</sql>
+    <sql id="all_column_01">a.userId,userName,nickName,phone,sex,trueName,email,b.points,b.balance,b.rankScore,b.isUserDPI,activity,a.user_DateCreate,sum(score) as score</sql>
+    <sql id="condition">
+        <if test="id != null  and id > 0">
+            AND userId = #{userId}
+        </if>
+        <if test="userName != null  and userName!=''">
+            AND userName = #{userName}
+        </if>
+
+        <if test="nickName != null and nickName !=''">
+            AND nickName = #{nickName}
+        </if>
+        <if test="sex != null and sex >0">
+            AND sex = #{sex}
+        </if>
+        <if test="trueName != null and trueName !=''">
+            AND trueName = #{trueName}
+        </if>
+    </sql>
+    <!--拼接sql语句 查询  关键字  日期  和 是否激活 -->
+    <sql id="keyTimeActivity">
+
+        <if test="users.key!='' and users.key!=null ">
+            and  (a.userName like CONCAT(CONCAT('%', #{users.key}), '%')
+            OR a.nickName LIKE CONCAT(CONCAT('%', #{users.key}), '%')
+            or a.phone LIKE CONCAT(CONCAT('%', #{users.key}), '%'))
+        </if>
+
+      <if test="users.beforeTime!='' and users.beforeTime!=null and users.afterTime !='' and users.afterTime!=null ">
+          AND a.user_DateCreate between #{users.beforeTime} and #{users.afterTime}
+        </if>
+
+        <if test="users.activity==0 or users.activity==1 ">
+            AND activity = #{users.activity}
+        </if>
+
+    </sql>
+    <!--- 添加暂且不弄-->
+    <!--添加用户-->
+    <insert id="insertUsers" parameterType="userList" useGeneratedKeys="true" keyProperty="userId">
+            INSERT INTO b2c_accounts_users
+             (UserName,password,nickName,trueName
+             ,sex,phone,email,EmployeeID,DepartmentID
+             ,Activity,UserType,Style,User_iCreator,
+             User_dateCreate,User_dateValid,User_dateExpire
+             ,User_iApprover,User_dateApprove,
+             User_iApproveState,User_cLang)
+            VALUES (#{userName},#{passWord},#{nickName},#{trueName},
+            #{sex},#{phone},#{email},#{employeeID},#{departmentID},
+            #{activity},#{userType},#{style},#{userICreator},
+            #{userDateCreate},#{userDateValid},#{userDateExpire}
+            ,#{userIApprover},#{userDateApprove},#{userIApproveState},#{userCLang})
+    </insert>
+    <!--用户积分添加-->
+    <insert id="insertUsersExp" parameterType="userList">
+        INSERT  INTO b2c_accounts_usersexp (userId,Balance,Points
+        ,RankScore,Gravatar,Singature,TelPhone,QQ,MSN,HomePage
+        ,Birthday,BirthdayVisible,BirthdayIndexVisible
+        ,Constellation,ConstellationVisible,
+        ConstellationIndexVisible,NativePlace,NativePlaceVisible
+        ,NativePlaceIndexVisible,RegionId,Address,AddressVisible
+        ,AddressIndexVisible,BodilyForm
+        ,BodilyFormVisible,BodilyFormIndexVisible
+        ,BloodType,BloodTypeVisible,BloodTypeIndexVisible,
+        Marriaged,MarriagedVisible,MarriagedIndexVisible
+        ,PersonalStatus,PersonalStatusVisible,PersonalStatusIndexVisible,
+        Grade,TopicCount,ReplyTopicCount,FavTopicCount
+        ,PvCount,FansCount,FellowCount,AblumsCount,FavouritesCount,FavoritedCount
+        ,ShareCount,ProductsCount,PersonalDomain
+        ,LastAccessTime,LastAccessIP,LastPostTime,LastLoginTime,Remark
+         ,IsUserDPI,PayAccount,UserCardCode,UserCardType,SourceType,SalesId,BalanceCredit,pluteformid)
+        VALUES (#{usersExp.userId},#{usersExp.balance},#{usersExp.points},#{usersExp.rankScore},#{usersExp.gravatar},#{usersExp.singature},#{usersExp.telPhone}
+        ,#{usersExp.qq}
+        ,#{usersExp.msn},#{usersExp.homePage},#{usersExp.birthday},#{usersExp.birthdayVisible},#{usersExp.birthdayIndexVisible},#{usersExp.constellation},#{usersExp.constellationVisible}
+        ,#{usersExp.constellationIndexVisible},#{usersExp.nativePlace},#{usersExp.nativePlaceVisible},#{usersExp.nativePlaceIndexVisible},#{usersExp.regionId},#{usersExp.address}
+        ,#{usersExp.addressVisible},#{usersExp.addressIndexVisible},#{usersExp.bodilyForm},#{usersExp.bodilyFormVisible},#{usersExp.bodilyFormIndexVisible},#{usersExp.bloodType},#{usersExp.bloodTypeVisible},
+        #{usersExp.bloodTypeIndexVisible},#{usersExp.marriaged},#{usersExp.marriagedVisible},#{usersExp.marriagedIndexVisible},#{usersExp.personalStatus},#{usersExp.personalStatusVisible}
+        ,#{usersExp.personalStatusIndexVisible},#{usersExp.grade},#{usersExp.topicCount},#{usersExp.replyTopicCount},#{usersExp.favTopicCount},#{usersExp.pvCount},#{usersExp.fansCount},#{usersExp.fellowCount}
+        ,#{usersExp.ablumsCount},#{usersExp.favouritesCount},#{usersExp.favoritedCount},#{usersExp.shareCount},#{usersExp.productsCount},#{usersExp.personalDomain},now(),#{usersExp.lastAccessIP},
+        now(),now(),#{usersExp.remark},#{usersExp.isUserDPI},#{usersExp.payAccount},#{usersExp.userCardCode},#{usersExp.userCardType},#{usersExp.sourceType},#{usersExp.salesId},#{usersExp.balanceCredit},#{usersExp.pluteformid})
+    </insert>
+    <!--用户细节描述添加-->
+    <insert id="insertPointsDetail" parameterType="userList">
+        INSERT  INTO b2c_accounts_pointsdetail(DetailID,RuleId,UserID,ExtData,CurrentPoints,Description,createdDate,score)
+        VALUES (#{pointsDetail.detailId},#{pointsDetail.ruleId},#{pointsDetail.userId},#{pointsDetail.extData},#{pointsDetail.currentPoints},#{pointsDetail.description},#{pointsDetail.createdDate},#{pointsDetail.score})
+    </insert>
+
+    <!--用户排名细节添加-->
+    <insert id="insertRankDetail" parameterType="userList">
+        INSERT  INTO b2c_accounts_rankdetail(DetailID,RuleId,userId,score,ExtData,Description,createdDate,Type)
+        VALUES (#{rankDetail.detailId},#{rankDetail.ruleId},#{rankDetail.userID},#{rankDetail.score},#{rankDetail.extData},#{rankDetail.description},#{rankDetail.createdDate},#{rankDetail.type})
+    </insert>
+    <!-- 添加暂且不弄-->
+
+    <!--查询所有用户信息 -->
+    <select id="selectAll" resultMap="UserListMap" parameterType="userList">
+        SELECT
+        <include refid="all_column"/>
+        FROM b2c_accounts_users a
+        JOIN  b2c_accounts_usersexp b
+        ON a.userId=b.userId
+        where 1=1
+        <if test="key!='' and key!=null ">
+            and  (a.userName like CONCAT(CONCAT('%', #{key}), '%')
+            OR a.nickName LIKE CONCAT(CONCAT('%', #{key}), '%')
+            or a.phone LIKE CONCAT(CONCAT('%', #{key}), '%'))
+        </if>
+
+        <if test="afterTime!='' and afterTime!=null and afterTime !='' and afterTime!=null ">
+            AND a.user_DateCreate between #{beforeTime} and #{afterTime}
+        </if>
+
+        <if test="activity==0 or activity==1 ">
+            AND activity = #{activity}
+        </if>
+    </select>
+    <!--根据用户激活状态 是否查询-->
+    <select id="getSelectActiv" resultMap="UserListMap" parameterType="userList">
+        SELECT
+        <include refid="all_column"/>
+        FROM b2c_accounts_users a
+        JOIN  b2c_accounts_usersexp b
+        ON a.userId=b.userId
+        where 1=1
+        <if test="activity==0 or activity==1 ">
+            AND a.activity = #{users.activity}
+        </if>
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND a.pluteformid=#{pluteformid}
+        </if>
+    </select>
+
+    <!--计算一共多少数据-->
+    <select id="getCount" resultType="int" parameterType="page">
+        SELECT
+        count(*)
+        FROM b2c_accounts_users a
+        JOIN  b2c_accounts_usersexp b
+        ON a.userId=b.userId
+        WHERE  1=1
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND a.pluteformid=#{pluteformid}
+        </if>
+        <include refid="keyTimeActivity"/>
+    </select>
+    <select id="getFenYe" resultMap="UserListMap" parameterType="page">
+        SELECT
+        <include refid="all_column_01"/>
+        FROM b2c_accounts_users a
+        left JOIN  b2c_accounts_usersexp b
+        ON a.userId=b.userId
+        left join b2c_userScore c
+        on a.userId=c.userId
+        AND c.status=1
+        where 1=1
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND a.pluteformid=#{pluteformid}
+        </if>
+        <include refid="keyTimeActivity"/>
+        GROUP by a.userId
+        LIMIT #{beginNumber},#{pageSize}
+    </select>
+
+    <sql id="updateSet">
+        <set>
+             <if test="balance!='' and balance!=null ">
+                 balance=#{balance}+balance,
+            </if>
+             <if test="points!='' and points!=null ">
+                 points=#{points}+points,
+            </if>
+            <if test="rankScore!='' and rankScore!=null ">
+                rankScore=#{rankScore}+rankScore,
+            </if>
+            <if test="pluteformid!='' and pluteformid!=null ">
+                pluteformid=#{pluteformid}
+            </if>
+        </set>
+    </sql>
+    <sql id="updateConsume">
+        <set>
+            <if test="balance!='' and balance!=null ">
+                balance=balance-#{balance},
+            </if>
+            <if test="points!='' and points!=null ">
+                points=#{points}+points,
+            </if>
+            <if test="rankScore!='' and rankScore!=null ">
+                rankScore=#{rankScore}+rankScore,
+            </if>
+            <if test="pluteformid!='' and pluteformid!=null ">
+                pluteformid=#{pluteformid}
+            </if>
+        </set>
+    </sql>
+    <!-- 插入记录 -->
+    <insert id="insertEntry" parameterType="userList" useGeneratedKeys="true" keyProperty="id">
+     /*   INSERT INTO user_info
+        ( platefrom_id ,  business_id,  system_type , status ,created ,modified) VALUES
+        ( #{platefromId} , #{businessId} , #{systemType} ,1 ,now() ,now())*/
+    </insert>
+
+    <!-- 通过主键更新 微信端余额充值-->
+    <update id="updateRBP" parameterType="usersExp">
+          update b2c_accounts_usersexp
+      <include refid="updateSet"/>
+        where userId=#{userId}
+    </update>
+    <!-- 微信端余额消费-->
+    <update id="updateBalanceConsumeWX" parameterType="usersExp">
+        update b2c_accounts_usersexp
+        <include refid="updateConsume"/>
+        where userId=#{userId}
+        <if test="balance!=null">
+            AND balance >= #{balance}
+        </if>
+    </update>
+    <!-- 按条件查询 -->
+    <!-- 根据关键字查询-->
+    <select id="getKeyword" resultMap="UserListMap" parameterType="page">
+        SELECT
+        <include refid="all_column"/>
+        FROM b2c_accounts_users a
+        JOIN  b2c_accounts_usersexp b
+        ON a.userId=b.userId
+        AND  a.userId &lt; 6
+        WHERE 1=1
+        <include refid="keyTimeActivity"/>
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND a.pluteformid=#{pluteformid}
+        </if>
+    </select>
+    <!--根据日期查询-->
+    <select id="getTimeSearch" resultMap="UserListMap" parameterType="userList">
+        SELECT
+        <include refid="all_column"/>
+        FROM accounts_users a
+        JOIN accounts_usersexp b
+        ON a.userId=b.userId
+        and a.userId &lt; 6
+        where
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            a.pluteformid=#{pluteformid} AND
+        </if>
+        a.user_DateCreate between #{beforeTime} and #{afterTime}
+    </select>
+    <!--通过id删除信息-->
+    <delete id="deleteEntryByKey" parameterType="userList">
+       /* UPDATE user_info
+        SET
+        status = 2 where id=#{id}*/
+    </delete>
+
+    <!-- 通过主键查询 -->
+    <select id="getUserIdSelect" resultMap="UserListMap" parameterType="userList">
+        select a.userId,userName,nickName,trueName,sex,phone,email,activity,b.points,b.balance,user_dateCreate,b.lastLogintime,b.singature
+         from b2c_accounts_users a
+         join b2c_accounts_usersexp b
+          on a.userid=b.userId
+         and a.useriD=#{userId}
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            WHERE a.pluteformid=#{pluteformid}
+        </if>
+    </select>
+    <!-- 通过主键查询  -->
+    <select id="getTopUp" resultMap="UserListMap" parameterType="userList">
+            select a.userId,b.userName,b.nickName,a.points,a.balance,a.rankScore
+            from  b2c_accounts_usersexp a
+            join  b2c_accounts_users b
+            on a.userId=b.userId
+            and a.userId=#{userId}
+            <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND a.pluteformid=#{pluteformid}
+            </if>
+    </select>
+
+    <resultMap id="PointsDetail" type="com.zm.mall.domain.business.accountsUsers.PointsDetail">
+
+        <id column="DetailID" property="detailId" jdbcType="INTEGER"></id>
+        <result column="RuleId" property="ruleId" jdbcType="INTEGER"></result>
+        <result column="UserID" property="userId" jdbcType="INTEGER"></result>
+        <result column="Score" property="score" jdbcType="INTEGER"></result>
+        <result column="Description" property="description"></result>
+        <result column="CreatedDate" property="createdDate" jdbcType="DATE"></result>
+        <result column="Type" property="type" jdbcType="INTEGER"></result>
+             <association property="pointsRule" javaType="PointsRule">
+                    <id column="RuleId" property="ruleId" jdbcType="INTEGER"></id>
+                    <result column="Name" property="name" jdbcType="VARCHAR"></result>
+              </association>
+    </resultMap>
+
+    <select id="getScoreDetail" resultMap="PointsDetail" parameterType="pointsDetail">
+        select a.detailId,a.ruleId,a.type,a.userId,a.score,a.CreatedDate,a.Description,b.name
+        from  b2c_accounts_pointsdetail a
+        join b2c_accounts_pointsrule b
+        on a.ruleId=b.ruleId
+        where a.userId=#{userId}
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND a.pluteformid=#{pluteformid}
+        </if>
+    </select>
+
+    <select id="getTypeSearch" resultMap="PointsDetail" parameterType="pointsDetail">
+        select a.detailId,a.ruleId,a.type,a.userId,a.score,a.CreatedDate,a.Description,b.name
+        from  b2c_accounts_pointsdetail a
+        join b2c_accounts_pointsrule b
+        on a.ruleId=b.ruleId
+        where a.userId=#{userId}
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND a.pluteformid=#{pluteformid}
+        </if>
+        <include refid="typeSea"/>
+    </select>
+
+    <update id="updateFreeze"  parameterType="userList">
+        UPDATE b2c_accounts_users set Activity=0
+        where userId=#{userId}
+        <include refid="b2c_condition"/>
+    </update>
+    <update id="activationUser"  parameterType="int">
+        UPDATE b2c_accounts_users set Activity=1
+        where userId=#{userId}
+        <include refid="b2c_condition"/>
+    </update>
+   <!-- <sql id="updateFreeze">
+        <if test="_parameter != null and _parameter!=0  and _parameter !=  '' " >
+
+        </if>
+    </sql>-->
+
+     <sql id="typeSea">
+        <if test="type==0">
+            AND a.type=0
+        </if>
+         <if test="type!=0">
+             AND a.type!=0
+         </if>
+    </sql>
+    <resultMap id="shippingAddress" type="com.zm.mall.domain.business.accountsUsers.ShippingAddress">
+        <id column="ShippingId" property="shippingId" jdbcType="INTEGER"></id>
+        <result column="RegionId" property="regionId" jdbcType="INTEGER"></result>
+        <result column="UserID" property="userId" jdbcType="INTEGER"></result>
+        <result column="ShipName" property="shipName" jdbcType="VARCHAR"></result>
+        <result column="Address" property="address" jdbcType="VARCHAR"></result>
+        <result column="EmailAddress" property="emailAddress" jdbcType="VARCHAR"></result>
+        <result column="TelPhone" property="telPhone" jdbcType="VARCHAR"></result>
+        <result column="Zipcode" property="zipcode" jdbcType="VARCHAR"></result>
+        <association property="msRegions" javaType="MsRegions">
+            <id column="AreaId" property="areaId" jdbcType="INTEGER"></id>
+            <result column="RegionId" property="regionId" jdbcType="INTEGER"></result>
+            <result column="ParentId" property="parentId" jdbcType="INTEGER"></result>
+            <result column="RegionName" property="regionName" jdbcType="VARCHAR"></result>
+            <result column="Path" property="path" jdbcType="VARCHAR"></result>
+        </association>
+        <association property="users" javaType="Users">
+            <id column="UserID" property="userId" jdbcType="INTEGER"></id>
+            <result column="UserName" property="userName" jdbcType="VARCHAR"></result>
+        </association>
+
+    </resultMap>
+    <select id="getAddress" parameterType="address" resultMap="shippingAddress">
+      select c.userName,a.shippingId,a.address,b.path,b.regionId,b.regionName,a.telPhone,a.zipcode
+       from b2c_shop_shippingaddress a
+       join b2c_ms_regions b
+       join b2c_accounts_users c
+       on a.regionId=b.regionId
+       and a.userId= c.userId
+       where a.userId=#{userId}
+       <if test="pluteformid !=null  and  pluteformid  !='' ">
+           AND a.pluteformid=#{pluteformid}
+       </if>
+    </select>
+
+
+
+
+    <!--用户评分-->
+
+    <resultMap id="ItemSystemCode" type="com.zm.mall.domain.business.accountsUsers.ItemSystemCode">
+        <id column="id" property="id" jdbcType="INTEGER"></id>
+        <result column="fid" property="fid" jdbcType="INTEGER"></result>
+        <result column="name" property="name" jdbcType="VARCHAR"></result>
+        <result column="code" property="code" jdbcType="VARCHAR"></result>
+        <result column="description" property="description" jdbcType="VARCHAR"></result>
+        <result column="value" property="value" jdbcType="DOUBLE"></result>
+        <association property="userScore" javaType="UserScore">
+            <id column="id" property="id" jdbcType="INTEGER"></id>
+            <result column="pid" property="pid" jdbcType="INTEGER"></result>
+            <result column="score" property="score" jdbcType="DOUBLE"></result>
+            <result column="status" property="status" jdbcType="INTEGER"></result>
+            <result column="inputScore" property="inputScore" jdbcType="VARCHAR"></result>
+        </association>
+     </resultMap>
+    <select id="getCodeType" parameterType="systemCodeItem" resultMap="ItemSystemCode">
+      SELECT * FROM
+        b2c_item_system_code
+        WHERE 1=1
+      <include refid="upFid"/>
+      <include refid="b2c_condition"/>
+    </select>
+    <sql id="upFid">
+        <if test=" id!= null ">
+            AND id=#{id}
+        </if>
+        <if test=" fid!= null ">
+            AND fid =#{fid}
+        </if>
+    </sql>
+    <select id="getUserScore" parameterType="systemCodeItem" resultMap="ItemSystemCode">
+         select a.*,b.score,b.userId,b.inputScore
+         from b2c_item_system_code a
+         left join b2c_userscore b
+         on a.id=b.pid
+         and b.userID=#{userId}
+         where a.fid=#{fid}
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND a.pluteformid=#{pluteformid}
+        </if>
+    </select>
+    <resultMap id="SystemCode" type="com.zm.mall.domain.business.accountsUsers.SystemCode">
+        <id column="id" property="id" jdbcType="INTEGER"></id>
+        <result column="code" property="code" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <!--根据name寻找Id-->
+    <select id="getCodeUserId" parameterType="codeSystem" resultMap="SystemCode">
+         select *
+         from b2c_system_code
+         where code=#{code}
+        <include refid="b2c_condition"/>
+    </select>
+    <resultMap id="UserScore" type="com.zm.mall.domain.business.accountsUsers.UserScore">
+        <id column="id" property="id" jdbcType="INTEGER"></id>
+        <result column="userId" property="userId" jdbcType="INTEGER"></result>
+        <result column="pid" property="pid" jdbcType="INTEGER"></result>
+        <result column="createTime" property="createTime" jdbcType="DATE"></result>
+        <result column="updateTime" property="updateTime" jdbcType="DATE"></result>
+        <result column="score" property="score" jdbcType="DOUBLE"></result>
+        <result column="status" property="status" jdbcType="INTEGER"></result>
+        <result column="inputScore" property="inputScore" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <select id="getUserAllScore" parameterType="userList" resultMap="UserScore">
+       select sum(score) from b2c_userScore
+       where userId=#{userId}
+       and status=1
+       <include refid="b2c_condition"/>
+    </select>
+    <delete id="delCodeType" parameterType="userScore">
+        DELETE  from b2c_userscore
+        where userId=#{userId} and pid=#{pid}
+        <include refid="b2c_condition"/>
+    </delete>
+    <select id="getUserList" parameterType="userScore" resultMap="UserScore">
+      select * from b2c_userscore
+      where userId=#{userId} AND status=#{status}
+      <include refid="b2c_condition"/>
+    </select>
+    <update id="updateScore" parameterType="userScore">
+        update b2c_userscore
+         set score=#{score}
+         , updateTime=#{updateTime}
+         ,inputScore=#{inputScore}
+         ,pluteformid=#{pluteformid}
+          where userId=#{userId}
+          and pid=#{pid}
+    </update>
+    <insert id="insertScore" useGeneratedKeys="true" keyProperty="id" parameterType="userScore">
+          INSERT  INTO b2c_userscore (userId,pid,createTime,score,status,inputScore,pluteformid)
+          values (#{userId},#{pid},#{createTime},#{score},#{status},#{inputScore},#{pluteformid})
+    </insert>
+    
+
+    <resultMap id="MsRegions" type="com.zm.mall.domain.business.accountsUsers.MsRegions">
+        <id column="RegionId" property="regionId" jdbcType="INTEGER"></id>
+        <result column="ParentId" property="parentId" jdbcType="INTEGER"></result>
+        <result column="RegionName" property="regionName" jdbcType="VARCHAR"></result>
+        <result column="Path" property="path" jdbcType="VARCHAR"></result>
+        <result column="Depth" property="depth" jdbcType="INTEGER"></result>
+    </resultMap>
+              <!--查询所有省份-->
+    <select id="getProvince" parameterType="msRegions" resultMap="MsRegions">
+        select *
+        from b2c_ms_regions
+        WHERE Depth=#{depth}
+        <include refid="b2c_condition"/>
+    </select>
+
+    <select id="getCity" parameterType="msRegions" resultMap="MsRegions">
+        SELECT *
+        FROM b2c_ms_regions
+        WHERE parentId=#{parentId}
+        <include refid="b2c_condition"/>
+    </select>
+
+    <select id="getArea" parameterType="msRegions" resultMap="MsRegions">
+        SELECT *
+        FROM b2c_ms_regions
+        WHERE parentId=#{parentId}
+        <include refid="b2c_condition"/>
+    </select>
+    <!--获取详细地址 根据type-->
+    <select id="selmsRegions" parameterType="msRegions" resultMap="MsRegions">
+        select *
+        FROM
+        b2c_ms_regions
+        where RegionId=#{regionId}
+        <include refid="b2c_condition"/>
+    </select>
+    <insert id="InsertShippingAddress" parameterType="shippingAddress">
+        INSERT INTO b2c_shop_shippingaddress(regionId,userId,shipName,address,zipCode,telPhone,celPhone,isDefault,pluteformid)
+        VALUES (#{regionId},#{userId},#{shipName},#{address},#{zipcode},#{telPhone},#{celPhone},#{isDefault},#{pluteformid})
+    </insert>
+
+                         <!--用户等级管理-->
+
+    <resultMap id="UserRank" type="com.zm.mall.domain.business.accountsUsers.UserRank">
+        <id column="RankId" property="rankId" jdbcType="INTEGER"></id>
+        <result column="Name" property="name" jdbcType="VARCHAR"></result>
+        <result column="RankLevel" property="rankLevel" jdbcType="VARCHAR"></result>
+        <result column="ScoreMax" property="scoreMax" jdbcType="INTEGER"></result>
+        <result column="ScoreMin" property="scoreMin" jdbcType="INTEGER"></result>
+
+        <result column="IsDefault" property="isDefault" jdbcType="INTEGER"></result>
+        <result column="RankType" property="rankType" jdbcType="INTEGER"></result>
+        <result column="Description" property="description" jdbcType="VARCHAR"></result>
+        <result column="CreatedUserId" property="createdUserId" jdbcType="INTEGER"></result>
+
+    </resultMap>
+
+    <sql id="userLevelName">
+        <if test="_parameter != null  and _parameter!=''">
+            AND name like '%${userName}%'
+        </if>
+        ORDER by rankLevel
+    </sql>
+    <select id="getUserLevel" resultMap="UserRank"  parameterType="userList">
+        select * from
+        b2c_accounts_userrank
+        WHERE  1=1
+        <include refid="userLevelName"/>
+        <include refid="b2c_condition"/>
+    </select>
+    <select id="userRank"  resultMap="UserRank" resultType="userRank">
+       select * from
+        b2c_accounts_userrank
+        WHERE  RankId=#{rankId}
+        <include refid="b2c_condition"/>
+    </select>
+
+    <update id="getUpdateUser" parameterType="userRank">
+        UPDATE b2c_accounts_userrank
+         set RankLevel=#{rankLevel},
+         name=#{name},
+         ScoreMin=#{scoreMin},
+         ScoreMax=#{scoreMax},
+         Description=#{description},
+         pluteformid=#{pluteformid}
+         WHERE RankId=#{rankId}
+    </update>
+
+    <delete id="deleteUserLevel" parameterType="userRank">
+        DELETE  from b2c_accounts_userrank
+        where RankId=#{rankId}
+        <include refid="b2c_condition"/>
+    </delete>
+    
+    <insert id="addUserLevel" parameterType="userRank">
+        INSERT  into b2c_accounts_userrank(RankLevel,name,scoreMin,scoreMax,description,pluteformid)
+        VALUES (#{rankLevel},#{name},#{scoreMin},#{scoreMax},#{description},#{pluteformid})
+    </insert>
+
+    <!--用户卡号信息-->
+    <resultMap id="UserCard" type="com.zm.mall.domain.business.accountsUsers.UserCard">
+        <id column="CardCode" property="cardCode" jdbcType="VARCHAR"></id>
+        <result column="CardPwd" property="cardPwd" jdbcType="VARCHAR"></result>
+        <result column="CardValue" property="cardValue" jdbcType="DOUBLE"></result>
+        <result column="UserId" property="userId" jdbcType="INTEGER"></result>
+        <result column="Status" property="status" jdbcType="INTEGER"></result>
+
+        <result column="Type" property="type" jdbcType="INTEGER"></result>
+        <result column="CreatedDate" property="createdDate" jdbcType="DATE"></result>
+        <result column="Remark" property="remark" jdbcType="VARCHAR"></result>
+        <association property="users" javaType="Users">
+            <id column="UserID" property="userId" jdbcType="INTEGER"></id>
+            <result column="UserName" property="userName" jdbcType="VARCHAR"></result>
+        </association>
+    </resultMap>
+    <select id="getUserCard" resultMap="UserCard" resultType="userCard">
+        select a.*,b.userId,b.userName
+        from b2c_accounts_usercard a
+        join b2c_accounts_users b
+        on a.userId=b.userId
+    </select>
+
+                <!--接口用户成长值编辑 添加记录-->
+    <resultMap id="BalanceDetails" type="com.zm.mall.domain.business.accountsUsers.BalanceDetails">
+
+        <id column="JournalNumber" property="journalNumber" jdbcType="INTEGER"></id>
+        <result column="UserId" property="userId" jdbcType="INTEGER"></result>
+        <result column="TradeDate" property="tradeDate" jdbcType="DATE"></result>
+        <result column="TradeType" property="tradeType" jdbcType="INTEGER"></result>
+        <result column="Income" property="income" jdbcType="DOUBLE"></result>
+
+        <result column="Expenses" property="expenses" jdbcType="DOUBLE"></result>
+        <result column="Balance" property="balance" jdbcType="DOUBLE"></result>
+        <result column="Payer" property="payer" jdbcType="INTEGER"></result>
+
+        <result column="Payee" property="payee" jdbcType="INTEGER"></result>
+        <result column="Remark" property="remark" jdbcType="VARCHAR"></result>
+    </resultMap>
+
+    <insert id="insertBalanceDetails" parameterType="balanceDetails">
+          INSERT INTO pay_balancedetails(UserId,TradeDate,TradeType,Income,Balance,Remark)
+          VALUES (#{userId},#{tradeDate},#{tradeType},#{income},#{balance},#{remark})
+    </insert>
+
+    <update id="updateUsersExp" parameterType="usersExp">
+        update accounts_usersexp
+        SET balance=#{balance}+balance
+        where userId=#{userId}
+    </update>
+
+    <update id="updateExpPoints" parameterType="usersExp">
+        update accounts_usersexp
+        SET points=#{points}+points
+        where userId=#{userId}
+    </update>
+
+    <insert id="addPointsDetail" parameterType="pointsDetail">
+        INSERT INTO accounts_pointsdetail (ruleId,userId,score,extData,currentPoints,description,createdDate,type)
+        VALUES (#{ruleId},#{userId},#{score},#{extData},#{currentPoints},#{description},#{createdDate},#{type})
+    </insert>
+
+
+    <update id="updateExpRankScore" parameterType="usersExp">
+        update accounts_usersexp
+        SET rankScore=#{rankScore}+rankScore
+        where userId=#{userId}
+    </update>
+
+    <insert id="addRankDetail" parameterType="pointsDetail">
+        INSERT INTO accounts_rankdetail (ruleId,userId,score,extData,description,createdDate,type)
+        VALUES (#{ruleId},#{userID},#{score},#{extData},#{description},#{createdDate},#{type})
+    </insert>
+
+    <resultMap id="UserLog" type="com.zm.mall.domain.business.accountsUsers.UserLog">
+
+        <id column="ID" property="id" jdbcType="INTEGER"></id>
+        <result column="OPTime" property="opTime" jdbcType="DATE"></result>
+        <result column="Url" property="url" jdbcType="VARCHAR"></result>
+        <result column="OPInfo" property="opInfo" jdbcType="VARCHAR"></result>
+        <result column="UserName" property="userName" jdbcType="VARCHAR"></result>
+
+        <result column="UserType" property="userType" jdbcType="VARCHAR"></result>
+        <result column="UserIP" property="userIp" jdbcType="VARCHAR"></result>
+    </resultMap>
+
+    <insert id="insertUserLevel" parameterType="userRank">
+        INSERT  into accounts_userrank(rankId,RankLevel,name,scoreMin,scoreMax,description)
+        VALUES (#{rankId},#{rankLevel},#{name},#{scoreMin},#{scoreMax},#{description})
+    </insert>
+    <insert id="insertUserLog" parameterType="userLog">
+        INSERT  into sa_userlog(OPTime,Url,OPInfo,UserName,UserType,UserIP)
+        VALUES (#{opTime},#{url},#{opInfo},#{userName},#{userType},#{userIp})
+    </insert>
+
+                <!--删除用户等级-->
+    <delete id="web_deleteUserLevel" parameterType="userRank">
+        DELETE  from accounts_userrank
+        where RankId=#{rankId}
+    </delete>
+                <!--修改过后的用户等级-->
+    <update id="web_getUpdateUserLevel" parameterType="userRank">
+        UPDATE accounts_userrank
+        set RankLevel=#{rankLevel},
+        name=#{name},
+        ScoreMin=#{scoreMin},
+        ScoreMax=#{scoreMax},
+        Description=#{description}
+        WHERE RankId=#{rankId}
+    </update>
+
+    <update id="frozenOrActivation">
+        UPDATE accounts_users SET
+        Activity=#{activity}
+        WHERE  userId=#{userId}
+    </update>
+    
+             <!-- 前台的修改-->
+              <!--个人资料的修改-->
+    <update id="updateUsers" parameterType="userList">
+            UPDATE accounts_users
+            SET userName=#{userName},password=#{passWord},nickName=#{nickName},
+            trueName=#{trueName},sex=#{sex},phone=#{phone},email=#{email},
+            EmployeeID =#{employeeID},DepartmentID =#{departmentID},Activity =#{activity},
+            UserType=#{userType},Style=#{style}
+            where userId=#{userId}
+    </update>
+
+    <update id="updateExp" parameterType="userList">
+        UPDATE accounts_usersexp
+        SET Gravatar=#{usersExp.gravatar},Singature=#{usersExp.singature},TelPhone=#{usersExp.telPhone},QQ=#{usersExp.qq},MSN=#{usersExp.msn},
+        HomePage=#{usersExp.homePage},Birthday=#{usersExp.birthday},BirthdayVisible=#{usersExp.birthdayVisible},BirthdayIndexVisible=#{usersExp.birthdayIndexVisible},
+        Constellation=#{usersExp.constellation},ConstellationVisible=#{usersExp.constellationVisible},ConstellationIndexVisible=#{usersExp.constellationIndexVisible},
+        NativePlace=#{usersExp.nativePlace},NativePlaceVisible=#{usersExp.nativePlaceVisible},NativePlaceIndexVisible=#{usersExp.nativePlaceIndexVisible},
+        RegionId=#{usersExp.regionId},Address=#{usersExp.address},AddressVisible=#{usersExp.addressVisible},AddressIndexVisible=#{usersExp.addressIndexVisible},
+        BodilyForm=#{usersExp.bodilyForm},BodilyFormVisible=#{usersExp.bodilyFormVisible},
+        BodilyFormIndexVisible=#{usersExp.bodilyFormIndexVisible},BloodType=#{usersExp.bloodType},
+        BloodTypeVisible=#{usersExp.bloodTypeVisible},BloodTypeIndexVisible=#{usersExp.bloodTypeIndexVisible},
+        Marriaged=#{usersExp.marriaged},MarriagedVisible=#{usersExp.marriagedVisible},
+        MarriagedIndexVisible=#{usersExp.marriagedIndexVisible},PersonalStatus=#{usersExp.personalStatus},
+        PersonalStatusVisible=#{usersExp.personalStatusVisible},PersonalStatusIndexVisible=#{usersExp.personalStatusIndexVisible},
+        Grade=#{usersExp.grade},Balance=#{usersExp.balance},Points=#{usersExp.points},
+        TopicCount=#{usersExp.topicCount},ReplyTopicCount=#{usersExp.replyTopicCount},
+        FavTopicCount=#{usersExp.favTopicCount},PvCount=#{usersExp.pvCount},
+        FansCount=#{usersExp.fansCount},FellowCount=#{usersExp.fellowCount},
+        AblumsCount=#{usersExp.ablumsCount},FavouritesCount=#{usersExp.favouritesCount},
+        FavoritedCount=#{usersExp.favoritedCount},ShareCount=#{usersExp.shareCount},
+        ProductsCount=#{usersExp.productsCount},PersonalDomain=#{usersExp.personalDomain},
+        LastAccessTime=#{usersExp.lastAccessTime},LastAccessIP=#{usersExp.lastAccessIP},
+        LastPostTime=#{usersExp.lastPostTime},LastLoginTime=#{usersExp.lastLoginTime},
+        Remark=#{usersExp.remark},IsUserDPI=#{usersExp.isUserDPI},
+        PayAccount=#{usersExp.payAccount},UserCardCode=#{usersExp.userCardCode},
+        UserCardType=#{usersExp.userCardType},SourceType=#{usersExp.sourceType},
+        SalesId=#{usersExp.salesId},BalanceCredit=#{usersExp.balanceCredit},
+        RankScore=#{usersExp.rankScore}
+        WHERE userId=#{usersExp.userId}
+    </update>
+           <!-- 修改密码-->
+    <update id="updateUserPwd" parameterType="userList">
+          UPDATE  accounts_users
+          SET password=#{passWord}
+          WHERE userId=#{userId}
+    </update>
+
+            <!-- 修改图片路径-->
+    <update id="updateUserGravatar" parameterType="usersExp">
+          UPDATE accounts_usersexp
+          SET Gravatar=#{gravatar}
+          WHERE  userId=#{userId}
+    </update>
+            <!--提现进行的操作-->
+    <insert id="insertBalanceDraw" parameterType="balanceDraw">
+        INSERT INTO pay_balancedrawrequest(RequestTime,Amount,UserID,TrueName,BankName,BankCard,CardTypeID,RequestStatus,Remark,RequestType,TargetId)
+         VALUES (#{requestTime},#{amount},#{userId},#{trueName},#{bankName},#{bankCard},#{cardTypeId},#{requestStatus},#{remark},#{requestType},#{targetId})
+    </insert>
+
+    <update id="updateReduceBalance" parameterType="usersExp">
+        UPDATE accounts_usersexp set balance=balance-#{balance}
+        WHERE  userId=#{userId}
+    </update>
+
+    <insert id="insertBalance" parameterType="balanceDetails">
+        INSERT INTO pay_balancedetails(UserId,TradeDate,TradeType,Income,expenses,Balance,payer,payee,Remark)
+        VALUES (#{userId},#{tradeDate},#{tradeType},#{income},#{expenses},#{balance},#{payer},#{payee},#{remark})
+    </insert>
+
+        <!--美豆兑换券的操作-->
+    <insert id="shopExchangeDetail" parameterType="shopExchangeDetail">
+      INSERT  into shop_exchangedetail(Type,GiftID,UserID,OrderID,GiftName,Price,CouponCode,CostScore,Status,Description,CreatedDate)
+      VALUES (#{type},#{giftId},#{userId},#{orderId},#{giftName},#{price},#{couponCode},#{costScore},#{status},#{description},#{createdDate})
+    </insert>
+
+    <insert id="shopCouponInfo" parameterType="shopCouponInfo">
+      INSERT  INTO shop_couponinfo(CouponCode,CategoryId,ClassId,SupplierId,RuleId,CouponName,CouponPwd,UserId,UserEmail,Status,CouponPrice,LimitPrice,NeedPoint,IsPwd,IsReuse,StartDate,EndDate,GenerateTime,UsedDate,ProductId,ProductSku,Type,OrderCode,OrderId)
+      VALUES (#{couponCode},#{categoryId},#{classId},#{supplierId},#{ruleId},#{couponName},#{couponPwd},#{userId},#{userEmail},#{status},#{couponPrice},#{limitPrice},#{needPoint},#{isPwd},#{isReuse},#{startDate},#{endDate},#{generateTime},#{usedDate},#{productId},#{productSku},#{type},#{orderCode},#{orderId})
+    </insert>
+
+    <update id="updateReducePoints" parameterType="usersExp">
+        UPDATE accounts_usersexp SET points=points-#{points}
+        WHERE userId=#{userId}
+    </update>
+    <!--更改用户的收货地址信息-->
+    <insert id="webShippingAddress" parameterType="address">
+        INSERT INTO shop_shippingaddress(ShippingId,regionId,userId,shipName,address,zipCode,EmailAddress,telPhone,celPhone,isDefault,Aliases,Latitude,Longitude,LineId,CircleId,DepotId,Remark)
+        VALUES (#{shippingId},#{regionId},#{userId},#{shipName},#{address},#{zipcode},#{emailAddress},#{telPhone},#{celPhone},#{isDefault},#{aliases},#{latitude},#{longitude},#{lineId},#{circleId},#{depotId},#{remark})
+
+    </insert>
+    <update id="updateShippingAddress" parameterType="address">
+        UPDATE shop_shippingaddress SET
+        RegionId=#{regionId},UserId=#{userId},ShipName=#{shipName},Address=#{address},
+        Zipcode=#{zipcode},EmailAddress=#{emailAddress},TelPhone=#{telPhone},
+        CelPhone=#{celPhone},IsDefault=#{isDefault},Aliases=#{aliases},
+        Latitude=#{latitude},Longitude=#{longitude},LineId=#{lineId},
+        CircleId=#{circleId},DepotId=#{depotId},Remark=#{remark}
+        WHERE shippingId=#{shippingId}
+    </update>
+    <delete id="webDeleteAddress">
+          DELETE FROM shop_shippingaddress
+          WHERE shippingId=#{shippingId}
+    </delete>
+    <!--后台优惠券操作-->
+    <insert id="insertCouponClass" parameterType="couponClass">
+        INSERT INTO shop_couponclass(classId,name,sequence,status)
+        VALUES (#{classId},#{name},#{sequence},#{status})
+    </insert>
+    <update id="updateCouponClass" parameterType="couponClass">
+        UPDATE shop_couponclass
+        SET name=#{name},sequence=#{sequence},status=#{status}
+        WHERE classId=#{classId}
+    </update>
+    <delete id="deleteCouponClass" parameterType="couponClass">
+        DELETE  FROM shop_couponclass
+        WHERE classId=#{classId}
+    </delete>
+    <update id="updateCouponSequence" parameterType="couponClass">
+          UPDATE shop_couponclass SET sequence=#{sequence}
+          WHERE classId=#{classId}
+    </update>
+
+    <delete id="deleteRule" parameterType="couponRule">
+        DELETE FROM  shop_couponrule WHERE ruleId=#{ruleId}
+    </delete>
+
+
+    <delete id="deleteHistory" parameterType="couponHistory">
+        DELETE FROM  shop_couponhistory
+        WHERE ruleId=#{ruleId}
+    </delete>
+
+    <delete id="deleteInfo" parameterType="shopCouponInfo">
+         DELETE FROM  shop_couponinfo
+          WHERE ruleId=#{ruleId}
+    </delete>
+
+    <update id="updateCouponStatus" parameterType="couponClass">
+        UPDATE shop_couponclass SET status=#{status}
+        WHERE classId=#{classId}
+    </update>
+
+    <update id="updateRuleOrInfo" parameterType="couponRule">
+          UPDATE shop_couponrule
+          SET CategoryId=#{categoryId},ClassId=#{classId},SupplierId=#{supplierId},
+          Name=#{name},PreName=#{preName},ImageUrl=#{imageUrl},
+          CouponPrice=#{couponPrice},LimitPrice=#{limitPrice},CouponDesc=#{couponDesc},
+          SendCount=#{sendCount},NeedPoint=#{needPoint},IsPwd=#{isPwd},IsReuse=#{isReuse},
+          Status=#{status},Recommend=#{recommend},StartDate=#{startDate},EndDate=#{endDate},
+          CreateDate=#{createDate},CreateUserId=#{createUserId},
+          Type=#{type},CpLength=#{cpLength},PwdLength=#{pwdLength},ProductId=#{productId},
+          ProductSku=#{productSku},DeferDay=#{deferDay},AvaType=#{avaType}
+          WHERE ruleId=#{ruleId}
+    </update>
+    
+    <insert id="insertCouponRule" parameterType="couponRule">
+        INSERT  INTO shop_couponrule (RuleId,CategoryId,ClassId,SupplierId,Name,PreName,ImageUrl,
+        CouponPrice,LimitPrice,CouponDesc,SendCount,NeedPoint,IsPwd,IsReuse,
+        Status,Recommend,StartDate,EndDate,CreateDate,CreateUserId,Type,
+        CpLength,PwdLength,ProductId,ProductSku,DeferDay,AvaType)
+        VALUES (#{ruleId},#{categoryId},#{classId},#{supplierId},#{name},#{preName},#{imageUrl},
+        #{couponPrice},#{limitPrice},#{couponDesc},#{sendCount},#{needPoint},
+        #{isPwd},#{isReuse},#{status},#{recommend},#{startDate},#{endDate},
+        #{createDate},#{createUserId},#{type},#{cpLength},#{pwdLength},
+        #{productId},#{productSku},#{deferDay},#{avaType})
+    </insert>
+    <insert id="insertRuleOrInfo" parameterType="shopCouponInfo">
+         INSERT  INTO shop_couponinfo(CouponCode,CategoryId,ClassId,SupplierId,RuleId,CouponName,CouponPwd,UserId,UserEmail,Status,CouponPrice,LimitPrice,NeedPoint,IsPwd,IsReuse,StartDate,EndDate,GenerateTime,UsedDate,ProductId,ProductSku,Type,OrderCode,OrderId)
+        VALUES (#{couponCode},#{categoryId},#{classId},#{supplierId},#{ruleId},#{couponName},#{couponPwd},#{userId},#{userEmail},#{status},#{couponPrice},#{limitPrice},#{needPoint},#{isPwd},#{isReuse},#{startDate},#{endDate},#{generateTime},#{usedDate},#{productId},#{productSku},#{type},#{orderCode},#{orderId})
+    </insert>
+
+    <!--转移过期卷 删除过期-->
+    <insert id="insertHistoryTransfer" parameterType="couponHistory">
+          INSERT  INTO shop_couponhistory(CouponCode,CategoryId,ClassId,SupplierId,RuleId,CouponName,CouponPwd,UserId,UserEmail,Status,CouponPrice,LimitPrice,NeedPoint,IsPwd,IsReuse,StartDate,EndDate,GenerateTime,UsedDate,ProductId,ProductSku,Type,OrderCode,OrderId)
+          VALUES (#{couponCode},#{categoryId},#{classId},#{supplierId},#{ruleId},#{couponName},#{couponPwd},#{userId},#{userEmail},#{status},#{couponPrice},#{limitPrice},#{needPoint},#{isPwd},#{isReuse},#{startDate},#{endDate},#{generateTime},#{usedDate},#{productId},#{productSku},#{type},#{orderCode},#{orderId})
+    </insert>
+
+    <delete id="deleteInfoTransfer" parameterType="string">
+         DELETE FROM  shop_couponinfo
+          WHERE CouponCode=#{couponCode}
+    </delete>
+
+    <delete id="delCouponInfo" parameterType="shopCouponInfo">
+        DELETE FROM shop_couponinfo WHERE CouponCode = (#{couponCode})
+    </delete>
+
+    <update id="updateCouponInfo"  parameterType="shopCouponInfo">
+        UPDATE shop_couponinfo SET
+        <include refid="couponInfoStatus"/>
+        WHERE CouponCode = #{couponCode}
+    </update>
+    <sql id="couponInfoStatus">
+
+        <if test="status==0">
+           userId=0,userEmail='',
+        </if>
+        <if test="status==2">
+            usedDate=#{usedDate},
+        </if>
+        status=#{status}
+    </sql>
+
+    <delete id="deleteExpiredCoupons" parameterType="couponHistory">
+        DELETE FROM shop_couponhistory WHERE  CouponCode=#{couponCode}
+    </delete>
+
+
+    <!--添加供应商-->
+    <insert id="insertSupplierInfo" parameterType="supplierInfo">
+        INSERT into shop_suppliers(SupplierId,Name,ShopName,StoreStatus,CategoryId,
+        Rank,UserId,UserName,TelPhone,CellPhone,ContactMail,Introduction,RegisteredCapital,
+        RegionId,Address,Contact,EstablishedDate,EstablishedCity,LOGO,Fax,PostCode,HomePage,
+        ArtiPerson,CompanyType,BusinessLicense,TaxNumber,AccountBank,AccountInfo,ServicePhone,
+        QQ,MSN,Status,CreatedDate,CreatedUserId,UpdatedDate,UpdatedUserId,ExpirationDate,Balance
+        ,IsUserApprove,IsSuppApprove,ScoreDesc,ScoreService,ScoreSpeed,Recomend,Sequence,
+        ProductCount,PhotoCount,ThemeId,Remark,AgentId,IndexProdTop,IndexContent,Latitude,Longitude)
+        VALUES (#{supplierId},#{name},#{shopName},#{storeStatus},#{categoryId},
+        #{rank},#{userId},#{userName},#{telPhone},#{cellPhone},#{contactMail},#{introduction},#{registeredCapital},
+        #{regionId},#{address},#{contact},#{establishedDate},#{establishedCity},#{logo},#{fax},#{postCode},#{homePage},
+        #{artiPerson},#{companyType},#{businessLicense},#{taxNumber},#{accountBank},#{accountInfo},#{servicePhone},
+        #{qq},#{msn},#{status},#{createdDate},#{createdUserId},#{updatedDate},#{updatedUserId},#{expirationDate},
+        #{balance},#{isUserApprove},#{isSuppApprove},#{scoreDesc},#{scoreService},#{scoreSpeed},#{recomend},
+        #{sequence},
+        #{productCount},#{photoCount},#{themeId},#{remark},#{agentId},#{indexProdTop},#{indexContent},#{latitude},#{longitude})
+    </insert>
+
+
+    <update id="updateISuppInfo" parameterType="supplierInfo">
+        UPDATE shop_suppliers
+        SET  name=#{name},ShopName=#{shopName},StoreStatus=#{storeStatus},CategoryId=#{categoryId},
+         Rank=#{rank},UserId=#{userId},UserName=#{userName},TelPhone=#{telPhone},CellPhone=#{cellPhone},
+         ContactMail=#{contactMail},Introduction=#{introduction},RegisteredCapital=#{registeredCapital},
+        RegionId=#{regionId},Address=#{address},Contact=#{contact},EstablishedDate=#{establishedDate},
+        EstablishedCity=#{establishedCity},LOGO=#{logo},Fax=#{fax},PostCode=#{postCode},HomePage=#{homePage},
+        ArtiPerson=#{artiPerson},CompanyType=#{companyType},BusinessLicense=#{businessLicense},TaxNumber=#{taxNumber},
+        AccountBank=#{accountBank},AccountInfo=#{accountInfo},ServicePhone=#{servicePhone},
+        QQ=#{qq},MSN=#{msn},Status=#{status},CreatedDate=#{createdDate},CreatedUserId=#{createdUserId},UpdatedDate=#{updatedDate},
+        UpdatedUserId=#{updatedUserId},ExpirationDate=#{expirationDate},Balance=#{balance}
+        ,IsUserApprove=#{isUserApprove},IsSuppApprove=#{isSuppApprove},ScoreDesc=#{scoreDesc},ScoreService=#{scoreService},ScoreSpeed=#{scoreSpeed},
+        Recomend=#{recomend},Sequence=#{sequence},ProductCount=#{productCount},PhotoCount=#{photoCount},ThemeId=#{themeId},Remark=#{remark},
+        AgentId=#{agentId},IndexProdTop=#{indexProdTop},IndexContent=#{indexContent},Latitude=#{latitude},Longitude=#{longitude}
+        WHERE SupplierId=#{supplierId}
+    </update>
+    
+    <delete id="delSupplierBrands" parameterType="long">
+          DELETE  FROM shop_supplierbrands
+          WHERE SupplierId=#{supplierId}
+    </delete>
+
+    <insert id="addSupplierBrands" parameterType="supplierBrands">
+        INSERT INTO shop_supplierbrands (SupplierId,BrandId) VALUES (#{supplierId},#{brandId})
+    </insert>
+
+    <!--删除供应商-->
+    <delete id="delSuppProductStatModes" parameterType="int">
+        DELETE FROM  Shop_SuppProductStatModes WHERE supplierId=#{supplierId}
+    </delete>
+
+    <delete id="delSupplierCategories" parameterType="int">
+        DELETE FROM  Shop_SupplierCategories WHERE supplierId=#{supplierId}
+    </delete>
+
+    <delete id="delSupplierAD" parameterType="int">
+        DELETE FROM  Shop_SupplierAD WHERE supplierId=#{supplierId}
+    </delete>
+
+    <delete id="delSupplierConfig" parameterType="int">
+        DELETE FROM  Shop_SupplierConfig WHERE supplierId=#{supplierId}
+    </delete>
+
+    <delete id="delSupplierMenus" parameterType="int">
+        DELETE FROM  Shop_SupplierMenus WHERE supplierId=#{supplierId}
+    </delete>
+
+    <delete id="delSupplierScoreDetails" parameterType="int">
+        DELETE FROM Shop_SupplierScoreDetails WHERE supplierId=#{supplierId}
+    </delete>
+
+    <delete id="delISupplierBrands" parameterType="int">
+        DELETE FROM Shop_SupplierBrands WHERE supplierId=#{supplierId}
+    </delete>
+
+    <delete id="delShopSuppliers" parameterType="int">
+        DELETE FROM  Shop_Suppliers WHERE supplierId=#{supplierId}
+    </delete>
+
+    <update id="updateUserSupplier" parameterType="int">
+    UPDATE accounts_users SET UserType='UU'
+    WHERE DepartmentID=#{supplierId}
+</update>
+    <!--添加微信端客户-->
+    <insert id="insertUsersWX" parameterType="userList" useGeneratedKeys="true" keyProperty="id">
+       INSERT INTO b2c_accounts_users (NickName,TrueName,pluteformid,openId,Sex,User_dateCreate,User_dateValid,followWay)VALUES
+       (#{nickName},#{trueName},#{pluteformid},#{openId},#{sex},now(),now(),#{followWay})
+    </insert>
+    <select id="selectUserWX" parameterType="userList" resultType="userList">
+        SELECT userId from b2c_accounts_users
+        WHERE openId=#{openId}
+        <include refid="b2c_condition"/>
+    </select>
+    <select id="selUsersByAppIdOpenId" parameterType="userList" resultType="userList">
+        SELECT *
+        FROM b2c_accounts_users
+        WHERE openId=#{openId}
+        <include refid="b2c_condition"/>
+    </select>
+    <select id="selectBalanceAndPointsByUserId" parameterType="usersExp" resultType="usersExp">
+        SELECT *
+        FROM b2c_accounts_usersexp
+        WHERE UserID=#{userId}
+        <include refid="b2c_condition"/>
+    </select>
+    <!--查询单个账户的个人信息-移动端-->
+    <select id="getAccountsUserApp" parameterType="String" resultMap="UserListMap">
+        SELECT * FROM b2c_accounts_users a
+        JOIN  b2c_accounts_usersexp b
+        ON a.userId=b.userId
+        WHERE a.userId=#{userId}
+    </select>
+    <!--开启店铺预先修改用户的状态-->
+    <update id="updateUserType" parameterType="user">
+        UPDATE b2c_accounts_users SET UserType='SS'
+        WHERE openId=#{openId}
+        <include refid="b2c_condition"/>
+    </update>
+    <!--完善店铺下用户的资料-->
+    <update id="perfectAccountUser" parameterType="user">
+        UPDATE b2c_accounts_users SET NickName=#{nickName},User_dateValid=now(),Sex=#{sex}
+        WHERE openId=#{openId}
+        <include refid="b2c_condition"/>
+    </update>
+    <!--查询用户最大userId-->
+    <select id="selectUserIdMix" resultType="Long">
+        select userId from b2c_accounts_users where userId ORDER BY MID(userId,3,10)+1 DESC LIMIT 1;
+    </select>
+    <!--查询用户-->
+    <select id="getAllUsers" resultMap="UserListMap">
+        select u.userid,u.username,u.nickname,u.truename,u.activity,u.user_datecreate
+        from b2c_accounts_users u,b2c_accounts_usersexp xp
+        WHERE u.userId=xp.userId
+        <if test="nickName != null">
+            and u.nickname like '%${nickName}%'
+        </if>
+        limit #{start}, #{size}
+    </select>
+    <select id="getAllUsersCount" resultType="long">
+        SELECT count(1)
+        FROM b2c_accounts_users u,b2c_accounts_usersexp xp
+        WHERE u.userId=xp.userId
+        <if test="nickName != null">
+            and u.nickname like '%${nickName}%'
+        </if>
+    </select>
+</mapper>

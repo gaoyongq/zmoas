@@ -1,0 +1,100 @@
+#set($layout = "layout/user_layout.vm")
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li><a>用户评分</a></li>
+    </ul>
+</div>
+    <input type="hidden" value="$!userId" id="userId">
+    <input type="hidden" value="$!text1" id="text">#*为checkBox选中做选择*#
+    <input type="hidden" value="$!listSize" id="listSize">#*判断有几条为后面插入和修改做准备*#
+    <input type="hidden" value="$!pid" id="pid_01">
+    <table class="table text-center">
+        <tr>
+            <th>类型</th>
+            <th>上次输入的值</th>
+            <th>实际的分数</th>
+            <th>百分比</th>
+        </tr>
+        #foreach($info in $list)
+            <tr class="prop_01">
+                <td>$!info.name</td>
+                <td><input type="text" value="$!info.userScore.inputScore" placeholder="请输入1-100分数" class="code" style="color: red">分</td>
+                <td>$!info.userScore.score</td>
+                <td class="percentage">$!info.value</td>
+                <input type="hidden" value="$!info.id" class="codeId">
+            </tr>
+        #end
+    </table>
+##    <h2>目前实际得分:<p class="actualScore" style="color: red;"></p></h2>
+##    <input type="submit" value="提交" id="sub" style="font-size: 20px;margin-top: 15px;">
+##    <input type="submit" value="返回" id="back" style="font-size: 20px;">
+##    </div>
+<div style="text-align: center">
+    <h2>目前实际得分:<p class="actualScore" style="color: red;"></h2>
+##    <input type="submit" value="提交" id="sub" style="font-size: 20px;margin-top: 15px;">
+##    <input type="submit" value="返回" id="back" style="font-size: 20px;" onclick="javascript:history.back(-1)">
+    <button class="button border-green icon-check" id="sub" type="submit"> 提交</button>&nbsp;
+    <input type="button" class="button border-blue" id="back" value="返回" class="input-button" onclick="history.back(-1);" />
+</div>
+
+<script>
+    $(function(){
+        //返回
+        $("#back").click(function(){
+           var text= $("#text").val();
+            window.location.href="/business/pageBeanUser.action?text="+text+"&keyWord=$!keyWord&activity=$!activity&beforeTime=$!beforeTime&afterTime=$!afterTime&page=$!page";
+        })
+    })
+
+    $(function(){
+        var bb=0;
+        $(".code").each(function(){//输入通过值*百分比来获取得到的值
+            var a= $(this).val();
+            var b=$(this).parents().siblings(".percentage").text();
+            bb+=a*b;
+        })
+        $(".actualScore").text(bb);
+    })
+    $(function(){
+        $(".code").blur(function(){
+            var c=0;
+            $(".code").each(function(){//输入通过值*百分比来获取得到的值
+               var a= $(this).val();
+                var b=$(this).parents().siblings(".percentage").text();
+                c+=a*b;
+            })
+            $(".actualScore").text(c);
+        })
+        $("#sub").click(function(){
+            var a="";
+            var b="";
+            var c="";
+            var f="";
+            var i="";
+            $(".percentage").each(function(){//遍历的分数
+                a+=$(this).text()+",";//百分比
+            })
+            var reg=/^(100|[1-9]\d|\d)$/;;//验证100以内是Int类型的
+            $(".code").each(function(){//输入的分数
+                f=$(this).val();
+                if(reg.test(f)!=true){
+                    alert("请输入100以内的整数!!!")
+                    i=1;
+                    return false;
+                }
+                b+=$(this).val()+",";//写的值
+            })
+            $(".codeId").each(function(){
+                c+=$(this).val()+",";//写的Id
+            })
+            if(i!=1){
+                var text= $("#text").val();
+                var listSize=$("#listSize").val();
+                var pid_01=$("#pid_01").val();
+                window.location.href="/business/updateScore.action?pid_01="+pid_01+"&listSize="+listSize+"&text="+text+"&page=$!page&keyWord=$!keyWord&beforeTime=$!beforeTime&afterTime=$!afterTime&activity=$!activity&userId=$!userId&codeId="+c+"&percentage="+a+"&scoreVal="+b;
+            }
+        })
+    })
+
+</script>

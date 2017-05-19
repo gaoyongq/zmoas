@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.accountsUsers.ShippingAddressDao">
+    <resultMap id="shippingAddressMap" type="com.zm.mall.domain.business.accountsUsers.ShippingAddress">
+        <id column="ShippingId" property="shippingId" jdbcType="INTEGER"></id>
+        <result column="RegionId" property="regionId" jdbcType="INTEGER"></result>
+        <result column="UserID" property="userId" jdbcType="INTEGER"></result>
+        <result column="ShipName" property="shipName" jdbcType="VARCHAR"></result>
+        <result column="Address" property="address" jdbcType="VARCHAR"></result>
+        <result column="EmailAddress" property="emailAddress" jdbcType="VARCHAR"></result>
+        <result column="TelPhone" property="telPhone" jdbcType="VARCHAR"></result>
+        <result column="CelPhone" property="celPhone" jdbcType="VARCHAR"></result>
+        <result column="Zipcode" property="zipcode" jdbcType="VARCHAR"></result>
+        <result column="state" property="state" jdbcType="INTEGER"></result>
+        <association property="msRegions" javaType="MsRegions">
+            <id column="AreaId" property="areaId" jdbcType="INTEGER"></id>
+            <result column="RegionId" property="regionId" jdbcType="INTEGER"></result>
+            <result column="ParentId" property="parentId" jdbcType="INTEGER"></result>
+            <result column="RegionName" property="regionName" jdbcType="VARCHAR"></result>
+            <result column="Path" property="path" jdbcType="VARCHAR"></result>
+        </association>
+        <association property="users" javaType="Users">
+            <id column="UserID" property="userId" jdbcType="INTEGER"></id>
+            <result column="UserName" property="userName" jdbcType="VARCHAR"></result>
+        </association>
+
+    </resultMap>
+
+    <!--判断平台Id-->
+    <sql id="b2c_condition">
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND pluteformid=#{pluteformid}
+        </if>
+    </sql>
+
+
+    <!--微信查询收货地址-->
+    <select id="selectShopAddressByUserId" parameterType="int" resultMap="shippingAddressMap">
+        select ShippingId,UserId,Address,ShipName,CelPhone,RegionId,state
+        from b2c_shop_shippingaddress
+        WHERE UserId=#{userId}
+        <include refid="b2c_condition"/>
+         ORDER BY ShippingId DESC
+    </select>
+    <!--微信添加收货地址-->
+    <insert id="addShopAddress" parameterType="shippingAddress">
+        INSERT INTO b2c_shop_shippingaddress (UserId,RegionId,Address,ShipName,CelPhone,pluteformid,state) VALUES (#{userId},#{regionId},#{address},#{shipName},#{celPhone},#{pluteformid},#{state})
+    </insert>
+    <!--微信删除收货地址-->
+    <delete id="removeShopAddress" parameterType="shippingAddress">
+        DELETE FROM  b2c_shop_shippingaddress
+        WHERE ShippingId=#{shippingId}
+        <include refid="b2c_condition"/>
+    </delete>
+    <update id="updateShippingAddress" parameterType="shippingAddress">
+        UPDATE b2c_shop_shippingaddress SET
+        <if test="userId !=null  and  userId  !=''">
+            UserId=#{userId},
+        </if>
+        <if test="regionId !=null  and  regionId  !=''">
+            RegionId=#{regionId},
+        </if>
+        <if test="address !=null  and  address  !=''">
+            Address=#{address},
+        </if>
+        <if test="shipName !=null  and  shipName  !=''">
+            ShipName=#{shipName},
+        </if>
+        <if test="celPhone !=null  and  celPhone  !=''">
+            CelPhone=#{celPhone},
+        </if>
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            pluteformid=#{pluteformid}
+        </if>
+        WHERE ShippingId=#{shippingId}
+        <include refid="b2c_condition"/>
+    </update>
+    <!--微信设置收货地址-->
+    <update id="updateShopAddressState" parameterType="shippingAddress">
+        UPDATE b2c_shop_shippingaddress SET state='1'
+        WHERE ShippingId=#{shippingId} and UserId = #{userId}
+        <include refid="b2c_condition"/>
+    </update>
+    <!--微信设置收货地址-->
+    <update id="updateAllShopAddressState" parameterType="shippingAddress">
+        UPDATE b2c_shop_shippingaddress SET state='0'
+        WHERE UserId=#{userId}
+        <include refid="b2c_condition"/>
+    </update>
+    <!--微信查询收货地址-->
+    <select id="selectAddressState" parameterType="shippingAddress" resultType="shippingAddress">
+        select ShippingId,UserId,Address,ShipName,CelPhone,RegionId
+        from b2c_shop_shippingaddress
+        WHERE UserId=#{userId} AND state='1'
+        <include refid="b2c_condition"/>
+    </select>
+    <!-- 微信根据id查询修改地址的信息-->
+    <select id="selectAddressOne" parameterType="shippingAddress" resultType="shippingAddress">
+        select * from b2c_shop_shippingaddress
+        WHERE ShippingId=#{shippingId}
+        <include refid="b2c_condition"/>
+    </select>
+</mapper>

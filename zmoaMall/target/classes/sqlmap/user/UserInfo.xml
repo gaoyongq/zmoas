@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.user.UserInfoDao">
+
+    <resultMap id="UserInfoMap" type="com.zm.mall.domain.user.UserInfo">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="platefrom_id" property="platefromId" jdbcType="BIGINT"/>
+        <result column="business_id" property="businessId" jdbcType="BIGINT"/>
+        <result column="system_type" property="systemType" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="BIGINT"/>
+        <result column="created" property="created" jdbcType="TIMESTAMP"/>
+        <result column="modified" property="modified" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="all_column">id, platefrom_id ,  business_id,  system_type , status ,created ,modified </sql>
+
+    <sql id="condition">
+        <if test="id != null  and id > 0">
+            AND id = #{id}
+        </if>
+        <if test="platefromId != null  and platefromId > 0">
+            AND platefrom_id = #{platefromId}
+        </if>
+
+        <if test="businessId != null and businessId >0">
+            AND business_id = #{businessId}
+        </if>
+        <if test="status != null and status >0">
+            AND status = #{status}
+        </if>
+        <if test="systemType != null and systemType !=''">
+            AND system_type = #{systemType}
+        </if>
+    </sql>
+
+    <sql id="update_set">
+        <set>
+            <if test="platefromId != null">platefrom_id = #{platefromId},</if>
+            <if test="businessId != null">business_id = #{businessId},</if>
+            <if test="systemType != null">system_type = #{systemType},</if>
+            modified = now(),
+        </set>
+    </sql>
+
+    <!-- 插入记录 -->
+    <insert id="insertEntry" parameterType="userInfo" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_info
+        ( platefrom_id ,  business_id,  system_type , status ,created ,modified) VALUES
+        ( #{platefromId} , #{businessId} , #{systemType} ,1 ,now() ,now())
+    </insert>
+
+    <!-- 通过主键更新 -->
+    <update id="updateEntryByKey" parameterType="userInfo">
+        update user_info
+        <include refid="update_set"/>
+        WHERE id = #{id}
+    </update>
+    <!-- 按主键查询 -->
+    <!-- 通过主键查询 -->
+    <select id="selectEntryByKey" resultMap="UserInfoMap" parameterType="userInfo">
+        SELECT
+        <include refid="all_column"/>
+        FROM user_info
+        WHERE id = #{id}
+    </select>
+    <!--通过id删除信息-->
+    <delete id="deleteEntryByKey" parameterType="userInfo">
+        UPDATE user_info
+        SET
+        status = 2 where id=#{id}
+    </delete>
+    <!-- 通过主键查询 -->
+    <select id="selectByContion" resultMap="UserInfoMap" parameterType="userInfo">
+        SELECT
+        <include refid="all_column"/>
+        FROM user_info
+        WHERE platefrom_id = #{platefromId}
+        <include refid="condition"/>
+    </select>
+    <!-- 通过主键查询  -->
+    <select id="selectEntryByWhere" resultMap="UserInfoMap" parameterType="userInfo">
+        SELECT
+        <include refid="all_column"/>
+        FROM user_info
+        WHERE platefrom_id = #{platefromId}
+        <include refid="condition"/>
+    </select>
+</mapper>

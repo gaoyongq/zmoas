@@ -1,0 +1,35 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>111111</title>
+    <script type="text/javascript" src="../../../js/jquery-1.9.1.js"></script>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <style type="text/css">
+        table{
+            text-align: center;
+        }
+        span
+        {
+           float: left;
+        }
+        tr td
+        {
+           width: 525px;
+        }
+
+
+    </style>
+
+    <script type="text/javascript">
+    </script>
+
+</head>
+<body>
+<div id="content">
+    $screen_content
+</div>
+</body>
+</html>

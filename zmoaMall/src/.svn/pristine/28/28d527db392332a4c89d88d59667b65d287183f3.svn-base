@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.system.ApplyCarSonDao">
+        <resultMap id="ApplyCarSonMap" type="com.zm.mall.domain.system.ApplyCarSon">
+                <result column="id" property="id" jdbcType="BIGINT"/>
+                <result column="applyCarCode" property="applyCarCode" jdbcType="VARCHAR"/>
+                <result column="orderCode" property="orderCode" jdbcType="VARCHAR"/>
+                <result column="orderWeigth" property="orderWeigth" jdbcType="BIGINT"/>
+                <result column="smallGroup" property="smallGroup" jdbcType="VARCHAR"/>
+                <result column="transactor" property="transactor" jdbcType="VARCHAR"/>
+        </resultMap>
+
+        <sql id="all_column">id,applyCarCode,orderCode,orderWeigth,smallGroup ,transactor</sql>
+
+        <sql id="update_set">
+                <set>
+
+                        <if test="applyCarCode != null">applyCarCode = #{applyCarCode},</if>
+                        <if test="orderCode != null">orderCode = #{orderCode},</if>
+                        <if test="orderWeigth != null">orderWeigth = #{orderWeigth},</if>
+                        <if test="smallGroup != null">smallGroup = #{smallGroup},</if>
+                        <if test="transactor != null">transactor = #{transactor},</if>
+
+                </set>
+        </sql>
+
+
+        <!-- 插入记录 -->
+        <insert id="saveOrderAddCar" parameterType="applyCarSon" >
+                INSERT INTO wl_applycarson
+                (applyCarCode,orderCode,orderWeigth, smallGroup,transactor) VALUES
+                (#{applyCarCode},#{orderCode},#{orderWeigth},#{smallGroup},#{transactor})
+        </insert>
+
+        <select id="selectApplyCarSonByApplyCarCoder" resultMap="ApplyCarSonMap" parameterType="String">
+                SELECT
+                <include refid="all_column"/>
+                FROM wl_applycarson
+                WHERE applyCarCode=#{applyCarCode}
+
+
+        </select>
+        <!--白洋洋-将申请车辆的订单插入车辆申请子表-->
+        <insert id="insertOrder" parameterType="applyCarSon">
+                INSERT INTO wl_applycarson
+                (applyCarCode,orderCode,orderWeigth, smallGroup,transactor) VALUES
+                (#{applyCarCode},#{orderCode},#{orderWeigth},#{smallGroup},#{transactor})
+        </insert>
+
+</mapper>

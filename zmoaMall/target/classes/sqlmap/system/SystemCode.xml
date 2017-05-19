@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.system.SystemCodeDao">
+    <resultMap id="SystemCodeMap" type="systemCode">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="p_id" property="pid" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="url" property="url" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+
+            <collection property="itemSystemCodes" ofType="itemSystemCode">
+            <id column="id" property="id" jdbcType="INTEGER"></id>
+            <result column="fid" property="fid" jdbcType="INTEGER"></result>
+            <result column="name" property="name" jdbcType="VARCHAR"></result>
+            <result column="code" property="code" jdbcType="VARCHAR"></result>
+            <result column="description" property="description" jdbcType="VARCHAR"></result>
+            <result column="value" property="value" jdbcType="DOUBLE"></result>
+            </collection>
+    </resultMap>
+
+    <sql id="all_column">id, p_id ,name,code,url,description,pluteformid</sql>
+
+    <sql id="condition">
+        <if test="id != null  and id > 0">
+            AND id = #{id}
+        </if>
+        <if test="pid != null  and pid > 0">
+            AND p_id = #{pid}
+        </if>
+
+        <if test="name != null and name >0">
+            AND name = #{name}
+        </if>
+
+        <if test="code != null and code >0">
+            AND code = #{code}
+        </if>
+
+    </sql>
+
+
+    <!-- 通过主键查询 -->
+    <select id="selectByContion" resultMap="SystemCodeMap" parameterType="systemCode">
+        SELECT
+        <include refid="all_column"/>
+        FROM b2c_system_code
+        WHERE id = #{id} AND pluteformid=#{pluteformid}
+        <include refid="condition"/>
+    </select>
+
+    <!-- 通过code查询 -->
+    <select id="selectByCode" resultMap="SystemCodeMap" parameterType="systemCode">
+        SELECT
+        <include refid="all_column"/>
+        FROM b2c_system_code
+        WHERE code = #{code} AND pluteformid=#{pluteformid}
+    </select>
+
+    <select id="selectAllByContion" resultMap="SystemCodeMap" parameterType="systemCode">
+        SELECT
+        <include refid="all_column"/>
+        FROM b2c_system_code where pluteformid=#{pluteformid}
+
+    </select>
+
+    <delete id="deleteEntryByKey" parameterType="systemCode">
+        UPDATE b2c_system_code
+        SET
+        status = 2 where id=#{id} AND pluteformid=#{pluteformid}
+    </delete>
+    <delete id="deleteByKey" parameterType="systemCode">
+        DELETE
+        FROM b2c_system_code
+        where id=#{id} AND pluteformid=#{pluteformid}
+
+    </delete>
+    <sql id="update_set">
+        <set>
+
+            <if test="code != null">code = #{code},</if>
+            <if test="name != null">name = #{name},</if>
+        </set>
+    </sql>
+    <!-- 通过主键更新 -->
+    <update id="updateByKey" parameterType="systemCode">
+        update b2c_system_code
+        <include refid="update_set"/>
+        WHERE id = #{id} AND pluteformid=#{pluteformid}
+    </update>
+    <!-- 通过主键更新 -->
+    <update id="insertPage" parameterType="systemCode">
+        update b2c_system_code
+        SET page=#{page}
+        WHERE id = #{id} AND pluteformid=#{pluteformid}
+    </update>
+    <!-- 插入记录 -->
+    <insert id="insertByPid" parameterType="systemCode" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO b2c_system_code
+        ( p_id , name, code,pluteformid) VALUES
+        ( #{pid} , #{name}  , #{code} ,#{pluteformid} )
+    </insert>
+    <select id="getCodeUserId" parameterType="systemCode" resultMap="SystemCodeMap">
+        SELECT * from b2c_system_code,b2c_item_system_code where b2c_system_code.id=b2c_item_system_code.fid and b2c_system_code.code=#{code}
+    </select>
+</mapper>

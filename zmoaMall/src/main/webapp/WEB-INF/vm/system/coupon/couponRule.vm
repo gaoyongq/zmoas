@@ -1,0 +1,39 @@
+#set($layout = "layout/empty.vm")
+<form id="fm" method="post" novalidate style="margin:0;padding:20px 50px" enctype="multipart/form-data">
+    <div style="margin-bottom:20px;font-size:14px;border-bottom:1px solid #ccc">设置优惠券附加使用规则</div>
+    <div style="margin-bottom:10px">
+        <p>&bull; 优惠券名称：$!couponSource.name</p>
+    </div>
+    <div style="margin-bottom:10px">
+        <p>&bull; 优惠券附加使用规则：</p>
+        <table id="pg" class="easyui-propertygrid" style="width:100%" data-options="
+                url:'/coupon/getCouponRuleResult?couponSourceId=$!couponSource.id',
+                method:'get',
+                showGroup:false,
+                showHeader:true,
+                scrollbarSize:0,
+                onAfterEdit:addCouponRule
+            ">
+        </table>
+    </div>
+
+</form>
+
+<script>
+    function addCouponRule(index,row,changes){
+        jQuery.ajax({
+            url: "/coupon/addCouponRule",
+            type: "post",
+            data: {"ruleName.id":row.id, "value":row.value, "couponSource.id":"$!couponSource.id", "createUser.id":"$!userId"},
+            dataType: "json",
+            success: function (data) {
+                jQuery.messager.show({
+                    title:'数据更新提示！',
+                    msg:'规则已更新',
+                    timeout:3000,
+                    showType:'slide'
+                });
+            }
+        });
+    }
+</script>

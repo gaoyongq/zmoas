@@ -1,0 +1,901 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.zm.mall.dao.business.product.ProductCategoryDao">
+
+    <sql id="shopIdLimit">
+        <choose>
+            <when test="shopId != null">and shopId = #{shopId}</when>
+            <otherwise>and shopId is null</otherwise>
+        </choose>
+    </sql>
+
+    <!-- 数据库-实体类映射 -->
+    <resultMap id="prodCatMap" type="com.zm.mall.domain.business.product.CategoryInfo">
+        <id property="categoryId" column="CategoryId" />
+        <result property="name" column="Name" />
+        <result property="displaySequence" column="DisplaySequence" />
+        <result property="meta_Title" column="Meta_Title" />
+        <result property="meta_Description" column="Meta_Description" />
+        <result property="meta_Keywords" column="Meta_Keywords" />
+        <result property="description" column="Description" />
+        <result property="parentCategoryId" column="ParentCategoryId" />
+        <result property="depth" column="Depth" />
+        <result property="path" column="Path" />
+        <result property="rewriteName" column="RewriteName" />
+        <result property="skuPrefix" column="SKUPrefix" />
+        <result property="associatedProductType" column="AssociatedProductType" />
+        <result property="imageUrl" column="ImageUrl" />
+        <result property="notes1" column="Notes1" />
+        <result property="notes2" column="Notes2" />
+        <result property="notes3" column="Notes3" />
+        <result property="notes4" column="Notes4" />
+        <result property="notes5" column="Notes5" />
+        <result property="theme" column="Theme" />
+        <result property="hasChildren" column="HasChildren" javaType="boolean" />
+        <result property="seoUrl" column="SeoUrl" />
+        <result property="seoImageAlt" column="SeoImageAlt" />
+        <result property="seoImageTitle" column="SeoImageTitle" />
+        <result property="status" column="Status" />
+        <result property="priceChange" column="PriceChange" />
+        <result property="shopId" column="shopId" />
+        <result property="pluteformid" column="pluteformid" />
+        <result property="visible" column="visible" />
+    </resultMap>
+
+    <!-- 分页-查询产品分类 -->
+    <select id="getPageProdCatList" resultMap="prodCatMap">
+        select * from b2c_shop_categories
+        <where>
+            pluteformid = #{pluteformid}
+            <include refid="shopIdLimit"/>
+        </where>
+        limit #{start}, #{size}
+    </select>
+
+    <!-- 分页-查询产品分类总数 -->
+    <select id="getPageProdCatCount" resultType="long">
+        select count(*) from b2c_shop_categories
+        <where>
+            pluteformid = #{pluteformid}
+            <include refid="shopIdLimit"/>
+        </where>
+    </select>
+
+    <!-- 查询产品分类列表 -->
+    <select id="getProdCatList" resultMap="prodCatMap">
+        select * from b2c_shop_categories
+        <where>
+            pluteformid = #{pluteformid}
+            <include refid="shopIdLimit"/>
+        </where>
+    </select>
+
+    <!-- 添加产品分类 -->
+    <insert id="addProdCat">
+        insert into b2c_shop_categories (
+            CategoryId,
+            Name,
+            DisplaySequence,
+            Meta_Title,
+            Meta_Description,
+            Meta_Keywords,
+            Description,
+            ParentCategoryId,
+            Depth,
+            Path,
+            RewriteName,
+            SKUPrefix,
+            AssociatedProductType,
+            ImageUrl,
+            Notes1,
+            Notes2,
+            Notes3,
+            Notes4,
+            Notes5,
+            Theme,
+            HasChildren,
+            SeoUrl,
+            SeoImageAlt,
+            SeoImageTitle,
+            Status,
+            PriceChange,
+            shopId,
+            pluteformid
+        ) values (
+            null,
+            #{name},
+            #{displaySequence},
+            #{meta_Title},
+            #{meta_Description},
+            #{meta_Keywords},
+            #{description},
+            #{parentCategoryId},
+            #{depth},
+            concat(#{path}, if(#{path} = '', '', '|'), (SELECT `AUTO_INCREMENT` FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'tt' AND TABLE_NAME = 'b2c_shop_categories')),
+            #{rewriteName},
+            #{skuPrefix},
+            #{associatedProductType},
+            #{imageUrl},
+            #{notes1},
+            #{notes2},
+            #{notes3},
+            #{notes4},
+            #{notes5},
+            #{theme},
+            0,
+            #{seoUrl},
+            #{seoImageAlt},
+            #{seoImageTitle},
+            #{status},
+            #{priceChange},
+            #{shopId},
+            #{pluteformid}
+        )
+    </insert>
+
+    <!-- 修改产品分类 -->
+    <update id="updateProdCat">
+        update b2c_shop_categories
+        <set>
+            <if test="name != null">Name = #{name},</if>
+            <if test="displaySequence != null">DisplaySequence = #{displaySequence},</if>
+            <if test="meta_Title != null">Meta_Title = #{meta_Title},</if>
+            <if test="meta_Description != null">Meta_Description = #{meta_Description},</if>
+            <if test="meta_Keywords != null">Meta_Keywords = #{meta_Keywords},</if>
+            <if test="description != null">Description = #{description},</if>
+            <if test="parentCategoryId != null">ParentCategoryId = #{parentCategoryId},</if>
+            <if test="depth != null">Depth = #{depth},</if>
+            <if test="path != null">Path = #{path},</if>
+            <if test="rewriteName != null">RewriteName = #{rewriteName},</if>
+            <if test="skuPrefix != null">SkuPrefix = #{skuPrefix},</if>
+            <if test="associatedProductType != null">AssociatedProductType = #{associatedProductType},</if>
+            <if test="imageUrl != null">ImageUrl = #{imageUrl},</if>
+            <if test="notes1 != null">Notes1 = #{notes1},</if>
+            <if test="notes2 != null">Notes2 = #{notes2},</if>
+            <if test="notes3 != null">Notes3 = #{notes3},</if>
+            <if test="notes4 != null">Notes4 = #{notes4},</if>
+            <if test="notes5 != null">Notes5 = #{notes5},</if>
+            <if test="theme != null">Theme = #{theme},</if>
+            <if test="hasChildren != null">HasChildren = #{hasChildren, jdbcType=tinyint, javaType=Boolean},</if>
+            <if test="seoUrl != null">SeoUrl = #{seoUrl},</if>
+            <if test="seoImageAlt != null">SeoImageAlt = #{seoImageAlt},</if>
+            <if test="seoImageTitle != null">SeoImageTitle = #{seoImageTitle},</if>
+            <if test="status != null">Status = #{status},</if>
+            <if test="namePath != null">NamePath = #{namePath},</if>
+            <if test="priceChange != null">PriceChange = #{priceChange},</if>
+        </set>
+        <where>
+            CategoryId = #{categoryId}
+            and pluteformid = #{pluteformid}
+            <include refid="shopIdLimit"/>
+        </where>
+    </update>
+
+    <select id="getProdCatById" resultMap="prodCatMap">
+        select * from b2c_shop_categories
+        <where>
+            CategoryId = #{categoryId}
+            and pluteformid = #{platformId}
+            <include refid="shopIdLimit"/>
+        </where>
+    </select>
+
+    <!-- 修改产品分类状态 -->
+    <update id="updateProdCatStatus">
+        update b2c_shop_categories
+        set status = #{status}
+        <where>
+            CategoryId = #{categoryId}
+            and pluteformid = #{pluteformid}
+            <include refid="shopIdLimit"/>
+        </where>
+    </update>
+
+    <select id="getPageProdCatListByParentId" resultMap="prodCatMap">
+        select * from b2c_shop_categories
+        <where>
+            pluteformid = #{pluteformid}
+            <include refid="shopIdLimit"/>
+            <choose>
+                <when test="id != null">
+                    AND ParentCategoryId = #{id}
+                </when>
+                <otherwise>
+                    AND ParentCategoryId = 0
+                </otherwise>
+            </choose>
+        </where>
+        limit #{start}, #{size}
+    </select>
+
+    <select id="getTopProdCatCount" resultType="long">
+        select count(*) from b2c_shop_categories
+        <where>
+            ParentCategoryId = 0
+            and pluteformid = #{pluteformid}
+            <include refid="shopIdLimit"/>
+        </where>
+    </select>
+
+    <update id="updateProdCatStatusByColumnName">
+        update b2c_shop_categories set ${columnName} = #{value}
+        <where>
+            CategoryId = #{id}
+            and pluteformid = #{platformId}
+            <include refid="shopIdLimit"/>
+        </where>
+    </update>
+
+    <resultMap id="prodTypeMap" type="com.zm.mall.domain.business.product.ProductType">
+        <id property="typeId" column="TypeId" />
+        <result property="typeName" column="TypeName" />
+        <result property="remark" column="Remark" />
+        <result property="shopId" column="shopId" />
+        <result property="pluteformid" column="pluteformid" />
+    </resultMap>
+    <select id="getProdTypes" resultMap="prodTypeMap">
+        select
+            TypeId,
+            TypeName,
+            Remark,
+            shopId,
+            pluteformid
+        from b2c_shop_producttypes
+        <where>
+            pluteformid = #{pluteformid}
+            <include refid="shopIdLimit"/>
+            <if test="typeId != null">and TypeId = #{typeId}</if>
+            <if test="typeName != null and typeName != ''">and TypeName like concat('%', #{typeName}, '%')</if>
+            <if test="remark != null and remark != ''">and Remark like concat('%', #{remark}, '%')</if>
+        </where>
+        limit #{start}, #{size}
+    </select>
+
+    <select id="getProdTypeCount" resultType="long">
+        select count(*) from b2c_shop_producttypes
+        <where>
+            pluteformid = #{pluteformid}
+            <include refid="shopIdLimit"/>
+            <if test="typeId != null">and TypeId = #{typeId}</if>
+            <if test="typeName != null and typeName != ''">and TypeName like concat('%', #{typeName}, '%')</if>
+            <if test="remark != null and remark != ''">and Remark like concat('%', #{remark}, '%')</if>
+        </where>
+    </select>
+
+    <resultMap id="prodBrandMap" type="com.zm.mall.domain.business.product.BrandInfo">
+        <id property="brandId" column="BrandId" />
+        <result property="brandName" column="BrandName" />
+        <result property="brandSpell" column="BrandSpell" />
+        <result property="metaDescription" column="Meta_Description" />
+        <result property="metaKeywords" column="Meta_Keywords" />
+        <result property="logo" column="Logo" />
+        <result property="companyUrl" column="CompanyUrl" />
+        <result property="description" column="Description" />
+        <result property="displaySequence" column="DisplaySequence" />
+        <result property="theme" column="Theme" />
+        <result property="shopId" column="shopId" />
+        <result property="pluteformid" column="pluteformid" />
+    </resultMap>
+    <select id="getProdBrandsByPlatformId" resultMap="prodBrandMap">
+        select
+            BrandId,
+            BrandName,
+            BrandSpell,
+            Meta_Description,
+            Meta_Keywords,
+            Logo,
+            CompanyUrl,
+            Description,
+            DisplaySequence,
+            Theme,
+            shopId,
+            pluteformid
+        from b2c_shop_brands
+        <where>
+            pluteformid = #{platformId}
+            <include refid="shopIdLimit"/>
+        </where>
+    </select>
+
+    <insert id="addProdType" useGeneratedKeys="true" keyColumn="TypeId" keyProperty="typeId">
+        insert into b2c_shop_producttypes (
+            TypeId,
+            TypeName,
+            Remark,
+            shopId,
+            pluteformid
+        ) values (
+            null,
+            #{typeName},
+            #{remark},
+            #{shopId},
+            #{pluteformid}
+        )
+    </insert>
+
+    <insert id="addProdTypeBrand">
+        insert into b2c_shop_producttypebrands (
+            ProductTypeId,
+            BrandId,
+            shopId,
+            pluteformid
+        ) values (
+            #{productType.typeId},
+            #{brandId},
+            #{productType.shopId},
+            #{productType.pluteformid}
+        )
+    </insert>
+
+    <!-- 分页-查询商品类型属性 Start -->
+    <resultMap id="prodTypeAttrMap" type="com.zm.mall.domain.business.product.AttributeInfo">
+        <id property="attributeId" column="AttributeId" />
+        <result property="attributeName" column="AttributeName" />
+        <result property="displaySequence" column="DisplaySequence" />
+        <result property="typeId" column="TypeId" />
+        <result property="usageMode" column="UsageMode" />
+        <result property="useAttributeImage" column="UseAttributeImage" />
+        <result property="userDefinedPic" column="UserDefinedPic" />
+        <result property="shopId" column="shopId" />
+        <result property="pluteformid" column="pluteformid" />
+    </resultMap>
+    <select id="getProdTypeAttrsByTypeId" resultMap="prodTypeAttrMap">
+        select
+            AttributeId,
+            AttributeName,
+            DisplaySequence,
+            TypeId,
+            UsageMode,
+            UseAttributeImage,
+            UserDefinedPic,
+            shopId,
+            pluteformid
+        from b2c_shop_attributes
+        <where>
+            pluteformid = #{pluteformid} and TypeId = #{typeId} and UsageMode != 3
+            <if test="attributeId != null">and AttributeId = #{attributeId}</if>
+            <include refid="shopIdLimit"/>
+            <if test="attributeName != null and attributeName != ''">and AttributeName like concat('%', #{attributeName}, '%')</if>
+            <if test="typeId != null">and TypeId = #{typeId}</if>
+            <if test="usageMode != null">and UsageMode = #{usageMode}</if>
+            <if test="userDefinedPic != null">and UserDefinedPic = #{userDefinedPic}</if>
+        </where>
+        limit #{start}, #{size}
+    </select>
+
+    <select id="getProdTypeAttrCount" resultType="long">
+        select count(*) from b2c_shop_attributes
+        <where>
+            pluteformid = #{pluteformid} and TypeId = #{typeId} and UsageMode != 3
+            <include refid="shopIdLimit"/>
+            <if test="attributeId != null">and AttributeId = #{attributeId}</if>
+            <if test="attributeName != null and attributeName != ''">and AttributeName like concat('%', #{attributeName}, '%')</if>
+            <if test="typeId != null">and TypeId = #{typeId}</if>
+            <if test="usageMode != null">and UsageMode = #{usageMode}</if>
+            <if test="userDefinedPic != null">and UserDefinedPic = #{userDefinedPic}</if>
+        </where>
+    </select>
+
+    <select id="getAttributeValuesById" resultType="string">
+        select
+            attrValue.ValueStr
+        from b2c_shop_attributevalues attrValue
+            left join b2c_shop_attributes attr on attr.AttributeId = attrValue.AttributeId and attr.pluteformid = attrValue.pluteformid
+        <where>
+            attrValue.pluteformid = #{platformId} and attrValue.AttributeId = #{attributeId} and attr.UsageMode != 2
+            <choose>
+                <when test="shopId != null">and attrValue.shopId = #{shopId}</when>
+                <otherwise>and attrValue.shopId is null</otherwise>
+            </choose>
+        </where>
+
+    </select>
+    <!-- 分页-查询商品类型属性 End -->
+
+    <insert id="addProdTypeAttr" useGeneratedKeys="true" keyProperty="attributeId" keyColumn="AttributeId">
+        insert into b2c_shop_attributes (
+            AttributeId,
+            AttributeName,
+            DisplaySequence,
+            TypeId,
+            UsageMode,
+            UseAttributeImage,
+            UserDefinedPic,
+            shopId,
+            pluteformid
+        ) values (
+            null,
+            #{attributeName},
+            -1,
+            #{typeId},
+            #{usageMode},
+            #{useAttributeImage},
+            #{userDefinedPic},
+            #{shopId},
+            #{pluteformid}
+        )
+    </insert>
+
+    <insert id="addProdTypeAttrValue">
+        insert into b2c_shop_attributevalues (
+            ValueId,
+            AttributeId,
+            DisplaySequence,
+            ValueStr,
+            ImageUrl,
+            shopId,
+            pluteformid
+        ) values (
+            null,
+            #{attributeId},
+            -1,
+            #{value},
+            null,
+            #{shopId},
+            #{platformId}
+        )
+    </insert>
+
+    <update id="updateProdTypeAttr">
+        update b2c_shop_attributes
+        <set>
+            <if test="attributeName != null">AttributeName = #{attributeName},</if>
+            <if test="usageMode != null">UsageMode = #{usageMode},</if>
+        </set>
+        <where>
+            AttributeId = #{attributeId} and pluteformid = #{pluteformid}
+            <include refid="shopIdLimit"/>
+        </where>
+    </update>
+
+    <delete id="deleteProdTypeAttrValuesById">
+        delete from b2c_shop_attributevalues
+        <where>
+            AttributeId = (select AttributeId from b2c_shop_attributes where UsageMode != 2 and AttributeId = #{attributeId})
+            and pluteformid = #{pluteformid}
+            <include refid="shopIdLimit"/>
+        </where>
+    </delete>
+
+    <!-- 分页查询商品类型规格 Start -->
+    <resultMap id="prodTypeSpecMap" type="com.zm.mall.domain.business.product.AttributeInfo">
+        <id property="attributeId" column="AttributeId" />
+        <result property="attributeName" column="AttributeName" />
+        <result property="displaySequence" column="DisplaySequence" />
+        <result property="typeId" column="TypeId" />
+        <result property="usageMode" column="UsageMode" />
+        <result property="useAttributeImage" column="UseAttributeImage" />
+        <result property="userDefinedPic" column="UserDefinedPic" />
+        <result property="shopId" column="shopId" />
+        <result property="pluteformid" column="pluteformid" />
+    </resultMap>
+    <select id="getProdTypeSpecsByTypeId" resultMap="prodTypeSpecMap">
+        select
+        AttributeId,
+        AttributeName,
+        DisplaySequence,
+        TypeId,
+        UsageMode,
+        UseAttributeImage,
+        UserDefinedPic,
+        shopId,
+        pluteformid
+        from b2c_shop_attributes
+        <where>
+            pluteformid = #{pluteformid} and TypeId = #{typeId} and UsageMode = 3
+            <if test="attributeId != null">and AttributeId = #{attributeId}</if>
+            <include refid="shopIdLimit"/>
+            <if test="attributeName != null and attributeName != ''">and AttributeName like concat('%', #{attributeName}, '%')</if>
+            <if test="typeId != null">and TypeId = #{typeId}</if>
+            <if test="usageMode != null">and UsageMode = #{usageMode}</if>
+            <if test="userDefinedPic != null">and UserDefinedPic = #{userDefinedPic}</if>
+        </where>
+        limit #{start}, #{size}
+    </select>
+
+    <select id="getProdTypeSpecCount" resultType="long">
+        select count(*) from b2c_shop_attributes
+        <where>
+            pluteformid = #{pluteformid} and TypeId = #{typeId} and UsageMode = 3
+            <if test="attributeId != null">and AttributeId = #{attributeId}</if>
+            <include refid="shopIdLimit"/>
+            <if test="attributeName != null and attributeName != ''">and AttributeName like concat('%', #{attributeName}, '%')</if>
+            <if test="typeId != null">and TypeId = #{typeId}</if>
+            <if test="usageMode != null">and UsageMode = #{usageMode}</if>
+            <if test="userDefinedPic != null">and UserDefinedPic = #{userDefinedPic}</if>
+        </where>
+    </select>
+
+    <select id="getSpecValuesById" resultType="string">
+        select ValueStr from b2c_shop_attributevalues
+        <where>
+            pluteformid = #{platformId} and AttributeId = #{attributeId}
+            <include refid="shopIdLimit"/>
+        </where>
+    </select>
+    <!-- 分页查询商品类型规格 Start -->
+
+
+    <insert id="addSpecValue">
+        insert into b2c_shop_attributevalues (
+            ValueId,
+            AttributeId,
+            DisplaySequence,
+            ValueStr,
+            ImageUrl,
+            shopId,
+            pluteformid
+        ) values (
+            null,
+            #{attributeId},
+            -1,
+            #{valueStr},
+            #{imageUrl},
+            #{shopId},
+            #{pluteformid}
+        )
+    </insert>
+
+    <select id="getProdTypeById" resultMap="prodTypeMap">
+        select
+            TypeId,
+            TypeName,
+            Remark,
+            shopId,
+            pluteformid
+        from b2c_shop_producttypes
+        <where>
+            TypeId = #{typeId} and pluteformid = #{platformId}
+            <include refid="shopIdLimit"/>
+        </where>
+    </select>
+
+    <select id="getTypeBrandIdsByTypeId" resultType="long">
+        select BrandId from b2c_shop_producttypebrands
+        <where>
+            ProductTypeId = #{typeId} and pluteformid = #{platformId}
+            <include refid="shopIdLimit"/>
+        </where>
+    </select>
+
+    <select id="getProdTypeAttrById" resultMap="prodTypeAttrMap">
+        select
+            AttributeId,
+            AttributeName,
+            DisplaySequence,
+            TypeId,
+            UsageMode,
+            UseAttributeImage,
+            UserDefinedPic,
+            pluteformid
+        from b2c_shop_attributes
+        <where>
+            AttributeId = #{attributeId} and pluteformid = #{platformId}
+            <include refid="shopIdLimit"/>
+        </where>
+    </select>
+
+    <update id="updateProdType">
+        update b2c_shop_producttypes
+        <set>
+            <if test="typeName != null">TypeName = #{typeName},</if>
+            <if test="remark != null">Remark = #{remark},</if>
+        </set>
+        <where>
+            TypeId = #{typeId} and pluteformid = #{pluteformid}
+            <include refid="shopIdLimit"/>
+        </where>
+    </update>
+
+    <delete id="deleteProdTypeBrand">
+        delete from b2c_shop_producttypebrands
+        <where>
+            ProductTypeId = #{typeId} and pluteformid = #{pluteformid}
+            <include refid="shopIdLimit"/>
+        </where>
+    </delete>
+
+    <update id="updateProdCatStatusById">
+        update b2c_shop_categories set Status = #{status}
+        <where>
+            CategoryId = #{categoryId} and pluteformid = #{platformId}
+            <include refid="shopIdLimit"/>
+        </where>
+    </update>
+
+    <select id="getChildCatIdsByParentId" resultType="long">
+        select CategoryId from b2c_shop_categories
+        <where>
+            ParentCategoryId = #{categoryId} and pluteformid = #{platformId}
+            <include refid="shopIdLimit"/>
+        </where>
+    </select>
+
+    <update id="updateVisible">
+        update b2c_shop_categories set visible = #{flag}
+        <where>
+            pluteformid = #{platformId} and CategoryId = #{categoryId}
+            <include refid="shopIdLimit"/>
+        </where>
+    </update>
+
+    <insert id="addRegionCat">
+        INSERT INTO b2c_shop_categories_region
+        <foreach item="item" index="index" collection="catIds" separator="UNION ALL">
+            SELECT *, #{regionId} FROM b2c_shop_categories
+            <where>
+                CategoryId = #{item} AND pluteformid = #{platformId}
+                <choose>
+                    <when test="shopId != null">and shopId = #{shopId}</when>
+                    <otherwise>and shopId is null</otherwise>
+                </choose>
+            </where>
+
+        </foreach>
+    </insert>
+
+    <select id="getProdCatIdsByRegionId" resultType="long">
+        select CategoryId from b2c_shop_categories_region
+        <where>
+            regionId = #{regionId} and pluteformid = #{platformId}
+            <choose>
+                <when test="shopId != null">and shopId = #{shopId}</when>
+                <otherwise>and shopId is null</otherwise>
+            </choose>
+        </where>
+
+    </select>
+
+
+    <select id="getChildCategoriesByParentId" resultType="com.zm.mall.domain.business.product.EasyUICatTreeNode">
+        select
+            CategoryId as id,
+            Name as text,
+            if(HasChildren=0,1,0) as leaf
+        from b2c_shop_categories
+        <where>
+            pluteformid = #{platformId}
+            <include refid="shopIdLimit"/>
+            <choose>
+                <when test="categoryId != null">
+                    and ParentCategoryId = #{categoryId}
+                </when>
+                <otherwise>
+                    and ParentCategoryId = 0
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <delete id="deleteRegionCatByRegionId">
+        delete from b2c_shop_categories_region
+        <where>
+            pluteformid = #{platformId} and regionId = #{regionId}
+            <choose>
+                <when test="shopId != null">and shopId = #{shopId}</when>
+                <otherwise>and shopId is null</otherwise>
+            </choose>
+        </where>
+
+    </delete>
+
+    <select id="getZTreeCatList" resultType="com.zm.mall.domain.business.product.ZTreeNode">
+        select
+            CategoryId as id,
+            Name as name,
+            ParentCategoryId as pId
+        from b2c_shop_categories
+        <where>
+            pluteformid = #{platformId}
+            <choose>
+                <when test="shopId != null">and shopId = #{shopId}</when>
+                <otherwise>and shopId is null</otherwise>
+            </choose>
+        </where>
+
+    </select>
+
+
+    <resultMap id="CategoryInfoMap" type="com.zm.mall.domain.business.product.CategoryInfo">
+        <result column="CategoryId" property="categoryId" jdbcType="BIGINT"></result>
+        <result column="Name" property="name" jdbcType="VARCHAR"></result>
+        <result column="DisplaySequence" property="displaySequence" jdbcType="BIGINT"></result>
+        <result column="Meta_Title" property="meta_Title" jdbcType="VARCHAR"></result>
+        <result column="Meta_Description" property="meta_Description" jdbcType="VARCHAR"></result>
+        <result column="Meta_Keywords" property="meta_Keywords" jdbcType="VARCHAR"></result>
+        <result column="Description" property="description" jdbcType="VARCHAR"></result>
+        <result column="ParentCategoryId" property="parentCategoryId" jdbcType="BIGINT"></result>
+        <result column="Depth" property="depth" jdbcType="BIGINT"></result>
+        <result column="Path" property="path" jdbcType="VARCHAR"></result>
+        <result column="RewriteName" property="rewriteName" jdbcType="VARCHAR"></result>
+        <result column="SKUPrefix" property="skuPrefix" jdbcType="VARCHAR"></result>
+        <result column="AssociatedProductType" property="associatedProductType" jdbcType="BIGINT"></result>
+        <result column="ImageUrl" property="imageUrl" jdbcType="VARCHAR"></result>
+        <result column="Notes1" property="notes1" jdbcType="VARCHAR"></result>
+        <result column="Notes2" property="notes2" jdbcType="VARCHAR"></result>
+        <result column="Notes3" property="notes3" jdbcType="VARCHAR"></result>
+        <result column="Notes4" property="notes4" jdbcType="VARCHAR"></result>
+        <result column="Notes5" property="notes5" jdbcType="VARCHAR"></result>
+        <result column="SeoUrl" property="seoUrl" jdbcType="VARCHAR"></result>
+        <result column="SeoImageAlt" property="seoImageAlt" jdbcType="VARCHAR"></result>
+        <result column="SeoImageTitle" property="seoImageTitle" jdbcType="VARCHAR"></result>
+        <result column="Status" property="status" jdbcType="BOOLEAN"></result>
+        <result column="PriceChange" property="priceChange" jdbcType="DOUBLE"></result>
+    </resultMap>
+    <select id="getProdCategoryByRegionIdForWeChat" resultMap="CategoryInfoMap">
+        SELECT * FROM b2c_shop_categories_region
+        <where>
+            ParentCategoryId=#{parentCategoryId} AND pluteformid=#{platformId} AND regionId = #{regionId}
+            <choose>
+                <when test="shopId != null">and shopId = #{shopId}</when>
+                <otherwise>and shopId is null</otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <select id="getProdCategoryForWeChat" resultMap="CategoryInfoMap">
+        SELECT * FROM b2c_shop_categories
+        <where>
+            ParentCategoryId=#{parentCategoryId} AND pluteformid=#{platformId}
+            <choose>
+                <when test="shopId != null">and shopId = #{shopId}</when>
+                <otherwise>and shopId is null</otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <select id="getTypeBrandList" resultMap="prodBrandMap">
+        select
+            BrandId,
+            BrandName,
+            BrandSpell,
+            Meta_Description,
+            Meta_Keywords,
+            Logo,
+            CompanyUrl,
+            Description,
+            DisplaySequence,
+            Theme,
+            shopId,
+            pluteformid
+        from b2c_shop_brands
+        <where>
+            pluteformid = #{pluteformid}
+            <include refid="shopIdLimit"/>
+        </where>
+        limit #{start}, #{size}
+    </select>
+    <select id="getTypeBrandCount" resultType="long">
+        select count(*) from b2c_shop_brands
+        <where>
+            pluteformid = #{pluteformid}
+            <include refid="shopIdLimit"/>
+        </where>
+
+    </select>
+
+    <insert id="addTypeBrand" useGeneratedKeys="true" keyProperty="brandId" keyColumn="BrandId">
+        INSERT INTO b2c_shop_brands (
+            BrandId,
+            BrandName,
+            BrandSpell,
+            Meta_Description,
+            Meta_Keywords,
+            Logo,
+            CompanyUrl,
+            Description,
+            DisplaySequence,
+            Theme,
+            shopId,
+            pluteformid
+        ) values (
+            #{brandId},
+            #{brandName},
+            #{brandSpell},
+            #{metaDescription},
+            #{metaKeywords},
+            #{logo},
+            #{companyUrl},
+            #{description},
+            #{displaySequence},
+            #{theme},
+            #{shopId},
+            #{pluteformid}
+        )
+    </insert>
+
+    <update id="updateTypeBrand">
+        update b2c_shop_brands
+        <set>
+            <if test="brandName != null">BrandName = #{brandName},</if>
+            <if test="brandSpell != null">BrandSpell = #{brandSpell},</if>
+            <if test="metaDescription != null">Meta_Description = #{metaDescription},</if>
+            <if test="metaKeywords != null">Meta_Keywords = #{metaKeywords},</if>
+            <if test="logo != null">Logo = #{logo},</if>
+            <if test="companyUrl != null">CompanyUrl = #{companyUrl},</if>
+            <if test="description != null">Description = #{description},</if>
+            <if test="displaySequence != null">DisplaySequence = #{displaySequence},</if>
+            <if test="theme != null">Theme = #{theme},</if>
+        </set>
+        <where>
+            pluteformid = #{pluteformid} and brandId = #{brandId}
+            <include refid="shopIdLimit"/>
+        </where>
+
+    </update>
+
+    <delete id="deleteTypeBrand">
+        delete from b2c_shop_brands
+        <where>
+            pluteformid = #{pluteformid} and brandId = #{brandId}
+            <include refid="shopIdLimit"/>
+        </where>
+
+    </delete>
+
+    <select id="getProdTypeList" resultMap="prodTypeMap">
+        select
+            TypeId,
+            TypeName,
+            Remark,
+            shopId,
+            pluteformid
+        from b2c_shop_producttypes
+
+        <where>
+            pluteformid = #{platformId}
+            <include refid="shopIdLimit"/>
+        </where>
+    </select>
+
+    <insert id="addBrandType">
+        INSERT INTO b2c_shop_producttypebrands (ProductTypeId, BrandId, pluteformid, shopId) values
+        <foreach collection="productTypes" separator="," item="item" index="index">
+            (#{item}, #{brandId}, #{pluteformid}, #{shopId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteBrandType">
+        delete from b2c_shop_producttypebrands
+        <where>
+            pluteformid = #{pluteformid} and BrandId = #{brandId}
+            <include refid="shopIdLimit"/>
+        </where>
+
+    </delete>
+
+    <select id="getTypeBrand" resultMap="prodBrandMap">
+        select
+            BrandId,
+            BrandName,
+            BrandSpell,
+            Meta_Description,
+            Meta_Keywords,
+            Logo,
+            CompanyUrl,
+            Description,
+            DisplaySequence,
+            Theme,
+            shopId,
+            pluteformid
+        from b2c_shop_brands
+        <where>
+            pluteformid = #{pluteformid} and BrandId = #{brandId}
+            <include refid="shopIdLimit"/>
+        </where>
+
+    </select>
+
+    <select id="getBrandProdTypeIds" resultType="int">
+        select ProductTypeId from b2c_shop_producttypebrands
+        <where>
+            BrandId = #{brandId} and pluteformid = #{pluteformid}
+            <include refid="shopIdLimit"/>
+        </where>
+
+    </select>
+</mapper>

@@ -1,0 +1,81 @@
+#set($layout = "layout/empty.vm")
+#set($restNumber=$!{couponSource.totalNumber} - $!{couponSource.sendNumber})
+<form id="batch-fm" method="post" novalidate style="margin:0;padding:20px 50px" enctype="multipart/form-data">
+    <input type="hidden" name="couponSourceId" value="$!couponSource.id">
+    <div style="margin-bottom:20px;font-size:14px;border-bottom:1px solid #ccc">优惠券批量发放</div>
+    <div style="margin-bottom:10px">
+        <p>&bull; 优惠券名称:$!couponSource.name</p>
+        <p>&bull; 优惠券总数:$!couponSource.totalNumber</p>
+        <p>&bull; 优惠券剩余数量:$!restNumber</p>
+    </div>
+
+    <div style="margin-bottom:10px">
+        <input name="sendNumber" class="easyui-numberspinner" value="$!restNumber" style="width:50%;text-align:center" data-options="
+            label:'&bull; 发放数量:',
+            min:1,
+            max:$!restNumber,
+            labelPosition:'top',
+            required:true,
+            spinAlign:'horizontal'
+            ">
+    </div>
+    <div style="margin-bottom:10px">
+        <select class="easyui-combobox" name="userGroup" style="width:100%;" data-options="
+                label: '&bull; 用户筛选规则:',
+                editable: false,
+                required:true,
+                labelPosition: 'top'
+                ">
+            <option value="ALL">所有用户（允许透支发放）</option>
+            <!-- Date Greater Than 365天 -->
+            <option value="DGT365">注册时间在一年以上的老用户（允许透支发放）</option>
+            <!-- Date Less Than 30天 -->
+            <option value="DLT30">注册时间在一月以内的新用户（允许透支发放）</option>
+            <!-- Money Greater Than 10000元 -->
+            <option value="MGT10000">总消费金额在10000元以上的土豪用户（允许透支发放）</option>
+            <!-- Time Greater Than 100次 -->
+            <option value="TGT100">总购物次数在100次以上的粉丝用户（允许透支发放）</option>
+            <!-- Money DESC  -->
+            <option value="MDESC">按总消费金额排序（发放前排用户，不允许透支发放）</option>
+            <!-- Time DESC  -->
+            <option value="TDESC">按总购物次数排序（发放前排用户，不允许透支发放）</option>
+
+        </select>
+    </div>
+
+</form>
+
+<script>
+    function batchAddCoupon() {
+        var win = jQuery.messager.progress({
+            title:'请稍后',
+            msg:'正在发放优惠券...'
+        });
+
+        $('#batch-fm').form('submit', {
+            url:'/coupon/addCouponForUserGroup.action',
+            success: function(data) {
+                var data = eval('(' + data + ')');  // change the JSON string to javascript object
+                if (data.success) {
+                    jQuery.messager.progress('close');
+                    $('#couponSendBatchDlg').dialog('close');
+                    $('#tg').datagrid('reload');
+                    jQuery.messager.show({
+                        title:'提示！',
+                        msg:'优惠券发放成功！',
+                        timeout:3000,
+                        showType:'slide'
+                    });
+                }
+
+            },
+            error: function() {
+                jQuery.messager.show({
+                    title:'请求失败！',
+                    msg: new Date().toLocaleString() + ' 请求服务器失败',
+                    showType:'show'
+                });
+            }
+        });
+    }
+</script>

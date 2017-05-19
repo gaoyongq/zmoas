@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.system.AlwaysProfitDao">
+
+    <resultMap id="AlwaysProfitMap" type="com.zm.mall.domain.system.AlwaysProfit">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="alwaysProfitCode" property="alwaysProfitCode" jdbcType="VARCHAR"/>
+        <result column="purchaseCode" property="purchaseCode" jdbcType="VARCHAR"/>
+        <result column="alwaysRealNumber" property="alwaysRealNumber" jdbcType="VARCHAR"/>
+        <result column="alwaysRealWeight" property="alwaysRealWeight" jdbcType="VARCHAR"/>
+        <result column="alwaysOrderNumber" property="alwaysOrderNumber" jdbcType="VARCHAR"/>
+        <result column="alwaysOrderWeight" property="alwaysOrderWeight" jdbcType="VARCHAR"/>
+
+        <result column="alwaysOrderMoney" property="alwaysOrderMoney" jdbcType="VARCHAR"/>
+        <result column="alwaysRealMoney" property="alwaysRealMoney" jdbcType="VARCHAR"/>
+        <result column="money" property="money" jdbcType="VARCHAR"/>
+        <result column="realMoney" property="realMoney" jdbcType="VARCHAR"/>
+        <result column="profit" property="profit" jdbcType="DOUBLE"/>
+        <result column="realProfit" property="realProfit" jdbcType="DOUBLE"/>
+        <result column="alwaysWornMoney" property="alwaysWornMoney" jdbcType="DOUBLE"/>
+        <result column="aWipeOffMoney" property="aWipeOffMoney" jdbcType="DOUBLE"/>
+        <result column="aReceiveMoney" property="aReceiveMoney" jdbcType="DOUBLE"/>
+    </resultMap>
+
+    <sql id="all_column">id ,alwaysProfitCode,purchaseCode,alwaysRealNumber,alwaysRealWeight,alwaysOrderNumber,alwaysOrderMoney,alwaysOrderWeight,alwaysRealMoney,money,realMoney,alwaysWornMoney,profit ,realProfit,aWipeOffMoney,aReceiveMoney  </sql>
+
+    <sql id="condition">
+        <if test="id != null  and id > 0">
+            AND id = #{id}
+        </if>
+
+        <if test="alwaysProfitCode != null and alwaysProfitCode !=''">
+            AND alwaysProfitCode = #{alwaysProfitCode}
+        </if>
+        <if test="purchaseCode != null and purchaseCode !=''">
+            AND purchaseCode = #{purchaseCode}
+        </if>
+        <if test="alwaysRealNumber != null and alwaysRealNumber !=''">
+            AND alwaysRealNumber = #{alwaysRealNumber}
+        </if>
+        <if test="alwaysRealWeight != null and alwaysRealWeight !=''">
+            AND alwaysRealWeight = #{alwaysRealWeight}
+        </if>
+        <if test="alwaysOrderNumber != null and alwaysOrderNumber !=''">
+            AND alwaysOrderNumber = #{alwaysOrderNumber}
+        </if>
+        <if test="alwaysOrderWeight != null and alwaysOrderWeight !=''">
+            AND alwaysOrderWeight = #{alwaysOrderWeight}
+        </if>
+        <if test="alwaysOrderMoney != null and alwaysOrderMoney !=''">
+            AND alwaysOrderMoney = #{alwaysOrderMoney}
+        </if>
+        <if test="alwaysRealMoney != null and alwaysRealMoney !=''">
+            AND alwaysRealMoney = #{alwaysRealMoney}
+        </if>
+        <if test="money != null and money !=''">
+            AND money = #{money}
+        </if>
+        <if test="realMoney != null and realMoney !=''">
+            AND realMoney = #{realMoney}
+        </if>
+        <if test="profit != null and profit !=''">
+            AND profit = #{profit}
+        </if>
+        <if test="realProfit != null and realProfit !=''">
+            AND realProfit = #{realProfit}
+        </if>
+        <if test="alwaysWornMoney != null and alwaysWornMoney !=''">
+            AND alwaysWornMoney = #{alwaysWornMoney}
+        </if>
+    </sql>
+
+    <sql id="update_set">
+        <set>
+
+            <if test="alwaysProfitCode != null">alwaysProfitCode = #{alwaysProfitCode},</if>
+            <if test="purchaseCode != null">purchaseCode = #{purchaseCode},</if>
+            <if test="alwaysRealNumber != null">alwaysRealNumber = #{alwaysRealNumber},</if>
+            <if test="alwaysRealWeight != null">alwaysRealWeight = #{alwaysRealWeight},</if>
+            <if test="alwaysOrderNumber != null">alwaysOrderNumber = #{alwaysOrderNumber},</if>
+            <if test="alwaysOrderWeight != null">alwaysOrderWeight = #{alwaysOrderWeight},</if>
+            <if test="alwaysOrderMoney != null">alwaysOrderMoney = #{alwaysOrderMoney},</if>
+            <if test="alwaysRealMoney != null">alwaysRealMoney = #{alwaysRealMoney},</if>
+            <if test="money != null">money = #{money},</if>
+            <if test="realMoney != null">realMoney = #{realMoney},</if>
+            <if test="profit != null">profit = #{profit},</if>
+            <if test="realProfit != null">realProfit = #{realProfit},</if>
+            <if test="alwaysWornMoney != null">alwaysWornMoney = #{alwaysWornMoney},</if>
+            <if test="aWipeOffMoney != null">aWipeOffMoney = #{aWipeOffMoney},</if>
+            <if test="aReceiveMoney != null">aReceiveMoney = #{aReceiveMoney},</if>
+
+        </set>
+
+    </sql>
+
+    <!-- 插入记录 -->
+    <insert id="saveAlwaysProfit" parameterType="alwaysProfit" >
+        INSERT INTO AlwaysProfit
+        (alwaysProfitCode,purchaseCode,alwaysRealNumber,alwaysRealWeight,alwaysOrderNumber,alwaysOrderWeight, alwaysOrderMoney,alwaysRealMoney,money,realMoney,alwaysWornMoney,profit,realProfit) VALUES
+        (#{alwaysProfitCode},#{purchaseCode},#{alwaysRealNumber},#{alwaysRealWeight},#{alwaysOrderNumber},#{alwaysOrderWeight},#{alwaysOrderMoney},#{alwaysRealMoney},#{money},#{realMoney},#{alwaysWornMoney},#{profit},#{realProfit})
+    </insert>
+
+    <!-- 分页 -->
+    <select id="selectAlwaysProfitLimit" resultMap="AlwaysProfitMap" parameterType="page">
+        SELECT
+        <include refid="all_column"/>
+        FROM AlwaysProfit
+        WHERE AlwaysProfit.profit>#{alwaysProfit.profit}
+        <if test="alwaysProfit.purchaseCode != null and alwaysProfit.purchaseCode != ''">
+            AND purchaseCode LIKE '%${alwaysProfit.purchaseCode}%'
+        </if>
+        Limit #{beginNumber},#{pageSize}
+    </select>
+    <select id="selectAlwaysProfitCount" resultType="int" parameterType="page">
+        SELECT count(*)
+        FROM AlwaysProfit
+        WHERE AlwaysProfit.profit>#{alwaysProfit.profit}
+        <if test="alwaysProfit.purchaseCode != null and alwaysProfit.purchaseCode != ''">
+            AND purchaseCode LIKE '%${alwaysProfit.purchaseCode}%'
+        </if>
+    </select>
+
+    <select id="selectAlwaysProfit" resultMap="AlwaysProfitMap" parameterType="String">
+        SELECT
+        <include refid="all_column"/>
+        FROM AlwaysProfit
+        WHERE alwaysProfitCode =#{alwaysProfitCode}
+    </select>
+
+    <select id="selectOneProfit" resultMap="AlwaysProfitMap" parameterType="String">
+        SELECT
+        <include refid="all_column"/>
+        FROM AlwaysProfit
+        WHERE purchaseCode =#{purchaseCode}
+    </select>
+    <update id="updateAlwaysProfit" parameterType="alwaysProfit">
+        update alwaysProfit
+        <include refid="update_set"/>
+        where alwaysProfitCode = #{alwaysProfitCode}
+    </update>
+</mapper>

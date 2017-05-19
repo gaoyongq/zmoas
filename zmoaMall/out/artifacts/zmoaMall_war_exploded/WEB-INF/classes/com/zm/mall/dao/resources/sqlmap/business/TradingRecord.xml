@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.accountsUsers.TradingRecordDao">
+    <resultMap id="TradingRecordMap" type="tradingRecord">
+        <result column="id" jdbcType="BIGINT" property="id"></result>
+        <result column="userId" jdbcType="BIGINT" property="userId"></result>
+        <result column="balance" jdbcType="BIGINT" property="balance"></result>
+        <result column="orderCode" jdbcType="VARCHAR" property="orderCode"></result>
+        <result column="remark" jdbcType="BIGINT" property="remark"></result>
+        <result column="createDate" jdbcType="DATE" property="createDate"></result>
+        <result column="pluteformid" jdbcType="VARCHAR" property="pluteformid"></result>
+        <result column="openId" jdbcType="VARCHAR" property="openId"></result>
+    </resultMap>
+
+    <!--判断平台Id-->
+    <sql id="b2c_condition">
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND pluteformid=#{pluteformid}
+        </if>
+    </sql>
+    <!--查询交易记录-->
+    <select id="selTradingRecordResultByPage" parameterType="page" resultMap="TradingRecordMap">
+        SELECT * FROM account_trading_record WHERE  openId=#{openId}
+        <include refid="b2c_condition"/>
+        Limit #{beginNumber},#{pageSize}
+    </select>
+    <!--增加余额交易记录-->
+    <insert id="insertTrading" parameterType="tradingRecord">
+        INSERT  INTO  account_trading_record(userId,balance,orderCode,remark,pluteformid,openId)VALUES
+        (#{userId},#{balance},#{orderCode},#{remark},#{pluteformid},#{openId})
+    </insert>
+    <!--根据orderCode查询-->
+    <select id="selTradingRecordByOrderCode" parameterType="tradingRecord" resultMap="TradingRecordMap">
+        SELECT * FROM account_trading_record WHERE  orderCode=#{orderCode}
+    </select>
+</mapper>

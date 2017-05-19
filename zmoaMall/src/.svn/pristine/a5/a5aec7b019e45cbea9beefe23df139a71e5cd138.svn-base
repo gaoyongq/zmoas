@@ -1,0 +1,63 @@
+#set($layout = "system/showjquery.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="../../css/pintuer.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+</head>
+<body>
+<div class="panel-head"><strong>
+    <table><tr>
+        <td><form method="post" action="/user/show.action">
+            采购单编码:<input type="text"  name="realName">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            部门:<select name="department.id" >
+            <option value="0">无上级部门</option>
+            #foreach($r in $departmentResults)
+                <option value="$r.id"
+                        >$r.name</option>
+            #end
+        </select>
+            <input type="submit" value="查询"  class="button border-yellow"></form></td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <td><a class="button border-main" id="showOnePurchase" href="" ><span class="icon-edit"></span>修改</a></td>
+        <td ><a class="button border-main" id="updateState" href="" ><span class="icon-edit"></span>审核</a>
+        </td></tr></table></strong></div>
+<table class="table table-hover text-center"  >
+    <tr>
+        <th width="100">选择</th>
+        <th width="100">采购单编码</th>
+        <th width="100">采购人</th>
+        <th width="100">总金额</th>
+        <th width="100">总重量</th>
+        <th width="100">总数量</th>
+        <th width="100">创建时间</th>
+        <th width="100">审核状态</th>
+    </tr>
+
+
+    #foreach($pp in $PurchaseInfo)
+        <tr name="purchases">
+            <td>
+                <input type="checkbox" attr="check" value="$pp.purchaseId " name="check">
+            </td>
+            <td>$pp.purchaseCode</td>
+            <td>$pp.user.realName</td>
+            <td>$pp.totalmoney</td>
+            <td>$pp.totalweights</td>
+            <td>$pp.totalnumber</td>
+            <td> $!date.format('yyyy-MM-dd HH:mm:ss ',$!pp.procurementTime)</td>
+            <td>$pp.purchaseId</td>
+            <td>
+                #if($pp.state==0)
+                    未审核
+                #else
+                    已审核
+                #end
+            </td>
+        </tr>
+    #end
+</table>
+
+
+</body>
+</html>

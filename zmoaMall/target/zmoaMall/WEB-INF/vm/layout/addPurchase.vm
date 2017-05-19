@@ -1,0 +1,127 @@
+#set($layout = "layout/purchase-jquery.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+</head>
+<body>
+<div style="text-align: center;">
+    <div class="divtbs">
+        <table class="table text-center" id="purchaseTable">
+            <th width="10%"><a class="button border-green" id="createBtn"><span class="icon-check"></span>生成采购单</a></th>
+            <th width="20%" b="purchaseCode">采购单编码:<input value="$purchaseCode" readonly type="text" name="purchaseCode"></th>
+            <th width="17%" b="totalweight">总重量:<input type="text" class="total_w" value="" readonly></th>
+            <th width="17%" b="totalnumber">总数量:<input type="text" class="total_n"  value="" readonly></th>
+            <th width="17%" b="totalmoney">总金额:<input type="text" class="total_m" value="" readonly></th>
+            <th width="35%" b="purchaser">采购人:<select >
+                #foreach($user in $userPurchaseResults)
+                    <option value="$user.id">$user.realName</option>
+                #end
+            </select></th>
+        </table>
+    </div>
+    <div>
+        <div style="float: left;width: 50%;border-right: solid 1px #000000">
+            <table id="dataTable" class="table text-center"  >
+                <thead>
+                <th>选择</th>
+                <th style="display: none">订单子表ID</th>
+                <th style="display: none">订单ID</th>
+                <th >订单编码</th>
+                <th style="display: none;">客户名称</th>
+                <th style="display: none;">客户地址</th>
+                <th style="display: none;">客户电话</th>
+                <th style="display: none;">单个重量</th>
+                <th id="productName">商品名字</th>
+                <th style="display: none">商品ID</th>
+                <th style="display: none">商品编码</th>
+                <th >商品规格</th>
+                <th >数量</th>
+                <th >采购量</th>
+                <th >采购重</th>
+                <th >采购金</th>
+                </thead>
+                <tbody>
+                    #foreach($order in $orderInfoResults)
+                    <tr class="orderProduct">
+                        <td>
+                            <input type="checkbox"  value="#foreach($o in $order.orderItems)$o.itemId #end"  class="show_011">
+                        </td>
+                        <td style="display: none" a="orderItemId">
+                            <input value="#foreach($o in $order.orderItems)$o.itemId #end" type="text" id="ItemId">
+                        </td>
+                        <td a="orderId"  style="display: none"><input type="hidden" value="$order.orderId" id="selectByOrderId" />$order.orderId</td>
+                        <td a="orderCode" ><input value="$order.orderCode" style="display: none"/>$order.orderCode</td>
+                        <td a="shipName" style="display: none;">
+                            <input type="hidden" value="$!order.shipName"/>
+                        </td>
+                        <td a="shipAddress" style="display: none;">
+                            <input type="hidden" value="$order.shipAddress"/>
+                        </td>
+                        <td a="shipCellphone" style="display: none;">
+                            <input  value="$order.shipCellPhone"/>
+                        </td>
+                        <td a="orderWeight" style="display: none;">
+                            <input  value="#foreach($o in $order.orderItems)$o.weight #end"/>
+                        </td>
+                        <td a="productName">
+                            <input value="#foreach($o in $order.orderItems)$o.name #end" type="text" style="display: none">
+                            #foreach($o in $order.orderItems)$o.name #end
+                        </td>
+                        <td a="productId" style="display: none">
+                            <input value="#foreach($o in $order.orderItems)$o.productId  #end" type="text">
+                        </td>
+                        <td a="productCode" style="display: none">
+                            <input value="#foreach($o in $order.orderItems)$!o.productCode  #end" type="text">
+                        </td>
+                        <td a="productSku">
+                            <input value="#foreach($o in $order.orderItems)$o.sku #end" style="display: none" id="selectBysku">
+                            #foreach($o in $order.orderItems)$o.sku #end
+                        </td>
+                        <td a="orderQuantity">
+                            <input value="#foreach($o in $order.orderItems)$!o.quantity  #end" type="text" style="display: none;width: 7%;height: 4%">
+                            #foreach($o in $order.orderItems)$!o.quantity  #end
+                        </td>
+                        <td a="orderCheckStatus" style="display: none"><input value="$order.orderCheckStatus" style="display: none"/>$order.orderCheckStatus</td>
+                        <td a="goodsType" style="display: none">
+                            <input value="#foreach($o in $order.orderItems)$o.goodsType  #end" type="text">
+                        </td>
+                        <td a="sellPrice" style="display: none">
+                            <input value="#foreach($o in $order.orderItems)$o.sellPrice  #end" type="text">
+                        </td>
+                        <td a="purchaseN" >
+                            <input value="" type="text" class="purchase_n"style="width:45px" readonly>
+                        </td>
+                        <td a="purchaseW" >
+                            <input value="" type="text" class="purchase_w" style="width:45px" readonly>
+                        </td>
+                        <td a="purchaseM">
+                            <input value="" type="text" class="purchase_m"  style="width:45px" readonly>
+                        </td>
+                    </tr>
+                    #end
+                </tbody>
+            </table>
+        </div>
+        <div id="sgow_01">
+            <table id="supplierTable" style="width: 49%" class="table text-center" >
+                <thead>
+                <tr>
+                    <th>供应商名字</th>
+                    <th>采购价</th>
+                    <th>库存</th>
+                    <th>单个重量</th>
+                    <th>采购数量</th>
+                    <th>采购金额</th>
+                    <th>采购重量</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

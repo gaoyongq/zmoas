@@ -1,0 +1,316 @@
+#set($layout = "layout/empty.vm")
+<html>
+<head>
+    <!-- 导入jquery核心类库 -->
+    <script type="text/javascript"
+            src="../../js/jquery-1.8.3.js"></script>
+    <!-- 导入easyui类库 -->
+    <link id="easyuiTheme" rel="stylesheet" type="text/css"
+          href="../../js/easyui/themes/default/easyui.css">
+##    <link rel="stylesheet" type="text/css"
+##          href="../../css/default.css">
+    <script type="text/javascript"
+            src="../../js/easyui/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script>
+
+        function shanchu(id){
+            jQuery ("#truckmanagescid").val(id) ;
+            var result = confirm('是否删除！');
+            if(result){
+
+                jQuery("#form1").submit();
+
+            }
+        }
+
+        function update(id,number,capacity,life,state){
+            jQuery ("#truckmanageid").val(id) ;
+            jQuery ("#truckmanagenumber").val(number) ;
+            jQuery ("#truckmanagecapacity").val(capacity) ;
+            jQuery ("#truckmanagelife").val(life) ;
+            jQuery ("#truckmanagestate").val(state) ;
+
+            jQuery("#xiugai").window('open');
+
+        }
+        function add(){
+
+            jQuery("#tianjia").window('open');
+        }
+        //查询提交表单
+        $("#submitOne").click(function(){
+            $("#selectform").submit();
+        });
+
+
+    </script>
+</head>
+<body>
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li><a>车辆管理</a></li>
+    </ul>
+</div>
+<div class="divtbs">
+    <form action="" id="selectform" method="post">
+        <table  width="100%">
+            <tr>
+                <td width="20%">
+                    车牌号：
+                    <input type="text" name="number"  value="$!number"/>
+                </td>
+                <td  width="20%">
+                    车容量：
+                    <input type="text" name="capacity" value="$!capacity"/>
+                </td>
+                <td  width="20%">
+                    车状态：
+                    <input type="text" name="state" value="$!state"/>
+                </td>
+                <td>
+                    <a class="button border-yellow" id="submitOne"><span class="icon-search">查询</span></a>
+##                    <input type="submit" class="button border-yellow icon-search" value="查询" />
+                    &nbsp;
+                    <a class="button border-blue" onclick="add()"><span class="icon-pencil">添加</span></a>
+##                    <input type="button"  value="添加" onclick="add()"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+#*<div>
+    <form action="" method="post">
+
+        <table  align="center" border="0" cellspacing="0" cellpadding="0"  class="wukuang" width="100%" >
+            <tr style="color: #0070a9">
+
+                <td>
+                    <input type="button"  value="添加" onclick="add()"/>
+                </td>
+
+            </tr>
+
+        </table>
+    </form>
+</div>*#
+
+##    <table class="">
+##        <tr>
+##            <td ><img src="../../images/result.gif"/></td>
+##        </tr>
+##    </table>
+    <table class="table text-center">
+        <tr>
+            <th>id</th>
+            <th>车牌号</th>
+            <th>车容量</th>
+            <th>车年限</th>
+            <th>车状态</th>
+            <th>编辑</th>
+            <th>删除</th>
+        </tr>
+
+        #foreach($TruckManage in $resultPage.resultTruckManage)
+            <tr>
+                <td>$!TruckManage.id</td>
+                <td>$!TruckManage.number</td>
+                <td>$!TruckManage.capacity</td>
+            #*    <td>$!date.format('yyyy-MM-dd HH:mm:ss ',$!TruckManage.life)</td>*#
+                <td>$!TruckManage.life</td>
+                <td>$!TruckManage.state</td>
+                <td>
+                    <img src="../images/modify.gif" class="img" onclick="update(id=$!TruckManage.id,number='$!TruckManage.number',capacity='$!TruckManage.capacity',life='$!TruckManage.life',state='$!TruckManage.state')">
+                </td>
+                <td>
+                    <img src="../images/delete.gif" class="img" onclick="shanchu(id=$!TruckManage.id)">
+                </td>
+            </tr>
+        #end
+    </table>
+
+
+
+
+
+
+#* 弹出框的内容*#
+<div id="tianjia" class="easyui-window" closed="true" collapsible="false" minimizable="false" maximizable="false"
+     resizable="false" title="码表对象"  style="width: 300px; height: 200px; padding: 5px;">
+    <h1 align="center">添加数据</h1>
+    <form action="/truckManage/addTruck.action" method="post">
+
+        <table>
+            <tr>
+                <td>车牌号：</td>
+                <td>
+                    <input class="easyui-validatebox"
+                           size="15" validType="integer" maxlength="12"  name="number"  type="text" >
+
+                </td>
+            </tr>
+            <tr>
+                <td>车容量：</td>
+                <td>
+                    <input class="easyui-validatebox"
+                           size="15" validType="integer" maxlength="12"  name="capacity"  type="text" >
+
+                </td>
+            </tr>
+            <tr>
+                <td>车年限：</td>
+                <td>
+                    <input class="easyui-validatebox"
+                           size="15" validType="integer" maxlength="12"  name="life"  type="text" >
+                </td>
+            </tr>
+            <tr>
+                <td>车状态：</td>
+                <td>
+                    <input class="easyui-validatebox"
+                           size="15" validType="integer" maxlength="12"  name="state"  type="text" >
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <input type="submit" id="submit" value="提交"  />
+                </td>
+
+            </tr>
+        </table>
+    </form>
+</div>
+
+#* 弹出框的内容*#
+<div id="xiugai" class="easyui-window" closed="true" collapsible="false" minimizable="false" maximizable="false"
+     resizable="false" title="码表对象"  style="width: 300px; height: 200px; padding: 5px;">
+    <h1 align="center">修改数据</h1>
+    <form action="/truckManage/updateTruck.action" method="post">
+        <input class="easyui-validatebox" required="true"
+               size="15" validType="integer" maxlength="12" name="id" type="hidden" id="truckmanageid">
+
+
+        <table>
+            <tr>
+                <td>车牌号：</td>
+                <td>
+                    <input class="easyui-validatebox" required="true"
+                           size="15" validType="integer" maxlength="12" name="number" type="text" id="truckmanagenumber">
+
+                </td>
+            </tr>
+            <tr>
+                <td>车容量：</td>
+                <td>
+                    <input class="easyui-validatebox" required="true"
+                           size="15" validType="integer" maxlength="12" name="capacity" type="text" id="truckmanagecapacity">
+
+                </td>
+            </tr>
+            <tr>
+                <td>车年限：</td>
+                <td>
+                    <input class="easyui-validatebox" required="true"
+                           size="15" validType="integer" maxlength="12" name="life" type="text" id="truckmanagelife">
+
+                </td>
+            </tr>
+            <tr>
+                <td>车状态：</td>
+                <td>
+                    <input class="easyui-validatebox" required="true"
+                           size="15" validType="integer" maxlength="12" name="state" type="text" id="truckmanagestate">
+
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <input type="submit" value="提交"  />
+                </td>
+
+            </tr>
+
+
+
+
+        </table>
+
+    </form>
+
+
+</div>
+
+<div style="text-align: right">
+    <table align="right">
+        <tr>
+            <td align="right">
+                <span>第$resultPage.currentPage  /</span>
+                <span>$resultPage.totalPages 页 </span>
+
+                #if($resultPage.currentPage == 1)
+                    [首页][上一页]
+
+                #else
+
+
+                    <a href='javascript:document.form3.submit();'><font color='#000000'>[首页]</font></a>
+                    <a href='javascript:document.form2.submit();'><font color='#000000'>[上一页]</font></a>
+
+                #end
+                #if($resultPage.currentPage == $resultPage.totalPages)
+                    [下一页][尾页]
+                #else
+                    <a href='javascript:document.form1.submit();'><font color='#000000'>[下一页]</font></a>
+                    <a href='javascript:document.form4.submit();'><font color='#000000'>[尾页]</font></a>
+
+                #end
+
+            </td>
+
+        </tr>
+    </table>
+    <form name='form2' action='/truckManage/truckList.action' method='post'>
+
+        <input type="hidden" name="currentPage" value="$resultPage.frontCurrentPage">
+        <input type="hidden" name="currentPage" value="$resultPage.frontCurrentPage">
+
+
+    </form>
+    <form name='form1' action='/truckManage/truckList.action' method='post'>
+
+        <input type="hidden" name="currentPage" value="$resultPage.nextCurrentPage">
+
+    </form>
+    <form name='form3' action='/truckManage/truckList.action' method='post'>
+
+        <input type="hidden" name="currentPage" value="1">
+
+    </form>
+    <form name='form4' action='/truckManage/truckList.action' method='post'>
+
+        <input type="hidden" name="currentPage" value="$resultPage.totalPages">
+
+    </form>
+
+</div>
+
+<form action="/truckManage/deleteTruck.action" method="post" id="form1">
+    <input class="easyui-validatebox" required="true"
+           size="15" validType="integer" maxlength="12" name="id" type="hidden" id="truckmanagescid">
+
+</form>
+</body>
+
+</html>
+
+
+
+
+
+
+
+

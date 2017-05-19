@@ -1,0 +1,84 @@
+#set($layout = "layout/empty.vm")
+<form id="fm" method="post" novalidate style="margin:0;padding:20px 50px" enctype="multipart/form-data">
+    <input type="hidden" name="createUser.id" value="$!{userId}">
+    <input type="hidden" name="type" value="0">
+    <div style="margin-bottom:20px;font-size:14px;border-bottom:1px solid #ccc">优惠券添加</div>
+    <div style="margin-bottom:10px">
+        <input name="name" class="easyui-textbox" data-options="labelPosition:'top',required:true" label="&bull; 优惠券名称:" style="width:100%">
+    </div>
+    <div style="margin-bottom:10px">
+        <input name="activity.id" class="easyui-combobox" style="width:100%;" data-options="
+                url: '/coupon/getCouponActivityList',
+                valueField: 'id',
+                textField: 'name',
+                label: '&bull; 优惠券所属活动:',
+                editable: false,
+                labelPosition: 'top',
+                required:true
+                ">
+    </div>
+    <div style="margin-bottom:10px">
+        <input name="faceValue" class="easyui-numberspinner" value="10" style="width:50%;text-align:center" data-options="
+            label:'&bull; 优惠券面值（元）:',
+            labelPosition:'top',
+            spinAlign:'horizontal',
+            required:true
+            ">
+    </div>
+    <div style="margin-bottom:10px">
+        <input name="minimumValue" class="easyui-numberspinner" value="100" style="width:50%;text-align:center" data-options="
+            label:'&bull; 最低消费金额（元）:',
+            labelPosition:'top',
+            spinAlign:'horizontal',
+            required:true
+            ">
+    </div>
+    <div style="margin-bottom:10px">
+        <input name="totalNumber" class="easyui-numberspinner" value="300" style="width:50%;text-align:center" data-options="
+            label:'&bull; 优惠券可分发数量:',
+            labelPosition:'top',
+            spinAlign:'horizontal',
+            required:true
+            ">
+    </div>
+    <div style="margin-bottom:10px">
+        <input name="needPoint" class="easyui-numberspinner" value="100" style="width:50%;text-align:center" data-options="
+            label:'&bull; 兑换优惠券所需积分:',
+            labelPosition:'top',
+            spinAlign:'horizontal',
+            required:true
+            ">
+    </div>
+
+    <div style="margin-bottom:10px">
+        <input name="productIds" class="easyui-combotree" style="width:100%" data-options="
+            url:'/coupon/getProductCategoriesByParentId.action',
+            method:'get',
+            label:'&bull; 优惠券应用商品或分类（可选择多个分类或多个商品）:',
+            labelPosition:'top',
+            multiple:true,
+            cascadeCheck:true,
+            required:true
+            ">
+
+    </div>
+    <div style="margin-bottom:10px">
+        <input name="file" class="easyui-filebox" style="width:100%" data-options="
+                prompt:'选择图片',
+                labelPosition:'top',
+                label:'&bull; 优惠券图片:',
+                required:true
+                ">
+    </div>
+    <div style="margin-bottom:10px">
+        <span>是否启用：</span><br/>
+        <input name="status" class="easyui-switchbutton" data-options="
+            onText:'开启',
+            offText:'关闭',
+            checked:true,
+            value:1,
+            required:true
+            ">
+    </div>
+
+</form>

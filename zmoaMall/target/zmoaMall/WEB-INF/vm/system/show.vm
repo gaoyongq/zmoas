@@ -1,0 +1,23 @@
+#set($layout = "layout/decoration-layout.vm")
+<br/>
+<table>
+    <tr>
+        <td>ID</td>
+        <td>姓名</td>
+        <td>密码</td>
+    </tr>
+    <tr>
+        <td>$userResult.id</td>
+        <td>$userResult.name</td>
+        <td>$userResult.password</td>
+    </tr>
+#foreach($role in $roleList)
+    <tr >
+        <td>$role.id</td>
+        <td>$role.name</td>
+        <td>$role.description</td>
+        <td>
+    </tr>
+#end
+
+</table>

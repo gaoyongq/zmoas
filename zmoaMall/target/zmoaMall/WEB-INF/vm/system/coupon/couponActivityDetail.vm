@@ -1,0 +1,13 @@
+#set($layout = "layout/empty.vm")
+
+<div style="height: 100%;width: 100%;">
+    <div style="height: 100%;width: 30%;float: left;margin-right: 10px;">
+        <a target="_blank" class="group" href="$image.showImageUrl()?relUrl=$!imgUrl">
+            <img src="$image.showImageUrl()?relUrl=$!imgUrl" height="100%">
+        </a>
+    </div>
+    <div style="height: 100%;width: 68%;float: left;margin-right: 10px;overflow-y: scroll;">
+        <span style="font-weight: bold;">活动介绍：</span><br/>
+        $!introduction
+    </div>
+</div>

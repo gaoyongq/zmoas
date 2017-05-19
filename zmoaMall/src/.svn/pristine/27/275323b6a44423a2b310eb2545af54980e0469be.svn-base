@@ -1,0 +1,1258 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.zm.mall.dao.system.CouponDao">
+
+
+    <insert id="addCouponActivityCategory">
+        insert into b2c_shop_coupon_activity_category (
+            id,
+            name,
+            platformId,
+            createTime,
+            updateTime,
+            createUserId,
+            status
+        ) values (
+            null,
+            #{name},
+            #{platformId},
+            now(),
+            now(),
+            #{createUser.id},
+            #{status}
+        )
+    </insert>
+
+    <insert id="addCouponActivity">
+        insert into b2c_shop_coupon_activity (
+            id,
+            name,
+            categoryId,
+            imgUrl,
+            introduction,
+            startTime,
+            endTime,
+            createTime,
+            updateTime,
+            createUserId,
+            status,
+            platformId
+        ) values (
+            null,
+            #{name},
+            #{category.id},
+            #{imgUrl},
+            #{introduction},
+            #{startTime},
+            #{endTime},
+            now(),
+            now(),
+            #{createUser.id},
+            #{status},
+            #{platformId}
+        )
+    </insert>
+
+
+
+    <insert id="addCouponRule">
+        insert into b2c_shop_coupon_rule (
+            id,
+            ruleNameId,
+            value,
+            couponSourceId,
+            platformId,
+            createTime,
+            updateTime,
+            createUserId
+        ) values (
+            null,
+            #{ruleName.id},
+            #{value},
+            #{couponSource.id},
+            #{platformId},
+            now(),
+            now(),
+            #{createUser.id}
+        )
+    </insert>
+
+    <insert id="addCouponSource" useGeneratedKeys="true" keyProperty="id">
+        insert into b2c_shop_coupon_source (
+            id,
+            name,
+            activityId,
+            faceValue,
+            minimumValue,
+            totalNumber,
+            sendNumber,
+            type,
+            needPoint,
+            imgUrl,
+            createTime,
+            updateTime,
+            createUserId,
+            status,
+            platformId
+        ) values (
+            null,
+            #{name},
+            #{activity.id},
+            #{faceValue},
+            #{minimumValue},
+            #{totalNumber},
+            #{sendNumber},
+            #{type},
+            #{needPoint},
+            #{imgUrl},
+            now(),
+            now(),
+            #{createUser.id},
+            #{status},
+            #{platformId}
+        )
+    </insert>
+
+    <insert id="addCouponSourceProd">
+        insert into b2c_shop_coupon_source_prod (
+            sourceId,
+            prodId,
+            platformId,
+            updateTime
+        ) values (
+            #{couponSourceId},
+            #{prodId},
+            #{platformId},
+            now()
+        )
+    </insert>
+
+    <insert id="addCouponSourceProdCat">
+        insert into b2c_shop_coupon_source_prodcat (
+            sourceId,
+            prodCatId,
+            platformId,
+            updateTime
+        ) values (
+            #{couponSourceId},
+            #{prodCatId},
+            #{platformId},
+            now()
+        )
+    </insert>
+
+    <insert id="addCoupon" useGeneratedKeys="true" keyProperty="id">
+        insert into b2c_shop_coupon (
+            id,
+            code,
+            sourceId,
+            userId,
+            createTime,
+            updateTime,
+            createUserId,
+            status,
+            platformId
+        ) values (
+            null,
+            #{code},
+            #{source.id},
+            #{user.userId},
+            now(),
+            now(),
+            #{createUser.id},
+            #{status},
+            #{platformId}
+        )
+    </insert>
+
+    <insert id="addCouponWithUserIds">
+        insert into b2c_shop_coupon (
+            id,
+            code,
+            sourceId,
+            userId,
+            createTime,
+            updateTime,
+            createUserId,
+            status,
+            platformId
+        ) values
+        <foreach collection="userIds" separator="," item="item" index="index">
+        (
+            null,
+            concat('YHQ', (SELECT UNIX_TIMESTAMP() * 1000), #{source.id}, #{item}),
+            #{source.id},
+            #{item},
+            now(),
+            now(),
+            #{createUser.id},
+            #{status},
+            #{platformId}
+        )
+        </foreach>
+
+
+    </insert>
+
+
+    <!-- 查询活动分类 Start -->
+    <resultMap id="couponActivityCategoryMap" type="com.zm.mall.domain.system.coupon.CouponActivityCategory">
+        <id property="id" column="catId" />
+        <result property="name" column="catName" />
+        <result property="platformId" column="catPlatformId" />
+        <result property="createTime" column="catCreateTime" />
+        <result property="updateTime" column="catUpdateTime" />
+        <result property="status" column="catStatus" />
+        <association property="createUser" javaType="com.zm.mall.domain.system.User">
+            <id property="id" column="userId" />
+            <result property="name" column="userName" />
+            <result property="pluteformid" column="userPlatformId" />
+        </association>
+    </resultMap>
+
+    <select id="getCouponActivityCategories" resultMap="couponActivityCategoryMap">
+        select
+            cat.id as catId,
+            cat.name as catName,
+            cat.platformId as catPlatformId,
+            cat.createTime as catCreateTime,
+            cat.updateTime as catUpdateTime,
+            cat.createUserId as catCreateUserId,
+            cat.status as catStatus,
+
+            user.id as userId,
+            user.name as userName,
+            user.pluteformid as userPlatformId
+
+        from b2c_shop_coupon_activity_category cat
+            left join b2c_user user on user.id = cat.createUserId and user.pluteformid = cat.platformId
+        where cat.platformId = #{platformId}
+        order by cat.updateTime desc
+        limit #{start}, #{size}
+    </select>
+
+    <select id="getCouponActivityCategoryCount" resultType="long">
+        select count(*) from b2c_shop_coupon_activity_category where platformId = #{platformId}
+    </select>
+    <!-- 查询活动分类 End -->
+
+
+    <!-- 活动 Start -->
+    <resultMap id="couponActivityMap" type="com.zm.mall.domain.system.coupon.CouponActivity">
+        <id property="id" column="actId" />
+        <result property="name" column="actName" />
+        <result property="imgUrl" column="actImgUrl" />
+        <result property="introduction" column="actIntroduction" />
+        <result property="startTime" column="actStartTime" />
+        <result property="endTime" column="actEndTime" />
+        <result property="createTime" column="actCreateTime" />
+        <result property="updateTime" column="actUpdateTime" />
+        <result property="status" column="actStatus" />
+        <result property="platformId" column="actPlatformId" />
+        <association property="category" javaType="com.zm.mall.domain.system.coupon.CouponActivityCategory">
+            <id property="id" column="catId" />
+            <result property="name" column="catName" />
+            <result property="platformId" column="catPlatformId" />
+        </association>
+        <association property="createUser" javaType="com.zm.mall.domain.system.User">
+            <id property="id" column="userId" />
+            <result property="name" column="userName" />
+            <result property="pluteformid" column="userPlatformId" />
+        </association>
+    </resultMap>
+
+    <select id="getCouponActivities" resultMap="couponActivityMap">
+        select
+            act.id as actId,
+            act.name as actName,
+            act.categoryId as actCategoryId,
+            act.imgUrl as actImgUrl,
+            act.introduction as actIntroduction,
+            act.startTime as actStartTime,
+            act.endTime as actEndTime,
+            act.createTime as actCreateTime,
+            act.updateTime as actUpdateTime,
+            act.createUserId as actCreateUserId,
+            act.status as actStatus,
+            act.platformId as actPlatformId,
+
+            user.id as userId,
+            user.name as userName,
+            user.pluteformid as userPlatformId,
+
+            cat.id as catId,
+            cat.name as catName,
+            cat.platformId as catPlatformId
+
+        from b2c_shop_coupon_activity act
+            left join b2c_user user on user.id = act.createUserId and user.pluteformid = act.platformId
+            left join b2c_shop_coupon_activity_category cat on cat.id = act.categoryId and cat.platformId = act.platformId
+        where act.platformId = #{platformId}  and act.status != -1
+        order by act.updateTime desc
+        limit #{start}, #{size}
+    </select>
+
+    <select id="getCouponActivityCount" resultType="long">
+        select count(*) from b2c_shop_coupon_activity where platformId = #{platformId} and status != -1
+    </select>
+
+    <update id="updateActivityStatus">
+        update b2c_shop_coupon_activity set status = #{status} where id = #{activityId} and platformId = #{platformId}
+    </update>
+
+    <select id="getActivityImgUrlById" resultType="string">
+        select imgUrl from b2c_shop_coupon_activity where id = #{id} and platformId = #{platformId}
+    </select>
+    <select id="getActivityIntroductionById" resultType="string">
+        select introduction from b2c_shop_coupon_activity where id = #{id} and platformId = #{platformId}
+    </select>
+    <!-- 活动 End -->
+
+    <!-- 优惠券源 Start -->
+    <resultMap id="couponSourceMap" type="com.zm.mall.domain.system.coupon.CouponSource">
+        <id property="id" column="sourceId" />
+        <result property="name" column="sourceName" />
+        <result property="faceValue" column="sourceFaceValue" />
+        <result property="minimumValue" column="sourceMinimumValue" />
+        <result property="totalNumber" column="sourceTotalNumber" />
+        <result property="sendNumber" column="sourceSendNumber" />
+        <result property="exchangeNumber" column="sourceExchangeNumber" />
+        <result property="type" column="sourceType" />
+        <result property="needPoint" column="sourceNeedPoint" />
+        <result property="imgUrl" column="sourceImgUrl" />
+        <result property="createTime" column="sourceCreateTime" />
+        <result property="updateTime" column="sourceUpdateTime" />
+        <result property="status" column="sourceStatus" />
+        <result property="platformId" column="sourcePlatformId" />
+
+        <association property="createUser" javaType="com.zm.mall.domain.system.User">
+            <id property="id" column="userId" />
+            <result property="name" column="userName" />
+            <result property="realName" column="userRealName" />
+        </association>
+
+        <association property="activity" javaType="com.zm.mall.domain.system.coupon.CouponActivity">
+            <id property="id" column="activityId" />
+            <result property="name" column="activityName" />
+            <result property="startTime" column="activityStartTime" />
+            <result property="endTime" column="activityEndTime" />
+            <result property="status" column="activityStatus" />
+            <result property="platformId" column="activityPlatformId" />
+        </association>
+
+        <collection property="couponRuleList" ofType="com.zm.mall.domain.system.coupon.CouponRule">
+            <id property="id" column="ruleId" />
+            <result property="value" column="ruleValue" />
+            <result property="platformId" column="rulePlatformId" />
+            <association property="ruleName" javaType="com.zm.mall.domain.system.systemCode.SystemCode">
+                <id property="id" column="codeId" />
+                <result property="name" column="codeName" />
+            </association>
+        </collection>
+
+    </resultMap>
+
+    <select id="getCouponSourceById" resultType="com.zm.mall.domain.system.coupon.CouponSource">
+        select
+            id,
+            name,
+            activityId,
+            faceValue,
+            totalNumber,
+            sendNumber,
+            type,
+            needPoint,
+            imgUrl,
+            createTime,
+            updateTime,
+            createUserId,
+            status,
+            platformId
+
+        from b2c_shop_coupon_source
+        where id = #{couponId} and platformId = #{platformId}
+    </select>
+
+    <select id="getCouponSources" resultMap="couponSourceMap">
+        select
+            source.id as sourceId,
+            source.name as sourceName,
+            source.activityId as sourceActivityId,
+            source.faceValue as sourceFaceValue,
+            source.minimumValue as sourceMinimumValue,
+            source.totalNumber as sourceTotalNumber,
+            source.sendNumber as sourceSendNumber,
+            source.exchangeNumber as sourceExchangeNumber,
+            source.type as sourceType,
+            source.needPoint as sourceNeedPoint,
+            source.imgUrl as sourceImgUrl,
+            source.createTime as sourceCreateTime,
+            source.updateTime as sourceUpdateTime,
+            source.createUserId as sourceCreateUserId,
+            source.status as sourceStatus,
+            source.platformId as sourcePlatformId,
+
+            user.id as userId,
+            user.name as userName,
+            user.password as userPassword,
+            user.realName as userRealName,
+
+            activity.id as activityId,
+            activity.name as activityName,
+            activity.categoryId as activityCategoryId,
+            activity.imgUrl as activityImgUrl,
+            activity.introduction as activityIntroduction,
+            activity.startTime as activityStartTime,
+            activity.endTime as activityEndTime,
+            activity.createTime as activityCreateTime,
+            activity.updateTime as activityUpdateTime,
+            activity.createUserId as activityCreateUserId,
+            activity.status as activityStatus,
+            activity.platformId as activityPlatformId,
+
+            rule.id as ruleId,
+            rule.ruleNameId as ruleRuleNameId,
+            rule.value as ruleValue,
+            rule.couponSourceId as ruleCouponSourceId,
+            rule.platformId as rulePlatformId,
+            rule.createTime as ruleCreateTime,
+            rule.updateTime as ruleUpdateTime,
+            rule.createUserId as ruleCreateUserId,
+
+            code.id as codeId,
+            code.name as codeName,
+            code.pluteformid
+
+        from (SELECT * FROM b2c_shop_coupon_source WHERE platformId = #{platformId} AND STATUS != -2 ORDER BY updateTime DESC LIMIT #{start}, #{size}) source
+            left join b2c_user user on user.id = source.createUserId
+
+            left join b2c_shop_coupon_activity activity on activity.id = source.activityId
+
+            left join b2c_shop_coupon_rule rule on rule.couponSourceId = source.id
+            left join b2c_item_system_code code on code.id = rule.ruleNameId
+
+        ORDER BY source.updateTime DESC
+
+    </select>
+
+    <select id="getCouponSourceCount" resultType="long">
+        select count(*) from b2c_shop_coupon_source where platformId = #{platformId} and status != -2
+    </select>
+
+    <update id="updateCouponSourceStatus">
+        update b2c_shop_coupon_source set status = #{status} where id = #{couponId} and platformId = #{platformId}
+    </update>
+
+    <select id="getCouponProductsBySourceId" resultType="com.zm.mall.domain.system.coupon.Product">
+        select
+            source_prod.sourceId,
+            source_prod.prodId,
+            source_prod.platformId,
+
+            prod.ProductId as id,
+            prod.ProductName as name,
+            prod.pluteformid
+
+        from b2c_shop_coupon_source_prod source_prod
+            left join b2c_shop_products prod on prod.ProductId = source_prod.prodId and prod.pluteformid = source_prod.platformId
+        where source_prod.sourceId = #{id} and source_prod.platformId = #{platformId}
+    </select>
+
+    <select id="getCouponProductCatsBySourceId" resultType="com.zm.mall.domain.system.coupon.ProductCategory">
+        select
+            source_prodcat.sourceId,
+            source_prodcat.prodCatId,
+            source_prodcat.platformId,
+
+            prodcat.CategoryId as id,
+            prodcat.Name as name,
+            prodcat.pluteformid
+        from b2c_shop_coupon_source_prodcat source_prodcat
+            left join b2c_shop_categories prodcat on prodcat.CategoryId = source_prodcat.prodCatId and prodcat.pluteformid = source_prodcat.platformId
+        where source_prodcat.sourceId = #{id} and source_prodcat.platformId = #{platformId}
+    </select>
+
+    <select id="getCouponImgUrlById" resultType="string">
+        select imgUrl from b2c_shop_coupon_source where id = #{id} and platformId = #{platformId}
+    </select>
+
+    <!-- 优惠券源 End -->
+
+    <!-- 优惠券规则 Start -->
+    <select id="getCouponRule" resultType="com.zm.mall.domain.system.coupon.CouponRule">
+        select
+            id,
+            ruleNameId,
+            value,
+            couponSourceId,
+            platformId,
+            createTime,
+            updateTime,
+            createUserId
+        from b2c_shop_coupon_rule
+        where ruleNameId = #{ruleName.id} and couponSourceId = #{couponSource.id} and platformId = #{platformId}
+    </select>
+
+    <update id="updateCouponRule">
+        update b2c_shop_coupon_rule set value = #{value} where ruleNameId = #{ruleName.id} and couponSourceId = #{couponSource.id} and platformId = #{platformId}
+    </update>
+    <!-- 优惠券规则 End -->
+
+    <!-- 查询关联商品 Start -->
+    <select id="getProductsByCategoryId" resultType="com.zm.mall.domain.system.coupon.Product">
+        select
+            CONCAT('prod',prod.ProductId) as id,
+            prod.ProductName as name,
+            prod.pluteformid,
+            prod.selfSell as selfSell,
+
+            prod_cate.CategoryId,
+            prod_cate.ProductId,
+            prod_cate.pluteformid
+
+        from b2c_shop_products prod
+            left join b2c_shop_productcategories prod_cate on prod_cate.ProductId = prod.ProductId and prod_cate.pluteformid = prod.pluteformid
+        where prod_cate.CategoryId = #{categoryId} and prod.pluteformid = #{platformId}
+    </select>
+
+    <select id="getProductCategoriesByParentId" resultType="com.zm.mall.domain.system.coupon.ProductCategory">
+        select
+        CategoryId as id,
+        Name as name,
+        ParentCategoryId as parentId,
+        pluteformid
+        from b2c_shop_categories
+        where pluteformid = #{platformId} and shopId is null
+        <choose>
+            <when test="parentId != null">
+                and ParentCategoryId = #{parentId}
+            </when>
+            <otherwise>
+                AND ParentCategoryId = 0
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="getCategoryIdsByProductId" resultType="long">
+        select CategoryId from b2c_shop_productcategories where pluteformid = #{platformId}  and shopId is null and ProductId = #{productId}
+    </select>
+
+    <!-- 查询关联商品 End -->
+
+    <!-- 查询优惠券关联码表 Start -->
+    <select id="getCouponRuleResult" resultType="com.zm.mall.domain.system.coupon.CouponRuleResult">
+        select
+            code.id as id,
+            code.fid,
+            code.code,
+            code.name as name,
+            code.description,
+            code.value as codeValue,
+            code.pluteformid,
+
+            rule.id as ruleId,
+            rule.ruleNameId,
+            rule.value as value,
+            rule.couponSourceId,
+            rule.platformId
+
+        from b2c_item_system_code code
+            left join b2c_shop_coupon_rule rule on rule.ruleNameId = code.id
+                and code.pluteformid = rule.platformId and rule.couponSourceId = #{couponSourceId}
+        where code.pluteformid = #{platformId}
+            and code.fid = #{couponCodeId}
+
+    </select>
+    <!-- 查询优惠券关联码表 End -->
+
+    <!-- 优惠券发放用户 Start -->
+    <select id="getUsers" resultType="com.zm.mall.domain.business.accountsUsers.Users">
+        select
+            UserID as userId,
+            UserName as userName,
+            NickName as nickName,
+            TrueName as trueName
+        from b2c_accounts_users
+        where pluteformid = #{platformId}
+        limit #{start}, #{size}
+    </select>
+    <select id="getUserCount" resultType="long">
+        select count(*) from b2c_accounts_users where pluteformid = #{platformId}
+    </select>
+
+    <select id="getUserIdsOfALL" resultType="long">
+        select UserID from b2c_accounts_users where pluteformid = #{platformId}
+    </select>
+
+    <select id="getUserIdsOfCreateDateGreaterThan" resultType="long">
+        select UserID from b2c_accounts_users where pluteformid = #{platformId} and TIMESTAMPDIFF(DAY ,User_dateCreate,now()) <![CDATA[>=]]> #{days}
+    </select>
+    <select id="getUserIdsOfCreateDateLessThan" resultType="long">
+        select UserID from b2c_accounts_users where pluteformid = #{platformId} and TIMESTAMPDIFF(DAY ,User_dateCreate,now()) <![CDATA[<=]]> #{days}
+    </select>
+    <select id="getUserIdsOfTotalCostGreaterThan" resultType="long">
+        select BuyerID from b2c_shop_orders where pluteformid = #{platformId} group by BuyerID having sum(OrderTotal) <![CDATA[>=]]> #{rmb}
+    </select>
+    <select id="getUserIdsByTotalCostDESC" resultType="long">
+        select BuyerID from b2c_shop_orders where pluteformid = #{platformId} group by BuyerID order by sum(OrderTotal) desc limit #{sendNumber}
+    </select>
+    <select id="getUserIdsByShoppingTimeDESC" resultType="long">
+        select BuyerID from b2c_shop_orders where pluteformid = #{platformId} group by BuyerID order by count(*) desc limit #{sendNumber}
+    </select>
+    <select id="getUserIdsOfShoppingTimeGreaterThan" resultType="long">
+        select BuyerID from b2c_shop_orders where pluteformid = #{platformId} group by BuyerID having count(*) <![CDATA[>=]]> #{times}
+    </select>
+    <update id="updateSendNumber">
+        update b2c_shop_coupon_source set sendNumber = sendNumber + #{sendNumber} where id = #{id} and platformId = #{platformId}
+    </update>
+
+    <resultMap id="couponMap" type="com.zm.mall.domain.system.coupon.Coupon">
+        <id property="id" column="couponId" />
+        <result property="code" column="couponCode" />
+        <result property="usedTime" column="couponUsedTime" />
+        <result property="createTime" column="couponCreateTime" />
+        <result property="updateTime" column="couponUpdateTime" />
+        <result property="status" column="couponStatus" />
+        <result property="platformId" column="couponPlatformId" />
+
+        <association property="source" javaType="com.zm.mall.domain.system.coupon.CouponSource">
+            <id property="id" column="sourceId" />
+            <result property="name" column="sourceName" />
+            <result property="faceValue" column="sourceFaceValue" />
+            <result property="minimumValue" column="sourceMinimumValue" />
+            <result property="imgUrl" column="sourceImgUrl" />
+            <result property="type" column="sourceType" />
+            <result property="status" column="sourceStatus" />
+            <association property="activity" javaType="com.zm.mall.domain.system.coupon.CouponActivity">
+                <id property="id" column="activityId" />
+                <result property="name" column="activityName" />
+                <result property="startTime" column="activityStartTime" />
+                <result property="endTime" column="activityEndTime" />
+            </association>
+        </association>
+        <association property="user" javaType="com.zm.mall.domain.business.accountsUsers.Users">
+            <id property="userId" column="userId" />
+            <result property="userName" column="userName" />
+            <result property="nickName" column="userNickname" />
+            <result property="trueName" column="userTrueName" />
+        </association>
+        <association property="order" javaType="com.zm.mall.domain.business.orders.OrderInfo">
+            <id property="orderId" column="orderId" />
+            <result property="orderCode" column="orderCode" />
+            <result property="createdDate" column="orderCreateDate" />
+        </association>
+        <association property="createUser" javaType="com.zm.mall.domain.system.User">
+            <id property="id" column="createUserId" />
+            <result property="name" column="createUserName" />
+            <result property="realName" column="createUserRealName" />
+        </association>
+    </resultMap>
+
+    <select id="getUserCoupons" resultMap="couponMap">
+        select
+            coupon.id as couponId,
+            coupon.code as couponCode,
+            coupon.sourceId as couponSourceId,
+            coupon.userId as couponUserId,
+            coupon.orderId as couponOrderId,
+            coupon.usedTime as couponUsedTime,
+            coupon.createTime as couponCreateTime,
+            coupon.updateTime as couponUpdateTime,
+            coupon.createUserId as couponCreateUserId,
+            coupon.status as couponStatus,
+            coupon.platformId as couponPlatformId,
+
+            source.id as sourceId,
+            source.name as sourceName,
+            source.faceValue as sourceFaceValue,
+            source.minimumValue as sourceMinimumValue,
+            source.activityId as sourceActivityId,
+            source.type as sourceType,
+            source.status as sourceStatus,
+            source.platformId as sourcePlatformId,
+
+            activity.id as activityId,
+            activity.name as activityName,
+            activity.startTime as activityStartTime,
+            activity.endTime as activityEndTime,
+
+            user.UserID as userId,
+            user.UserName as userName,
+            user.NickName as userNickname,
+            user.TrueName as userTrueName,
+
+            orders.OrderId as orderId,
+            orders.OrderCode as orderCode,
+            orders.CreatedDate as orderCreateDate,
+
+            createUser.id as createUserId,
+            createUser.name as createUserName,
+            createUser.realName as createUserRealName
+
+        from b2c_shop_coupon coupon
+            left join b2c_shop_coupon_source source on source.id = coupon.sourceId and source.platformId = coupon.platformId
+            left join b2c_shop_coupon_activity activity on activity.id = source.activityId and activity.platformId = coupon.platformId
+            left join b2c_accounts_users user on user.UserID = coupon.userId and user.pluteformid = coupon.platformId
+            left join b2c_shop_orders orders on orders.OrderId = coupon.orderId and orders.pluteformid = coupon.platformId
+            left join b2c_user createUser on createUser.id = coupon.createUserId and createUser.pluteformid = coupon.platformId
+        where coupon.platformId = #{platformId}
+        order by coupon.updateTime desc
+        limit #{start}, #{size}
+    </select>
+    <select id="getUserCouponCount" resultType="long">
+        select count(*) from b2c_shop_coupon where platformId = #{platformId}
+    </select>
+    <!-- 优惠券发放用户 End -->
+
+
+    <!-- 用户兑换优惠券接口 Start -->
+    <update id="increaseExchangeNumber">
+        update b2c_shop_coupon_source set exchangeNumber = exchangeNumber + #{number} where platformId = #{platformId} and id = #{couponSourceId}
+    </update>
+    <update id="reduceUserRestPoint">
+        update b2c_accounts_usersexp set Points = Points - #{needPoint} where pluteformid = #{platformId} and UserID = #{userId}
+    </update>
+    <select id="getUserRestPoints" resultType="int">
+        select Points from b2c_accounts_usersexp where pluteformid = #{platformId} and UserID = #{userId}
+    </select>
+
+    <!--
+    <select id="getCouponSourcesByActivityId" resultMap="couponSourceMap">
+        select
+            source.id as sourceId,
+            source.name as sourceName,
+            source.activityId as sourceActivityId,
+            source.faceValue as sourceFaceValue,
+            source.totalNumber as sourceTotalNumber,
+            source.sendNumber as sourceSendNumber,
+            source.exchangeNumber as sourceExchangeNumber,
+            source.type as sourceType,
+            source.needPoint as sourceNeedPoint,
+            source.imgUrl as sourceImgUrl,
+            source.createTime as sourceCreateTime,
+            source.updateTime as sourceUpdateTime,
+            source.createUserId as sourceCreateUserId,
+            source.status as sourceStatus,
+            source.platformId as sourcePlatformId,
+
+            user.id as userId,
+            user.name as userName,
+            user.password as userPassword,
+            user.realName as userRealName,
+
+            activity.id as activityId,
+            activity.name as activityName,
+            activity.categoryId as activityCategoryId,
+            activity.imgUrl as activityImgUrl,
+            activity.introduction as activityIntroduction,
+            activity.startTime as activityStartTime,
+            activity.endTime as activityEndTime,
+            activity.createTime as activityCreateTime,
+            activity.updateTime as activityUpdateTime,
+            activity.createUserId as activityCreateUserId,
+            activity.status as activityStatus,
+            activity.platformId as activityPlatformId,
+
+            rule.id as ruleId,
+            rule.ruleNameId as ruleRuleNameId,
+            rule.value as ruleValue,
+            rule.couponSourceId as ruleCouponSourceId,
+            rule.platformId as rulePlatformId,
+            rule.createTime as ruleCreateTime,
+            rule.updateTime as ruleUpdateTime,
+            rule.createUserId as ruleCreateUserId,
+
+            code.id as codeId,
+            code.name as codeName,
+            code.pluteformid
+
+        from b2c_shop_coupon_source source
+            left join b2c_user user on user.id = source.createUserId
+
+            left join b2c_shop_coupon_activity activity on activity.id = source.activityId
+
+            left join b2c_shop_coupon_rule rule on rule.couponSourceId = source.id
+            left join b2c_item_system_code code on code.id = rule.ruleNameId
+
+        where source.activityId = #{activityId} and source.platformId = #{platformId} and source.status = 1
+        order by source.updateTime desc
+    </select>
+    -->
+
+    <select id="getCouponActivitiesInProgress" resultMap="couponActivityMap">
+        select
+            act.id as actId,
+            act.name as actName,
+            act.categoryId as actCategoryId,
+            act.imgUrl as actImgUrl,
+            act.introduction as actIntroduction,
+            act.startTime as actStartTime,
+            act.endTime as actEndTime,
+            act.createTime as actCreateTime,
+            act.updateTime as actUpdateTime,
+            act.createUserId as actCreateUserId,
+            act.status as actStatus,
+            act.platformId as actPlatformId,
+
+            user.id as userId,
+            user.name as userName,
+            user.pluteformid as userPlatformId,
+
+            cat.id as catId,
+            cat.name as catName,
+            cat.platformId as catPlatformId
+
+        from b2c_shop_coupon_activity act
+            left join b2c_user user on user.id = act.createUserId and user.pluteformid = act.platformId
+            left join b2c_shop_coupon_activity_category cat on cat.id = act.categoryId and cat.platformId = act.platformId
+        where act.platformId = #{platformId}  and act.status = 1 and now() BETWEEN act.startTime and act.endTime
+    </select>
+
+    <select id="getCouponsByUserId" resultMap="couponMap">
+        select
+            coupon.id as couponId,
+            coupon.code as couponCode,
+            coupon.sourceId as couponSourceId,
+            coupon.userId as couponUserId,
+            coupon.orderId as couponOrderId,
+            coupon.usedTime as couponUsedTime,
+            coupon.createTime as couponCreateTime,
+            coupon.updateTime as couponUpdateTime,
+            coupon.createUserId as couponCreateUserId,
+            coupon.status as couponStatus,
+            coupon.platformId as couponPlatformId,
+
+            source.id as sourceId,
+            source.name as sourceName,
+            source.faceValue as sourceFaceValue,
+            source.minimumValue as sourceMinimumValue,
+            source.activityId as sourceActivityId,
+            source.type as sourceType,
+            source.imgUrl as sourceImgUrl,
+            source.status as sourceStatus,
+            source.platformId as sourcePlatformId,
+
+            activity.id as activityId,
+            activity.name as activityName,
+            activity.startTime as activityStartTime,
+            activity.endTime as activityEndTime,
+
+            user.UserID as userId,
+            user.UserName as userName,
+            user.NickName as userNickname,
+            user.TrueName as userTrueName,
+
+            orders.OrderId as orderId,
+            orders.OrderCode as orderCode,
+            orders.CreatedDate as orderCreateDate,
+
+            createUser.id as createUserId,
+            createUser.name as createUserName,
+            createUser.realName as createUserRealName
+
+        from b2c_shop_coupon coupon
+            left join b2c_shop_coupon_source source on source.id = coupon.sourceId and source.platformId = coupon.platformId
+            left join b2c_shop_coupon_activity activity on activity.id = source.activityId and activity.platformId = coupon.platformId
+            left join b2c_accounts_users user on user.UserID = coupon.userId and user.pluteformid = coupon.platformId
+            left join b2c_shop_orders orders on orders.OrderId = coupon.orderId and orders.pluteformid = coupon.platformId
+            left join b2c_user createUser on createUser.id = coupon.createUserId and createUser.pluteformid = coupon.platformId
+        where coupon.platformId = #{platformId} and coupon.userId = #{userId}
+        <choose>
+            <when test="status == 1">
+                and coupon.status = #{status}
+                and source.status in (0,1)
+                and now() BETWEEN activity.startTime and activity.endTime
+            </when>
+            <when test="status == 0">
+                and coupon.status = #{status}
+            </when>
+            <otherwise>
+                and now() <![CDATA[>]]> activity.endTime
+            </otherwise>
+        </choose>
+        order by coupon.updateTime desc
+    </select>
+
+    <select id="getPaginationCouponsByUserId" resultMap="couponMap">
+        select
+        coupon.id as couponId,
+        coupon.code as couponCode,
+        coupon.sourceId as couponSourceId,
+        coupon.userId as couponUserId,
+        coupon.orderId as couponOrderId,
+        coupon.usedTime as couponUsedTime,
+        coupon.createTime as couponCreateTime,
+        coupon.updateTime as couponUpdateTime,
+        coupon.createUserId as couponCreateUserId,
+        coupon.status as couponStatus,
+        coupon.platformId as couponPlatformId,
+
+        source.id as sourceId,
+        source.name as sourceName,
+        source.faceValue as sourceFaceValue,
+        source.minimumValue as sourceMinimumValue,
+        source.activityId as sourceActivityId,
+        source.type as sourceType,
+        source.status as sourceStatus,
+        source.platformId as sourcePlatformId,
+
+        activity.id as activityId,
+        activity.name as activityName,
+        activity.startTime as activityStartTime,
+        activity.endTime as activityEndTime,
+
+        user.UserID as userId,
+        user.UserName as userName,
+        user.NickName as userNickname,
+        user.TrueName as userTrueName,
+
+        orders.OrderId as orderId,
+        orders.OrderCode as orderCode,
+        orders.CreatedDate as orderCreateDate,
+
+        createUser.id as createUserId,
+        createUser.name as createUserName,
+        createUser.realName as createUserRealName
+
+        from b2c_shop_coupon coupon
+        left join b2c_shop_coupon_source source on source.id = coupon.sourceId and source.platformId = coupon.platformId
+        left join b2c_shop_coupon_activity activity on activity.id = source.activityId and activity.platformId = coupon.platformId
+        left join b2c_accounts_users user on user.UserID = coupon.userId and user.pluteformid = coupon.platformId
+        left join b2c_shop_orders orders on orders.OrderId = coupon.orderId and orders.pluteformid = coupon.platformId
+        left join b2c_user createUser on createUser.id = coupon.createUserId and createUser.pluteformid = coupon.platformId
+        where coupon.platformId = #{platformId} and coupon.userId = #{userId}
+        <choose>
+            <when test="status == 1">
+                and coupon.status = #{status}
+                and source.status in (0,1)
+                and now() BETWEEN activity.startTime and activity.endTime
+            </when>
+            <when test="status == 0">
+                and coupon.status = #{status}
+            </when>
+            <otherwise>
+                and now() <![CDATA[>]]> activity.endTime
+            </otherwise>
+        </choose>
+        order by coupon.updateTime desc
+        limit #{start, javaType=Long}, #{size, javaType=Long}
+    </select>
+
+    <select id="getCouponSourceProdCatIdsBySourceId" resultType="long">
+        select prodCatId from b2c_shop_coupon_source_prodcat where sourceId = #{sourceId}
+    </select>
+    <select id="getCouponSourceProdIdsBySourceId" resultType="long">
+        select prodId from b2c_shop_coupon_source_prod where sourceId = #{sourceId}
+    </select>
+    <select id="getCouponSourceDetailById" resultMap="couponSourceMap">
+        select
+            source.id as sourceId,
+            source.name as sourceName,
+            source.activityId as sourceActivityId,
+            source.faceValue as sourceFaceValue,
+            source.minimumValue as sourceMinimumValue,
+            source.totalNumber as sourceTotalNumber,
+            source.sendNumber as sourceSendNumber,
+            source.type as sourceType,
+            source.needPoint as sourceNeedPoint,
+            source.imgUrl as sourceImgUrl,
+            source.createTime as sourceCreateTime,
+            source.updateTime as sourceUpdateTime,
+            source.createUserId as sourceCreateUserId,
+            source.status as sourceStatus,
+            source.platformId as sourcePlatformId,
+
+            user.id as userId,
+            user.name as userName,
+            user.password as userPassword,
+            user.realName as userRealName,
+
+            activity.id as activityId,
+            activity.name as activityName,
+            activity.categoryId as activityCategoryId,
+            activity.imgUrl as activityImgUrl,
+            activity.introduction as activityIntroduction,
+            activity.startTime as activityStartTime,
+            activity.endTime as activityEndTime,
+            activity.createTime as activityCreateTime,
+            activity.updateTime as activityUpdateTime,
+            activity.createUserId as activityCreateUserId,
+            activity.status as activityStatus,
+            activity.platformId as activityPlatformId,
+
+            rule.id as ruleId,
+            rule.ruleNameId as ruleRuleNameId,
+            rule.value as ruleValue,
+            rule.couponSourceId as ruleCouponSourceId,
+            rule.platformId as rulePlatformId,
+            rule.createTime as ruleCreateTime,
+            rule.updateTime as ruleUpdateTime,
+            rule.createUserId as ruleCreateUserId,
+
+            code.id as codeId,
+            code.name as codeName,
+            code.pluteformid
+
+        from b2c_shop_coupon_source source
+            left join b2c_user user on user.id = source.createUserId
+
+            left join b2c_shop_coupon_activity activity on activity.id = source.activityId
+
+            left join b2c_shop_coupon_rule rule on rule.couponSourceId = source.id
+            left join b2c_item_system_code code on code.id = rule.ruleNameId
+
+        where source.platformId = #{platformId} and source.id = #{id}
+    </select>
+
+    <select id="getCouponRuleBySourceId">
+
+    </select>
+
+    <update id="useCoupon">
+        update b2c_shop_coupon set orderId = #{orderId}, usedTime = now(), status = 0 where id = #{couponId} and platformId = #{platformId}
+    </update>
+
+    <update id="updateCouponStatus">
+        update b2c_shop_coupon set status = #{status} where platformId = #{platformId} and id = #{couponId}
+    </update>
+    <!-- 用户兑换优惠券接口 End -->
+
+    <select id="getParentCategoryId" resultType="long">
+        select ParentCategoryId from b2c_shop_categories
+        <where>
+            CategoryId = #{categoryId} and pluteformid = #{platformId}
+            <choose>
+                <when test="shopId != null">and shopId = #{shopId}</when>
+                <otherwise>and shopId is null</otherwise>
+            </choose>
+        </where>
+
+    </select>
+
+
+
+    <!-- 测试 -->
+    <!-- 优惠券源 Start -->
+    <resultMap id="couponSourceMap2" type="com.zm.mall.domain.system.coupon.CouponSource">
+        <id property="id" column="sourceId" />
+        <result property="name" column="sourceName" />
+        <result property="faceValue" column="sourceFaceValue" />
+        <result property="minimumValue" column="sourceMinimumValue" />
+        <result property="totalNumber" column="sourceTotalNumber" />
+        <result property="sendNumber" column="sourceSendNumber" />
+        <result property="type" column="sourceType" />
+        <result property="needPoint" column="sourceNeedPoint" />
+        <result property="imgUrl" column="sourceImgUrl" />
+        <result property="createTime" column="sourceCreateTime" />
+        <result property="updateTime" column="sourceUpdateTime" />
+        <result property="status" column="sourceStatus" />
+        <result property="platformId" column="sourcePlatformId" />
+
+        <association property="createUser" javaType="com.zm.mall.domain.system.User">
+            <id property="id" column="userId" />
+            <result property="name" column="userName" />
+            <result property="realName" column="userRealName" />
+        </association>
+
+        <association property="activity" javaType="com.zm.mall.domain.system.coupon.CouponActivity">
+            <id property="id" column="activityId" />
+            <result property="name" column="activityName" />
+            <result property="startTime" column="activityStartTime" />
+            <result property="endTime" column="activityEndTime" />
+            <result property="status" column="activityStatus" />
+            <result property="platformId" column="activityPlatformId" />
+        </association>
+
+        <collection property="couponRuleList" ofType="com.zm.mall.domain.system.coupon.CouponRule">
+            <id property="id" column="ruleId" />
+            <result property="value" column="ruleValue" />
+            <result property="platformId" column="rulePlatformId" />
+            <association property="ruleName" javaType="com.zm.mall.domain.system.systemCode.SystemCode">
+                <id property="id" column="codeId" />
+                <result property="name" column="codeName" />
+            </association>
+        </collection>
+
+        <collection property="productList" ofType="com.zm.mall.domain.system.coupon.Product">
+            <id property="id" column="prodId" />
+            <result property="name" column="prodName" />
+        </collection>
+
+        <collection property="productCatList" ofType="com.zm.mall.domain.system.coupon.ProductCategory">
+            <id property="id" column="prodcatId" />
+            <result property="name" column="prodcatName" />
+        </collection>
+    </resultMap>
+
+    <select id="getCouponSourcesByActivityId" resultMap="couponSourceMap2">
+        select
+            source.id as sourceId,
+            source.name as sourceName,
+            source.activityId as sourceActivityId,
+            source.faceValue as sourceFaceValue,
+            source.minimumValue as sourceMinimumValue,
+            source.totalNumber as sourceTotalNumber,
+            source.sendNumber as sourceSendNumber,
+            source.type as sourceType,
+            source.needPoint as sourceNeedPoint,
+            source.imgUrl as sourceImgUrl,
+            source.createTime as sourceCreateTime,
+            source.updateTime as sourceUpdateTime,
+            source.createUserId as sourceCreateUserId,
+            source.status as sourceStatus,
+            source.platformId as sourcePlatformId,
+
+            user.id as userId,
+            user.name as userName,
+            user.password as userPassword,
+            user.realName as userRealName,
+
+            activity.id as activityId,
+            activity.name as activityName,
+            activity.categoryId as activityCategoryId,
+            activity.imgUrl as activityImgUrl,
+            activity.introduction as activityIntroduction,
+            activity.startTime as activityStartTime,
+            activity.endTime as activityEndTime,
+            activity.createTime as activityCreateTime,
+            activity.updateTime as activityUpdateTime,
+            activity.createUserId as activityCreateUserId,
+            activity.status as activityStatus,
+            activity.platformId as activityPlatformId,
+
+            rule.id as ruleId,
+            rule.ruleNameId as ruleRuleNameId,
+            rule.value as ruleValue,
+            rule.couponSourceId as ruleCouponSourceId,
+            rule.platformId as rulePlatformId,
+            rule.createTime as ruleCreateTime,
+            rule.updateTime as ruleUpdateTime,
+            rule.createUserId as ruleCreateUserId,
+
+            code.id as codeId,
+            code.name as codeName,
+            code.pluteformid,
+
+            source_prod.sourceId,
+            source_prod.prodId,
+
+            prod.ProductId as prodId,
+            prod.ProductName as prodName,
+
+            source_prodcat.sourceId,
+            source_prodcat.prodCatId,
+
+            prodcat.CategoryId as prodcatId,
+            prodcat.Name as prodcatName
+
+        from b2c_shop_coupon_source source
+            left join b2c_user user on user.id = source.createUserId
+
+            left join b2c_shop_coupon_activity activity on activity.id = source.activityId
+
+            left join b2c_shop_coupon_rule rule on rule.couponSourceId = source.id
+            left join b2c_item_system_code code on code.id = rule.ruleNameId
+
+            left join b2c_shop_coupon_source_prod source_prod on source_prod.sourceId = source.id
+            left join b2c_shop_products prod on prod.ProductId = source_prod.prodId
+
+            left join b2c_shop_coupon_source_prodcat source_prodcat on source_prodcat.sourceId = source.id
+            left join b2c_shop_categories prodcat on prodcat.CategoryId = source_prodcat.prodCatId
+
+        where source.activityId = #{activityId} and source.platformId = #{platformId} and source.status = 1
+        order by source.updateTime desc
+
+    </select>
+
+    <insert id="addCouponSourceProdIds">
+        INSERT INTO b2c_shop_coupon_source_prod (sourceId, prodId, platformId, updateTime) values
+        <foreach collection="prodIds" separator="," item="item" index="index">
+            (#{id}, #{item}, #{platformId}, now())
+        </foreach>
+    </insert>
+
+    <insert id="addCouponSourceProdCatIds">
+        INSERT INTO b2c_shop_coupon_source_prodcat (sourceId, prodCatId, platformId, updateTime) values
+        <foreach collection="prodCatIds" separator="," item="item" index="index">
+            (#{id}, #{item}, #{platformId}, now())
+        </foreach>
+    </insert>
+
+    <resultMap id="productInfoMap" type="com.zm.mall.domain.business.product.ProductInfo">
+        <result column="CategoryId" property="categoryId" jdbcType="BIGINT"></result>
+        <result column="TypeId" property="typeId" jdbcType="BIGINT"></result>
+        <result column="ProductId" property="productId" jdbcType="BIGINT"></result>
+        <result column="BrandId" property="brandId" jdbcType="BIGINT"></result>
+        <result column="ProductName" property="productName" jdbcType="VARCHAR"></result>
+        <result column="ProductCode" property="productCode" jdbcType="VARCHAR"></result>
+        <result column="SupplierId" property="supplierId" jdbcType="BIGINT"></result>
+        <result column="RegionId" property="regionId" jdbcType="BIGINT"></result>
+        <result column="ShortDescription" property="shortDescription" jdbcType="VARCHAR"></result>
+        <result column="Unit" property="unit" jdbcType="VARCHAR"></result>
+        <result column="Description" property="description" jdbcType="VARCHAR"></result>
+        <result column="Meta_Title" property="meta_Title" jdbcType="VARCHAR"></result>
+        <result column="Meta_Description" property="meta_Description" jdbcType="VARCHAR"></result>
+        <result column="Meta_Keywords" property="meta_Keywords" jdbcType="VARCHAR"></result>
+        <result column="SaleStatus" property="saleStatus" jdbcType="BIGINT"></result>
+        <result column="AddedDate" property="addedDate" jdbcType="TIMESTAMP"></result>
+        <result column="VistiCounts" property="vistiCounts" jdbcType="BIGINT"></result>
+        <result column="SaleCounts" property="saleCounts" jdbcType="BIGINT"></result>
+        <result column="Stock" property="stock" jdbcType="BIGINT"></result>
+        <result column="DisplaySequence" property="displaySequence" jdbcType="BIGINT"></result>
+        <result column="LineId" property="lineId" jdbcType="BIGINT"></result>
+        <result column="MarketPrice" property="marketPrice" jdbcType="DOUBLE"></result>
+        <result column="LowestSalePrice" property="lowestSalePrice" jdbcType="DOUBLE"></result>
+        <result column="PenetrationStatus" property="penetrationStatus" jdbcType="BIGINT"></result>
+        <result column="MainCategoryPath" property="mainCategoryPath" jdbcType="VARCHAR"></result>
+        <result column="ExtendCategoryPath" property="extendCategoryPath" jdbcType="VARCHAR"></result>
+        <result column="HasSKU" property="hasSku" jdbcType="BOOLEAN"></result>
+        <result column="Points" property="points" jdbcType="DOUBLE"></result>
+        <result column="ImageUrl" property="imageUrl" jdbcType="VARCHAR"></result>
+        <result column="ThumbnailUrl1" property="thumbnailUrl1" jdbcType="VARCHAR"></result>
+        <result column="ThumbnailUrl2" property="thumbnailUrl2" jdbcType="VARCHAR"></result>
+        <result column="ThumbnailUrl3" property="thumbnailUrl3" jdbcType="VARCHAR"></result>
+        <result column="ThumbnailUrl4" property="thumbnailUrl4" jdbcType="VARCHAR"></result>
+        <result column="ThumbnailUrl5" property="thumbnailUrl5" jdbcType="VARCHAR"></result>
+        <result column="ThumbnailUrl6" property="thumbnailUrl6" jdbcType="VARCHAR"></result>
+        <result column="ThumbnailUrl7" property="thumbnailUrl7" jdbcType="VARCHAR"></result>
+        <result column="ThumbnailUrl8" property="thumbnailUrl8" jdbcType="VARCHAR"></result>
+        <result column="MaxQuantity" property="maxQuantity" jdbcType="BIGINT"></result>
+        <result column="MinQuantity" property="minQuantity" jdbcType="BIGINT"></result>
+        <result column="Tags" property="tags" jdbcType="VARCHAR"></result>
+        <result column="SeoUrl" property="seoUrl" jdbcType="VARCHAR"></result>
+        <result column="SeoImageAlt" property="seoImageAlt" jdbcType="VARCHAR"></result>
+        <result column="SeoImageTitle" property="seoImageTitle" jdbcType="VARCHAR"></result>
+        <result column="SalesType" property="salesType" jdbcType="BIGINT"></result>
+        <result column="RestrictionCount" property="restrictionCount" jdbcType="BIGINT"></result>
+        <result column="DeliveryTip" property="deliveryTip" jdbcType="VARCHAR"></result>
+        <result column="Remark" property="remark" jdbcType="VARCHAR"></result>
+        <result column="Profit" property="profit" jdbcType="DOUBLE"></result>
+        <result property="pluteformid" column="pluteformid" jdbcType="VARCHAR"/>
+    </resultMap>
+    <select id="getProductsByCouponId" resultMap="productInfoMap">
+        select *
+            from ((select prodId from b2c_shop_coupon_source_prod where sourceId = #{id} and platformId = #{platformId})
+                  union
+                  (select prod.ProductId from b2c_shop_products prod
+                      left join b2c_shop_productcategories prodCat on prodCat.ProductId = prod.ProductId and prodCat.pluteformid = prod.pluteformid
+                      left join b2c_shop_coupon_source_prodcat couponCat on couponCat.prodCatId = prodCat.CategoryId and prodCat.pluteformid = couponCat.platformId
+                  where couponCat.sourceId = #{id} and prod.pluteformid = #{platformId})) prodIds
+        left join b2c_shop_products prod on prod.ProductId = prodIds.prodId limit #{start}, #{size}
+    </select>
+
+    <select id="getProductsByCouponIdCount" resultType="long">
+        select count(*)
+            from ((select prodId from b2c_shop_coupon_source_prod where sourceId = #{id} and platformId = #{platformId})
+                  union
+                  (select prod.ProductId from b2c_shop_products prod
+                      left join b2c_shop_productcategories prodCat on prodCat.ProductId = prod.ProductId and prodCat.pluteformid = prod.pluteformid
+                      left join b2c_shop_coupon_source_prodcat couponCat on couponCat.prodCatId = prodCat.CategoryId and prodCat.pluteformid = couponCat.platformId
+                  where couponCat.sourceId = #{id} and prod.pluteformid = #{platformId})) prodIds
+        left join b2c_shop_products prod on prod.ProductId = prodIds.prodId
+    </select>
+
+</mapper>

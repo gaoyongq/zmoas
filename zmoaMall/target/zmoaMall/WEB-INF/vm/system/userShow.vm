@@ -1,0 +1,120 @@
+#set($layout = "system/showjquery.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+</head>
+<body>
+<input type="hidden" id="currentPage" value="$!currentPage">
+<input type="hidden" id="totalPage" value="$!totalPage">
+<input type="hidden"  name="dId" value="$!dId">
+<div style="height: 20px"></div>
+<div>
+    <form method="post" action="/system/shows.action" id="form">
+            <div class="divtbs">
+##            <form method="post" action="/user/show.action">
+    &nbsp;&nbsp;姓名:<input type="text"  name="realName" value="$!realName">
+    &nbsp;
+                部门:<select name="dId" >
+                    <option value="">无上级部门</option>
+                        #foreach($r in $departmentResults)
+                            #if($r.id==$dId)
+                                <option value="$r.id" selected="selected">$!r.name</option>
+                            #else
+                                <option value="$r.id">$!r.name</option>
+                            #end
+                        #end
+                    </select>
+    &nbsp;
+                <input id="currentPage1" type="hidden" name="currentPage">
+    <button class="button border-yellow"><span class="icon-search"></span>搜索</button></form>
+    <a class="button border-blue" id="createBtn"><span class="icon-edit"></span>编辑</a>&nbsp;
+    <a class="button border-red" id="deleteBtn" ><span class="icon-trash-o"></span> 删除</a>&nbsp;
+    <a class="button border-blue" id="initializeBtn" ><span class="icon-edit"></span> 初始化密码</a>&nbsp;
+    <a class="button border-blue"  href="/system/showDe.action"><span class="icon-pencil"></span>添加</a>&nbsp;
+    <a class="button border-green" id="updateShopState"><span class="icon-edit">开启商城</span></a>&nbsp;</div>
+<table class="table text-center"  id="user_table">
+    <tr>
+        <th>选择</th>
+        <th>姓名</th>
+        <th>性别</th>
+        <th>真实名字</th>
+        <th>部门</th>
+        <th>部门说明</th>
+        <th>岗位说明</th>
+        <th>岗位</th>
+        <th>在职状态</th>
+    </tr>
+    #foreach($uu in $userList)
+        <tr >
+            <td>
+                <input type="checkbox" attr="check" value="$uu.id " name="check">
+            </td>
+            <td>$!uu.name</td>
+##            <td><a href="/user/$uu.id/getById.action">$!uu.gender</a></td>
+            <td>$!uu.gender</td>
+            <td>$uu.realName</td>
+            <td>$!uu.department.name</td>
+##            <td>$!uu.statusId</td>
+##            <td>$!uu.loginState</td>
+            <td>$!uu.description</td>
+        <td>
+        #foreach($role in $uu.roles)
+            $!role.description
+        #end
+        </td>
+            <td>
+                #foreach($role in $uu.roles)
+                    $!role.name
+                #end
+            </td>
+            <td>$!uu.state</td>
+##            <td><div class="button-group"> <a class="button border-main" href="/user/$uu.id/getById.action" id="ss"><span class="icon-edit"></span> 修改</a>
+##                <a class="button border-red" id="deleteBtn" href="/user/$uu.id/updateSte.action"><span class="icon-trash-o"></span> 删除</a>
+##                <a class="button border-main" href="/user/$uu.id/updatePass.action"><span class="icon-edit"></span> 初始化密码</a>
+##            </div></td>
+
+        </tr>
+    #end
+</table>
+<div id="fenYe" align="right">
+    共$!totalPage页&nbsp;当前第$!currentPage页&nbsp;&nbsp;
+    <a href="/system/shows.action?currentPage=1&realName=$!realName&dId=$!dId">首页</a>&nbsp;
+    <a href="#" id="upPage">上一页</a>&nbsp;&nbsp;
+    <a href="#" id="downPage">下一页</a>
+    <a href="/system/shows.action?currentPage=$!totalPage&realName=$!realName&dId=$!dId">末页</a>&nbsp;
+</div>
+</body>
+<script>
+    $(function(){
+        //------------------------分页--------------------
+        //上一页
+        $("#upPage").live('click',function(){
+            var currentPage = Number($("#currentPage").val()-1);
+            if(currentPage < 1){
+                alert("当前第一页");
+            }else{
+                selData(currentPage);
+            }
+
+        })
+        //下一页
+        $("#downPage").live('click',function(){
+            var currentPage = Number($("#currentPage").val())+1;
+            var totalPage = Number($("#totalPage").val());
+            if(currentPage>totalPage){
+                alert("当前最后一页");
+            }else{
+                selData(currentPage);
+            }
+        })
+
+        function selData(currentPage){
+            $("#currentPage1").val(currentPage);
+            $("#form").submit();
+        }
+    })
+</script>
+</html>

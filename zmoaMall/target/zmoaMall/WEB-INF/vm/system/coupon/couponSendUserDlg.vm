@@ -1,0 +1,50 @@
+#set($layout = "layout/empty.vm")
+
+<table id="dg" title="用户列表" fit="true" border="false" class="easyui-datagrid"
+       url="/coupon/getUsers"
+       toolbar="#toolbar" pagination="true"
+       rownumbers="true" fitColumns="true">
+    <thead>
+    <tr>
+        <th data-options="field:'ck',checkbox:true"></th>
+        <th field="userId" width="50">用户ID</th>
+        <th field="userName" width="50">用户名</th>
+        <th field="nickName" width="50">昵称</th>
+        <th field="trueName" width="50">真实姓名</th>
+    </tr>
+    </thead>
+</table>
+<div id="toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-redo" plain="true" onclick="addCoupon();">发放优惠券</a>
+</div>
+
+<script>
+    function addCoupon() {
+        var arr = $('#dg').datagrid('getSelections');
+        var userIds = "";
+        for (var i=0; i<arr.length; i++) {
+            userIds += arr[i].userId + ",";
+        }
+        userIds = userIds.substring(0, userIds.lastIndexOf(","));
+        jQuery.ajax({
+            url: "/coupon/addCouponForUsers",
+            type: "post",
+            data: "userIds="+userIds+"&couponSourceId=$!sourceId",
+            dataType: "json",
+            success: function(data){
+                $('#tg').datagrid('reload');
+                $('#couponSendUserDlg').dialog('close');
+                jQuery.messager.show({
+                    title:'提示！',
+                    msg:'优惠券发放成功！',
+                    timeout:3000,
+                    showType:'slide'
+                });
+            },
+            error: function(data){
+
+            },
+        });
+    }
+
+</script>

@@ -1,0 +1,74 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>商家产品信息</title>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script src="../../js/jquery.js"></script>
+</head>
+<body>
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li><a>供应商产品编辑</a></li>
+    </ul>
+</div>
+<form class="form-x" action="update.action?id=$id&currentPage=$page.currentPage" method="post">
+    <input type="hidden" name="supplierInfo.supplierId" value="$supplierProductResult.supplierInfo.supplierId">
+    <input type="hidden" name="skuInfo.skuId" value="$supplierProductResult.skuInfo.skuId">
+    <div class="form-group">
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">产品名称:</div>
+            </div>
+            <div class="field">
+                <input type="text"  value="$supplierProductResult.productName" readonly="readonly">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">产品规格:</div>
+            </div>
+            <div class="field">
+                <input type="text" value="$supplierProductResult.skuInfo.sku" readonly="readonly">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">产品单价:</div>
+            </div>
+            <div class="field">
+                <input type="text"  name="prize" value="$supplierProductResult.prize">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div for="sitename">产品库存:</div>
+            </div>
+            <div class="field">
+                <input type="text"  name="count" value="$supplierProductResult.count">
+            </div>
+        </div>
+
+##        <div class="form-foot">
+##            <div class="label">
+##            </div>
+##            <div class="field">
+##                <input class="button border-green" type="submit" value="修改">
+##                <input type="button" class="button border-green" value="返回" onclick="javascript:history.back(-1);">
+##            </div>
+##        </div>
+        <div class="form-foot">
+            <button class="button border-green icon-check" type="submit"> 提交</button>&nbsp;
+            <input type="button" class="button border-blue" value="返回" class="input-button" onclick="history.back(-1);" />
+        </div>
+    </div>
+
+</form>
+
+</body>
+</html>
+
+

@@ -1,0 +1,98 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script src="../../js/jquery.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('#newPass').click(function() {
+                //原始密码
+                var pp=$("#pass").val();
+                //用户输入的原始密码
+                var p = $("#oldPass").val();
+                //用户输入的新密码
+                var  newPass=$("#newPass").val();
+                //用户输入确认密码
+                var confirmPass=$("#confirmPass").val();
+                if(p==""){
+                    alert("旧密码不能为空");
+                    return false;
+                }
+                if(pp!=p){
+                    alert("输入旧密码有误");
+                    $("#oldPass").focus();
+                    return false;
+                }
+            });
+            $("#pp").click(function(){
+                //用户输入的新密码
+                var  newPass=$("#newPass").val();
+                //用户输入确认密码
+                var confirmPass=$("#confirmPass").val();
+                if(newPass==""){
+                    alert("新密码不能为空");
+                    return false;
+                }
+                if(newPass!=confirmPass){
+                    alert("确认密码和新密码不一致");
+                    $("#confirmPass").focus();
+                    return  false;
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li><a>修改密码</a></li>
+    </ul>
+</div>
+<input id="pass" type="text" value="$passWord" hidden="hidden"/>
+<form action="updatePassWord.action" method="post" class="form-x">
+    <input name="id" value="$userId" hidden="hidden"/>
+    <div class="form-group">
+        <div class="body-content">
+            <div class="label">
+                <div>用户名:</div>
+            </div>
+            <div class="field">
+                <input type="text" value="$userName" readonly>
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div>原始密码:</div>
+            </div>
+            <div class="field">
+                <input type="text" id="oldPass" ><div id="divname"></div>
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div>新密码:</div>
+            </div>
+            <div class="field">
+                <input type="text" id="newPass" >
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <div>确认密码:</div>
+            </div>
+            <div class="field">
+                <input type="text" id="confirmPass" name="password">
+            </div>
+        </div>
+    </div>
+    <div class="form-foot">
+        <button class="button border-green icon-check" type="submit" id="pp"> 修改</button>&nbsp;
+        <input type="button" class="button border-blue" value="返回" class="input-button" onclick="history.back();" />
+    </div>
+    </div>
+</form>
+</body>

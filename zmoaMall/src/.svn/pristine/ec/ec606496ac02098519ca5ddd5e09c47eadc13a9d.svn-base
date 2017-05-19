@@ -1,0 +1,169 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>微信订单新增</title>
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/default/easyui.css">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <script type="text/javascript" src="/js/jeasyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-filter.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-detailview.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<div class="easyui-panel" title="收货人信息" style="width:100%;height:200px;padding:10px;" data-options="iconCls:'fa fa-user-circle'">
+
+    <form id="ff" method="post">
+        <div style="margin-bottom:10px">
+            <a href="#" class="easyui-linkbutton" onclick="addUserDlg();" data-options="iconCls:'icon-add'">导入用户信息</a>
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" name="name" style="width:40%;" data-options="label:'收货人:',required:true">&nbsp;&nbsp;&nbsp;&nbsp;
+            <input class="easyui-textbox" name="name" style="width:40%;" data-options="label:'联系方式:',required:true">
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" name="name" style="width:40%;" data-options="label:'收货人:',required:true">&nbsp;&nbsp;&nbsp;&nbsp;
+            <input class="easyui-textbox" name="name" style="width:40%;" data-options="label:'联系方式:',required:true">
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" name="subject" style="width:50%" data-options="label:'收货地址:',required:true">
+        </div>
+    </form>
+
+</div>
+<div style="clear: both;">&nbsp;</div>
+<div class="easyui-panel" title="商品信息" style="width:100%;height:300px;padding:10px;" data-options="iconCls:'fa fa-cart-plus'">
+    <div style="margin-bottom:10px">
+        <a href="#" class="easyui-linkbutton" onclick="addProductDlg();" data-options="iconCls:'icon-add'">添加商品</a>
+    </div>
+    <table class="easyui-datagrid" title="已添加商品" style="height:200px;" data-options="
+        singleSelect:true,
+        fitColumns:true,
+        url:'datagrid_data1.json',
+        method:'get'
+    ">
+        <thead>
+        <tr>
+            <th data-options="field:'itemid'" width="10%">名称</th>
+            <th data-options="field:'productid'" width="10%">编码</th>
+            <th data-options="field:'listprice',align:'left'" width="10%">规格编码</th>
+            <th data-options="field:'unitcost',align:'left'" width="10%">重量</th>
+            <th data-options="field:'attr1'" width="10%">售价</th>
+            <th data-options="field:'attr1',editor:'numberbox'" width="10%">数量</th>
+            <th data-options="field:'attr1'" width="10%">总重量</th>
+            <th data-options="field:'status',align:'left'" width="10%">总价格</th>
+        </tr>
+        </thead>
+    </table>
+</div>
+<div style="clear: both;">&nbsp;</div>
+<div class="easyui-panel" title="订单信息" style="width:100%;height:230px;padding:10px;" data-options="iconCls:'fa fa-list'">
+    <form id="ff" method="post">
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" name="name" style="width:30%" data-options="label:'订单号：',required:true,editable:false">
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" name="email" style="width:30%" data-options="label:'订单重量：',required:true,validType:'email',editable:false">
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" name="subject" style="width:30%" data-options="label:'订单总额：',required:true,editable:false">
+        </div>
+        <div style="margin-bottom:20px">
+            <select class="easyui-combobox" name="language" panelHeight="auto" editable="false" label="车辆申请：" style="width:30%">
+                <option value="ar">不申请车辆</option>
+                <option value="bg">申请车辆</option>
+            </select>
+        </div>
+    </form>
+</div>
+<div style="clear: both;">&nbsp;</div>
+<div style="padding:5px 0;text-align: center;">
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok'">添加订单</a>
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'">取消订单</a>
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'">保存订单</a>
+</div>
+<div style="clear: both;">&nbsp;</div>
+
+<div id="addProductDlg" style="width:500px"></div>
+<div id="addUserDlg" style="width:500px"></div>
+
+<script>
+    function addUserDlg() {
+        $('#addUserDlg').dialog({
+            title: '指定用户发放优惠券',
+            width: 700,
+            height: 400,
+            href: '/business/wxOrder/addUserDlg.action',
+            buttons:[{
+                text:'取消',
+                iconCls:'icon-cancel',
+                handler:function(){
+                    $('#addUserDlg').dialog('close');
+                }
+            }]
+        });
+    }
+
+    function addProductDlg() {
+        $('#addProductDlg').dialog({
+            title: '指定用户发放优惠券',
+            width: 700,
+            height: 400,
+            href: '/business/wxOrder/addProductDlg.action',
+            buttons:[{
+                text:'取消',
+                iconCls:'icon-cancel',
+                handler:function(){
+                    $('#addProductDlg').dialog('close');
+                }
+            }]
+        });
+    }
+
+    function typeFormatter(value,row,index){
+        if (value == 0){
+            return '普通优惠券';
+        } else if (value == 1) {
+            return '兑换优惠券';
+        } else if (value == 2) {
+            return '赠送优惠券';
+        }
+    }
+
+    function statusFormatter(value,row,index){
+        if (value == 0){
+            return '<span style="color:blue;">[已使用]</span>';
+        } else if (value == 1) {
+            return '<span style="color:green;">[未使用]</span>';
+        }
+    }
+
+    function dateFormatter(value,row,index){
+        return new Date(value).toLocaleString();
+    }
+
+
+    function formatOper(val,row,index){
+        return '<a href="#" onclick="editUser('+index+')">编辑</a>&nbsp;&nbsp;<a href="#" onclick="editUser('+index+')">删除</a>';
+    }
+
+    //筛选开关
+    var i = 1;
+    function searchCode() {
+        if (i == 1) {
+            $("#dg").datagrid('enableFilter');
+            i = 0;
+        } else {
+            $("#dg").datagrid('disableFilter');
+            i = 1;
+        }
+    }
+</script>
+
+</body>
+</html>

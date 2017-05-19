@@ -1,0 +1,173 @@
+#set($layout = "layout/empty.vm")
+
+<div id="updateProdType-tabs" class="easyui-tabs" data-options="
+        border:false,
+        fit:true,
+        justified:true
+        ">
+    <div title="基本信息" data-options="fit:true" style="padding:10px;">
+        <form id="updateProdType-fm" method="post" novalidate style="margin:0;padding:20px 50px" enctype="multipart/form-data">
+            <input type="hidden" name="typeId" value="$!prodType.typeId">
+            <div style="margin-bottom:20px;font-size:14px;border-bottom:1px solid #ccc">
+                <b>修改商品类型</b><br>
+                <small>您可以商品类型是一系列属性的组合，可以用来向客户展示某些商品具有的特有的属性。</small>
+            </div>
+
+            <div style="margin-bottom:10px">
+                <input name="typeName" class="easyui-textbox" style="width:100%" data-options="
+                        labelPosition:'top',
+                        required:true,
+                        value:'$!prodType.typeName',
+                        label:'&bull; 商品类型名称:'
+                        ">
+            </div>
+
+            <div style="margin-bottom:10px">
+                <input id="brandIds" name="brandIds" class="easyui-tagbox" style="width:100%" data-options="
+                        url: '/business/prodCat/getProdBrands',
+                        method: 'get',
+                        valueField: 'brandId',
+                        textField: 'brandName',
+                        value: [],
+                        label:'&bull; 关联商品品牌:',
+                        labelPosition:'top',
+                        limitToList: true,
+                        hasDownArrow: true,
+                        prompt: '选择与些商品类型关联的商品品牌',
+                        panelHeight:'auto',
+                        editable:false
+                        ">
+            </div>
+
+            <div style="margin-bottom:10px">
+                <input name="remark" class="easyui-textbox" style="width:100%;height:100px;" data-options="
+                labelPosition:'top',
+                required:true,
+                multiline:true,
+                value:'$!prodType.remark',
+                label:'&bull; 备注:'
+                ">
+            </div>
+
+        </form>
+    </div>
+
+    <div title="属性及属性值" data-options="">
+        <table id="attr-dg" class="easyui-datagrid" data-options="
+                singleSelect: true,
+                toolbar: '#update-attr-tb',
+                pagination:true,
+                rownumbers:true,
+                fitColumns:true,
+                fit:true,
+                border:false,
+                url: '/business/prodCat/getProdTypeAttrsByTypeId?typeId=$!prodType.typeId',
+                method: 'get'
+            ">
+            <thead>
+            <tr>
+                <th data-options="field:'attributeName',width:30,editor:'textbox'">属性名称</th>
+                <th data-options="field:'valueStr',width:100,editor:'textbox',formatter:valueStrFormatter">属性值</th>
+                <th data-options="field:'usageMode',width:30,
+                        formatter:function(value,row){
+                            if (value == 0) {
+                                return '单选';
+                            } else if (value == 1) {
+                                return '多选';
+                            } else if (value == 2) {
+                                return '直接填写';
+                            }
+                        },
+                        editor:{
+                            type:'combobox',
+                            options:{
+                                valueField: 'value',
+                                textField: 'label',
+                                editable: false,
+                                data: [{
+                                    label: '单选',
+                                    value: '0'
+                                },{
+                                    label: '多选',
+                                    value: '1'
+                                },{
+                                    label: '直接填写',
+                                    value: '2'
+                                }],
+                                required:true
+                            }
+                        }">展现模式</th>
+            </tr>
+            </thead>
+        </table>
+
+        <div id="update-attr-tb" style="height:auto">
+            <a href="javascript:void(0)" class="easyui-menubutton" data-options="menu:'#update-attr-mn',iconCls:'icon-add',plain:true">添加属性</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true" onclick="updateProdTypeAttrDlg();">修改属性</a>
+            #*<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-cancel',plain:true" onclick="deleteProdTypeAttrDlg();">删除属性</a>*#
+        </div>
+        <!--Menu-->
+        <div id="update-attr-mn" style="width:100px;">
+            <div onclick="addProdTypeInputAttrDlg('$!prodType.typeId', 0);">单选属性</div>
+            <div onclick="addProdTypeInputAttrDlg('$!prodType.typeId', 1);">多选属性</div>
+            <div onclick="addProdTypeInputAttrDlg('$!prodType.typeId', 2);">填写属性</div>
+        </div>
+    </div>
+    <div title="规格及规格值" data-options="">
+        <table id="update-spec-dg" class="easyui-datagrid" data-options="
+                singleSelect: true,
+                toolbar: '#update-spec-tb',
+                pagination:true,
+                rownumbers:true,
+                fitColumns:true,
+                fit:true,
+                border:false,
+                url: '/business/prodCat/getProdTypeSpecsByTypeId?typeId=$!prodType.typeId',
+                method: 'get'
+            ">
+            <thead>
+            <tr>
+                <th data-options="field:'useAttributeImage',width:30,editor:'textbox',formatter:specTypeFormatter">规格类型</th>
+                <th data-options="field:'attributeName',width:30,editor:'textbox'">规格名称</th>
+                <th data-options="field:'valueStr',width:100,editor:'textbox',formatter:valueStrFormatter">规格值</th>
+            </tr>
+            </thead>
+        </table>
+
+        <div id="update-spec-tb" style="height:auto">
+            <a href="javascript:void(0)" class="easyui-menubutton" data-options="menu:'#update-spec-mn',iconCls:'icon-add'">添加规格</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true" onclick="updateProdTypeSpecDlg($('#update-spec-dg'));">修改规格</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-redo',plain:true" onclick="addSpecValue($('#update-spec-dg'));">新增规格值</a>
+            #*<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-cancel',plain:true" onclick="deleteProdTypeSpecDlg();">删除规格</a>*#
+        </div>
+
+        <!-- Menu -->
+        <div id="update-spec-mn" style="width:100px;">
+            <div onclick="addCharSpecDlg($('#update-spec-dg'), '$!prodType.typeId');">文字规格</div>
+            <div onclick="addPicSpecDlg($('#update-spec-dg'), '$!prodType.typeId');">图片规格</div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+    /**
+     * 关联商品品牌回显-异步加载类型关联品牌
+     */
+    $(function(){
+        jQuery.ajax({
+            url: '/business/prodCat/getTypeBrandIdsByTypeId?typeId=$!prodType.typeId',
+            type: 'get',
+            dataType: 'json',
+            success: function(data) {
+                console.log(data);
+                $('#brandIds').tagbox('setValues', data);
+            },
+            error: function(data) {
+                alert('请求失败');
+            }
+        });
+    });
+</script>

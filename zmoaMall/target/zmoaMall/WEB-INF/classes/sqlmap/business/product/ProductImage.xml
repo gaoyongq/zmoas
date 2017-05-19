@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper  namespace="com.zm.mall.dao.business.product.ProductImageDao">
+    <resultMap id="ProductImageMap" type="com.zm.mall.domain.business.product.ProductImage">
+        <result column="ProductImageId" property="productImageId" jdbcType="BIGINT"></result>
+        <result column="ProductId" property="productId" jdbcType="BIGINT"></result>
+        <result column="ImageUrl" property="imageUrl" jdbcType="VARCHAR"></result>
+        <result column="ThumbnailUrl1" property="thumbnailUrl1" jdbcType="VARCHAR"></result>
+        <result column="ThumbnailUrl2" property="thumbnailUrl2" jdbcType="VARCHAR"></result>
+        <result column="ThumbnailUrl3" property="thumbnailUrl3" jdbcType="VARCHAR"></result>
+        <result column="ThumbnailUrl4" property="thumbnailUrl4" jdbcType="VARCHAR"></result>
+        <result column="ThumbnailUrl5" property="thumbnailUrl5" jdbcType="VARCHAR"></result>
+        <result column="ThumbnailUrl6" property="thumbnailUrl6" jdbcType="VARCHAR"></result>
+        <result column="ThumbnailUrl7" property="thumbnailUrl7" jdbcType="VARCHAR"></result>
+        <result column="ThumbnailUrl8" property="thumbnailUrl8" jdbcType="VARCHAR"></result>
+    </resultMap>
+
+    <!--�ж�ƽ̨Id-->
+    <sql id="b2c_condition">
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND pluteformid=#{pluteformid}
+        </if>
+    </sql>
+
+    <insert id="insertProductImage" parameterType="productImage">
+        INSERT INTO  b2c_shop_productimages(ProductId,ImageUrl,ThumbnailUrl1,shopId,pluteformid) VALUES(#{productId},#{imageUrl},#{thumbnailUrl1},#{shopId},#{pluteformid})
+    </insert>
+    <delete id="delProductImage" parameterType="productImage">
+        DELETE FROM b2c_shop_productimages WHERE ProductId=#{productId}
+        <include refid="b2c_condition"/>
+    </delete>
+    <select id="selProductImageByproductId" parameterType="productImage" resultMap="ProductImageMap">
+        select * from b2c_shop_productimages WHERE  ProductId=#{productId}
+        <include refid="b2c_condition"/>
+    </select>
+
+
+</mapper>
+
+

@@ -1,0 +1,69 @@
+#set($layout = "layout/empty.vm")
+
+
+<form id="cat-update-fm" method="post" novalidate style="margin:0;padding:20px 50px" enctype="multipart/form-data">
+    <input type="hidden" name="categoryId" value="$!category.categoryId">
+    <input type="hidden" name="parentCategoryId" value="$!category.parentCategoryId">
+    <div style="margin-bottom:20px;font-size:14px;border-bottom:1px solid #ccc">修改产品分类</div>
+
+    <div style="margin-bottom:10px">
+        <input name="parentCategoryId" class="easyui-combotree" style="width:100%" data-options="
+            url:'/business/prodCat/getPageProdCatListByParentId.action',
+            method:'get',
+            label:'&bull; 选择上级分类:',
+            labelPosition:'top',
+            required:true,
+            disabled: true,
+            value: '$!category.parentCategoryId',
+            onSelect:function(record){
+                console.log(record)
+                $('#depth').val(record.depth+1);
+            }
+            ">
+        <input id="depth" type="hidden" name="depth" value="$!category.parentCategoryId">
+    </div>
+
+    <div style="margin-bottom:10px">
+        <input name="name" class="easyui-textbox" style="width:100%" data-options="
+                labelPosition:'top',
+                required:true,
+                value: '$!category.name',
+                label:'&bull; 分类名称:'
+                ">
+    </div>
+
+#*<div style="margin-bottom:10px">
+    <input name="seoUrl" class="easyui-textbox" style="width:100%" data-options="
+            labelPosition:'top',
+            value: '$!category.seoUrl',
+            label:'&bull; URL重写名称:'
+            ">
+</div>*#
+
+    <div style="margin-bottom:10px">
+        <input name="file" class="easyui-filebox" label="&bull; 类别图片:" data-options="prompt:'选择一张图片...'" style="width:100%">
+        <img src="$!category.imageUrl" width="50%">
+    </div>
+
+    <div style="margin-bottom:10px">
+        <input name="description" class="easyui-textbox" style="width:100%;height:100px;" data-options="
+                labelPosition:'top',
+                required:true,
+                value: '$!category.description',
+                multiline:true,
+                label:'&bull; 分类描述:'
+                ">
+    </div>
+
+    <div style="margin-bottom:10px">
+        <span>&bull; 是否启用：</span><br/>
+        <input name="status" class="easyui-switchbutton" data-options="
+                onText:'开启',
+                offText:'关闭',
+                checked:$!category.status,
+                value: 1,
+                required:true
+                ">
+    </div>
+
+</form>

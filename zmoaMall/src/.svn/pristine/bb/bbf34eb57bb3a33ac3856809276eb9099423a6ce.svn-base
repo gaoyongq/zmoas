@@ -1,0 +1,362 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="icon" href="/js/bootstrap/favicon.ico">
+
+    <title>填写信息 | 店铺申请 | 兆美商城</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/js/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/js/bootstrap/jumbotron-narrow.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="container">
+    <div class="header clearfix">
+        <nav>
+            <ul class="nav nav-pills pull-right">
+                <li role="presentation" class="active"><a href="#">1. 填写信息 <i class='fa fa-chevron-right fa-lg'></i></a></li>
+                <li role="presentation"><a href="#reMark">2. 提交成功</a></li>
+            </ul>
+        </nav>
+        <h3 class="text-muted">店铺申请 | <small>兆美商城</small></h3>
+    </div>
+
+
+    <div class="row marketing">
+
+        <div class="col-lg-12">
+
+            <form class="form-horizontal" action="/business/shop/addShopInfo.action" method="post" enctype="multipart/form-data">
+                <input type="hidden" value="0" name="status" >
+                <div class="form-group">
+                    <label for="name" class="col-sm-2 control-label">商店名称</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="name" class="form-control" id="name" placeholder="商店名称" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="establishedDate" class="col-sm-2 control-label">成立时间</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="establishedDate" class="form-control" id="establishedDate" placeholder="成立时间" required readonly="readonly" onclick="WdatePicker({el:this,isShowOthers:true,dateFmt:'yyyy-MM-dd'});" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="registeredCapital" class="col-sm-2 control-label">注册资本</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="registeredCapital" class="form-control" id="registeredCapital" placeholder="注册资本" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="balance" class="col-sm-2 control-label">账户余额</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="balance" class="form-control" id="balance" placeholder="账户余额" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="telPhone" class="col-sm-2 control-label">电话</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="telPhone" class="form-control" id="telPhone" placeholder="电话" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="cellPhone" class="col-sm-2 control-label">手机</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="cellPhone" class="form-control" id="cellPhone" placeholder="手机" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="contactMail" class="col-sm-2 control-label">联系邮箱</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="contactMail" class="form-control" id="contactMail" placeholder="联系邮箱" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="Regionfirst" class="col-sm-2 control-label">省/市/县</label>
+                    <div class="col-sm-3">
+                        <select class="form-control" id="Regionfirst" name="Regionfirst" required>
+                            <option value="0">请选择</option>
+                            #foreach($r in $regionInfos)
+                                <option value="$r.regionId">$r.regionName</option>
+                            #end
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                        <select class="form-control" id="Regionsecond" name="Regionsecond" required>
+                            <option value="0">请选择</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-4">
+                        <select class="form-control" id="Regionthree" name="establishedCity" required>
+                            <option value="0">请选择</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="province" class="col-sm-2 control-label">注册地</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="province" class="form-control" id="province" placeholder="注册地" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="address" class="col-sm-2 control-label">详细地址</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="address" class="form-control" id="address" placeholder="详细地址" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="contact" class="col-sm-2 control-label">联系人</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="contact" class="form-control" id="contact" placeholder="联系人" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="fax" class="col-sm-2 control-label">传真</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="fax" class="form-control" id="fax" placeholder="传真" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="postCode" class="col-sm-2 control-label">邮编</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="postCode" class="form-control" id="postCode" placeholder="邮编" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="homePage" class="col-sm-2 control-label">主页</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="homePage" class="form-control" id="homePage" value="http://" placeholder="主页" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="artiPerson" class="col-sm-2 control-label">法人</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="artiPerson" class="form-control" id="artiPerson" placeholder="法人" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="rank" class="col-sm-2 control-label">商家等级</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" id="rank" name="rank" required>
+                            <option value="0">请选择</option>
+                            <option value="1">一星级</option>
+                            <option value="2">二星级</option>
+                            <option value="3">三星级</option>
+                            <option value="4">四星级</option>
+                            <option value="5">五星级</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="categoryId" class="col-sm-2 control-label">商家分类</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" id="categoryId" name="categoryId" required>
+                            <option value="0">请选择</option>
+                            <option value="1">合资</option>
+                            <option value="2">独资</option>
+                            <option value="3">国有</option>
+                            <option value="4">私营</option>
+                            <option value="5">全民所有制</option>
+                            <option value="6">集体所有制</option>
+                            <option value="7">股份制</option>
+                            <option value="8">有限责任制</option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="companyType" class="col-sm-2 control-label">公司性质</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" id="companyType" name="companyType" required>
+                            <option value="0">请选择</option>
+                            <option value="1">个体工商</option>
+                            <option value="2" >私营独资商家</option>
+                            <option value="3" >国营商家</option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="taxNumber" class="col-sm-2 control-label">税务登记</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="taxNumber" class="form-control" id="taxNumber" placeholder="税务登记" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="accountBank" class="col-sm-2 control-label">开户银行</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="accountBank" class="form-control" id="accountBank" placeholder="开户银行" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="accountInfo" class="col-sm-2 control-label">账号信息</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="accountInfo" class="form-control" id="accountInfo" placeholder="账号信息" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="msn" class="col-sm-2 control-label">MSN</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="msn" class="form-control" id="msn" placeholder="MSN" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="introduction" class="col-sm-2 control-label">商家介绍</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="introduction" class="form-control" id="introduction" placeholder="商家介绍" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="reMark" class="col-sm-2 control-label">备注</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="reMark" class="form-control" id="reMark" placeholder="备注" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="logo" class="col-sm-2 control-label">Logo</label>
+                    <div class="col-sm-10">
+                        <input type="file" name="file" class="form-control" id="logo" placeholder="Logo" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" checked> 我已同意<a href="#">兆美商城店铺管理协议</a>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-default btn-lg">提交信息</button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+
+
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2016-2017 北京兆美网络科技有限公司 版权所有 冀ICP备15004031号</p>
+    </footer>
+
+</div> <!-- /container -->
+
+
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/jquery-1.8.3.min.js"></script>
+<script src="/js/datepicker/WdatePicker.js"></script>
+<script type="text/javascript">
+    $(function () {
+        //获得地址
+        $("#Regionfirst").change(function () {
+            var select = "<option  value='0'  checked='checked'>请选择</option>";
+            var fatherId = $("#Regionfirst option:selected").val();
+            var depath = 2;
+            if (fatherId != null && fatherId != '') {
+                jQuery.post("/supplierInfo/getAddress.action", {
+                    "fatherId": fatherId,
+                    "depath": depath
+                }, function (data) {
+                    for (var r = 0; r < data.length; r++) {
+                        select += "<option value='" + data[r].regionId + "'>" + data[r].regionName + "</option>"
+                    }
+                    $("#Regionsecond option").remove();
+                    $("#Regionthree option").remove();
+                    $("#Regionsecond").append(select);
+                    $("#Regionthree").append("<option  value='0'  checked='checked'>请选择</option>");
+                });
+            } else {
+                $("#Regionsecond option").remove();
+                $("#Regionsecond").append(select);
+                $("#Regionthree option").remove();
+                $("#Regionthree").append("<option  value='0'  checked='checked'>请选择</option>");
+            }
+        });
+        //二级地址
+        $("#Regionsecond").change(function () {
+            var select = "<option value='0' checked='checked'>请选择</option>";
+            var fatherId = $("#Regionsecond option:selected").val();
+            var depath = 3;
+            if (fatherId != null && fatherId != '') {
+                jQuery.post("/supplierInfo/getAddress.action", {
+                    "fatherId": fatherId,
+                    "depath": depath
+                }, function (data) {
+                    for (var r = 0; r < data.length; r++) {
+                        select += "<option value='" + data[r].regionId + "'>" + data[r].regionName + "</option>"
+                    }
+                    $("#Regionthree option").remove();
+                    $("#Regionthree").append(select);
+                });
+            } else {
+                $("#Regionthree option").remove();
+                $("#Regionthree").append(select);
+            }
+        });
+        $("#province").change(function () {
+            var select = "<option  value='0'  checked='checked'>请选择</option>";
+            var fatherId = $("#province option:selected").val();
+            var depath = 2;
+            if (fatherId != null && fatherId != '') {
+                jQuery.post("/supplierInfo/getAddress.action", {
+                    "fatherId": fatherId,
+                    "depath": depath
+                }, function (data) {
+                    for (var r = 0; r < data.length; r++) {
+                        select += "<option value='" + data[r].regionId + "'>" + data[r].regionName + "</option>"
+                    }
+                    $("#city option").remove();
+                    $("#county option").remove();
+                    $("#city").append(select);
+                    $("#county").append("<option  value='0'  checked='checked'>请选择</option>");
+                });
+            } else {
+                $("#city option").remove();
+                $("#city").append(select);
+                $("#county option").remove();
+                $("#county").append("<option  value='0'  checked='checked'>请选择</option>");
+            }
+        });
+        //二级地址
+        $("#city").change(function () {
+            var select = "<option value='0' checked='checked'>请选择</option>";
+            var fatherId = $("#city option:selected").val();
+            var depath = 3;
+            if (fatherId != null && fatherId != '') {
+                jQuery.post("/supplierInfo/getAddress.action", {
+                    "fatherId": fatherId,
+                    "depath": depath
+                }, function (data) {
+                    for (var r = 0; r < data.length; r++) {
+                        select += "<option value='" + data[r].regionId + "'>" + data[r].regionName + "</option>"
+                    }
+                    $("#county option").remove();
+                    $("#county").append(select);
+                });
+            } else {
+                $("#county option").remove();
+                $("#county").append(select);
+            }
+        })
+    })
+</script>
+
+</body>
+</html>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.product.RelatedProductDao">
+
+    <resultMap id="RelatedProductMap" type="com.zm.mall.domain.business.product.RelatedProduct">
+    <result column="RelatedId" property="RelatedId" jdbcType="BIGINT"></result>
+    <result column="ProductId" property="ProductId" jdbcType="BIGINT"></result>
+    <result column="shopId" property="shopId" jdbcType="BIGINT"></result>
+    <result column="pluteformid" property="pluteformid" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <!--平台Id-->
+    <sql id="b2c_condition">
+        <choose>
+            <when test="shopId != null">and shopId = #{shopId}</when>
+            <otherwise>and shopId is null</otherwise>
+        </choose>
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND pluteformid=#{pluteformid}
+        </if>
+    </sql>
+
+    <insert id="insertRelatedProduct" parameterType="relatedProduct">
+        INSERT INTO b2c_Shop_RelatedProducts(RelatedId,ProductId,shopId,pluteformid)
+        VALUES (#{relatedId},#{productId},#{shopId},#{pluteformid})
+    </insert>
+    <delete id="delRelatedProduct" parameterType="productInfo">
+        DELETE FROM b2c_Shop_RelatedProducts WHERE
+        ProductId=#{productId}
+        <include refid="b2c_condition"/>
+    </delete>
+</mapper>

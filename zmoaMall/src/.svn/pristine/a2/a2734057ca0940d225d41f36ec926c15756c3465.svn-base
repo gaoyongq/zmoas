@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.product.BrandInfoDao">
+       <resultMap id="BrandInfoMap" type="com.zm.mall.domain.business.product.BrandInfo">
+              <result column="BrandId" property="brandId" jdbcType="BIGINT"></result>
+              <result column="BrandName" property="brandName" jdbcType="VARCHAR"></result>
+              <result column="BrandSpell" property="brandSpell" jdbcType="VARCHAR"></result>
+              <result column="Meta_Description" property="metaDescription" jdbcType="VARCHAR"></result>
+              <result column="Meta_Keywords" property="metaKeywords" jdbcType="VARCHAR"></result>
+              <result column="Logo" property="logo" jdbcType="VARCHAR"></result>
+              <result column="CompanyUrl" property="companyUrl" jdbcType="VARCHAR"></result>
+              <result column="Description" property="description" jdbcType="VARCHAR"></result>
+              <result column="DisplaySequence" property="displaySequence" jdbcType="BIGINT"></result>
+              <result column="Theme" property="theme" jdbcType="VARCHAR"></result>
+       </resultMap>
+
+    <!--判断平台Id-->
+    <sql id="b2c_condition">
+        <choose>
+            <when test="shopId != null">and shopId = #{shopId}</when>
+            <otherwise>and shopId is null</otherwise>
+        </choose>
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND pluteformid=#{pluteformid}
+        </if>
+    </sql>
+
+    <!--根据类型id查询-->
+    <select id="selBrandInfoByType" resultMap="BrandInfoMap" parameterType="attributeInfo">
+          SELECT b.*
+          FROM b2c_shop_brands b
+          LEFT JOIN b2c_shop_producttypebrands t
+          ON t.BrandId=b.BrandId
+          WHERE t.ProductTypeId=#{typeId}
+          <if test="pluteformid !=null  and  pluteformid  !='' ">
+             AND b.pluteformid=#{pluteformid}
+          </if>
+    </select>
+    <!--根据产品id查询-->
+    <select id="selBrandInfoById" resultMap="BrandInfoMap" parameterType="brandInfo">
+          SELECT *
+          FROM b2c_shop_brands
+          WHERE brandId=#{brandId}
+        <include refid="b2c_condition"/>
+    </select>
+</mapper>

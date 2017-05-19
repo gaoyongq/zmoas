@@ -1,0 +1,103 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>用户交易额</title>
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/default/easyui.css">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script type="text/javascript" src="/js/jeasyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-filter.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-detailview.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="/js/date-zh-CN.js"></script>
+</head>
+<body>
+
+<table id="users-dg" class="easyui-datagrid" data-options="
+        toolbar:'#tb',
+        title:'用户交易额',
+        fit:true,
+        singleSelect:true,
+        fitColumns:true,
+        url:'/business/getAllUsers.action',
+        idField: 'userId',
+        pagination:true,
+        pageSize:20,
+        onLoadSuccess:function(data){
+            $('.desc').linkbutton({text:'月交易金额',plain:true,iconCls:'icon-redo'});
+        }
+        ">
+    <thead>
+    <tr>
+        #*<th data-options="field:'ck',checkbox:true"></th>*#
+        <th field="userId" width="50px">用户Id</th>
+        <th field="userName" width="50px">用户名</th>
+        <th field="nickName" width="50px">呢称</th>
+        <th field="trueName" width="50px">真实姓名</th>
+        <th field="activity" formatter="statusFormatter" width="40px">用户状态</th>
+        <th field="userDateCreate" formatter="dateFormatter" width="45px">注册时间</th>
+        <th data-options="field:'_operate',formatter:operateFormatter" width="50px">操作</th>
+    </tr>
+    </thead>
+</table>
+
+<!-- toolbar -->
+<div id="tb" style="padding:2px 5px;">
+    昵称: <input id="nickName" class="easyui-textbox" style="width:110px">
+    <a href="#" onclick="searchShop()" class="easyui-linkbutton" iconCls="icon-search">查询</a>
+    &nbsp;&nbsp;
+</div>
+
+
+<div id="userDesc-dlg" style="width:500px"></div>
+
+
+<script>
+    function searchShop() {
+        var nickName = $('#nickName').textbox('getValue');
+        $('#users-dg').datagrid({
+            url:'/business/getAllUsers.action',
+            queryParams:{nickName:nickName},
+        });
+        $('#users-dg').datagrid('reload');
+    }
+
+    function operateFormatter(value, row, index) {
+        var str = '<a href="#" onclick="userTurnover(' + row.userId + ')" class="desc" class="easyui-linkbutton"></a>';
+        return str;
+    }
+
+    function dateFormatter(value,row,index){
+        return new Date(value).toString('yyyy-MM-dd HH:ss:mm');
+    }
+
+    function statusFormatter(value, row, index) {
+        if (value == 0) {
+            return '冻结';
+        } else if (value == 1) {
+            return '已激活';
+        }
+    }
+
+    function userTurnover(userId) {
+        $('#userDesc-dlg').dialog({
+            title: '月交易金额',
+            width: 700,
+            height: 400,
+            href: '/business/userTurnover.action?userId='+userId,
+            buttons:[{
+                text:'关闭',
+                iconCls:'icon-ok',
+                handler:function() {
+                    $('#userDesc-dlg').dialog('close');
+                }
+            }]
+        });
+    }
+</script>
+</body>
+</html>

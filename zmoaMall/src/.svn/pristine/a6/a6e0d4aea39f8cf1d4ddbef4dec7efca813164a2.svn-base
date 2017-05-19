@@ -1,0 +1,59 @@
+#set($layout = "layout/empty.vm")
+
+<div id="addProdTypeSpec-tabs" class="easyui-tabs" data-options="
+        pill:true,
+        border:false,
+        fit:true,
+        justified:true,
+        onSelect:function(title,index){
+            if (step != index) {
+                $('#addProdTypeSpec-tabs').tabs('select', step);
+            } else {
+                $('#addProdTypeSpec-tabs').tabs('select', index);
+            }
+        }
+        ">
+    <div title="1.填写基本信息 <i class='fa fa-chevron-right fa-lg'></i>" data-options="fit:true" style="padding:10px;">
+        <h2>请进行下一步操作</h2>
+    </div>
+
+    <div title="2.填写属性及属性值 <i class='fa fa-chevron-right fa-lg'></i>" data-options="">
+        <h2>已完成</h2>
+    </div>
+
+    <div title="3.添加规格及规格值 <i class='fa fa-check fa-lg'></i>" data-options="">
+        <table id="add-spec-dg" class="easyui-datagrid" data-options="
+                singleSelect: true,
+                toolbar: '#add-spec-tb',
+                pagination:true,
+                rownumbers:true,
+                fitColumns:true,
+                fit:true,
+                border:false,
+                url: '/business/prodCat/getProdTypeSpecsByTypeId?typeId=$!typeId',
+                method: 'get'
+            ">
+            <thead>
+            <tr>
+                <th data-options="field:'useAttributeImage',width:80,editor:'textbox',formatter:specTypeFormatter">规格类型</th>
+                <th data-options="field:'attributeName',width:80,editor:'textbox'">规格名称</th>
+                <th data-options="field:'valueStr',width:100,editor:'textbox'">规格值</th>
+            </tr>
+            </thead>
+        </table>
+
+        <div id="add-spec-tb" style="height:auto">
+            <a href="javascript:void(0)" class="easyui-menubutton" data-options="menu:'#add-spec-mn',iconCls:'icon-add'">添加规格</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-redo',plain:true" onclick="addSpecValue($('#add-spec-dg'));">新增规格值</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true" onclick="updateProdTypeSpecDlg($('#add-spec-dg'));">修改规格</a>
+            #*<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-cancel',plain:true" onclick="addDlg();">删除规格值</a>*#
+        </div>
+
+        <!-- Menu -->
+        <div id="add-spec-mn" style="width:100px;">
+            <div onclick="addCharSpecDlg($('#add-spec-dg'), '$!typeId');">文字规格</div>
+            <div onclick="addPicSpecDlg($('#add-spec-dg'), '$!typeId');">图片规格</div>
+        </div>
+
+    </div>
+</div>

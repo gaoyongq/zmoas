@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    		http://www.springframework.org/schema/beans/spring-beans.xsd
+       		http://www.springframework.org/schema/context 
+     		http://www.springframework.org/schema/context/spring-context.xsd"
+	   default-lazy-init="false" default-autowire="byName">
+	<!-- start router platform id  -->
+	<bean id="metaDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${jdbc.driverClass}" />
+  		<property name="jdbcUrl" value="${jdbc.jdbcUrl}" />
+  		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="initialPoolSize" value="${jdbc.initialPoolSize}" />
+		<property name="minPoolSize" value="${jdbc.minPoolSize}" />
+		<property name="maxPoolSize" value="${jdbc.maxPoolSize}" />
+		<property name="maxIdleTime" value="${jdbc.maxIdleTime}" />
+		<property name="checkoutTimeout" value="${jdbc.checkoutTimeout}" />
+		<property name="idleConnectionTestPeriod" value="600" />
+		<property name="testConnectionOnCheckout" value="false" />
+	</bean>
+	<!--<bean id="metaDataSource" class="org.apache.commons.dbcp.BasicDataSource">-->
+		<!--<property name="driverClassName" value="${jdbc.driverClass}"/>-->
+		<!--<property name="url" value="${jdbc.jdbcUrl}?useUnicode=true&amp;characterEncoding=utf8"/>-->
+		<!--<property name="username" value="${jdbc.username}"/>-->
+		<!--<property name="password" value="${jdbc.password}"/>-->
+	<!--</bean>-->
+
+    <!--<bean id="masterDataSource" class="com.jd.ecc.b2b.shared.common.router.PlatformRoutingDataSource"-->
+          <!--lazy-init="true">-->
+        <!--<property name="targetDataSources">-->
+            <!--<map>-->
+            <!--</map>-->
+        <!--</property>-->
+        <!-- <property name="defaultTargetDataSource" ref="dataSource" /> -->
+        <!--<property name="metaDataSource" ref="metaDataSource" />-->
+    <!--</bean>-->
+    <!-- end router  -->
+	<bean id="userInfoDaoImpl"  class="com.zm.mall.dao.user.impl.UserDaoInfoImpl"/>
+	<bean id="productInfoDaoImpl"  class="com.zm.mall.dao.business.product.impl.ProductDaoInfoImpl"/>
+	<bean id="skuInfoDaoImpl"  class="com.zm.mall.dao.business.product.impl.SKUInfoDaoImpl"/>
+	<bean id="productCategoriesDaoImpl"  class="com.zm.mall.dao.business.product.impl.ProductCategoriesDaoImpl"/>
+	<bean id="categoryInfoDaoImpl" class="com.zm.mall.dao.business.product.impl.CategoryInfoDaoImpl"/>
+	<bean id="brandInfoDaoImpl" class="com.zm.mall.dao.business.product.impl.BrandInfoDaoImpl"/>
+	<bean id="supplierInfoDaoImpl" class="com.zm.mall.dao.business.product.impl.SupplierInfoDaoImpl"/>
+	<bean id="productTypeDaoImp" class="com.zm.mall.dao.business.product.impl.ProductTypeDaoImp"/>
+	<bean id="attributeInfoDaoImpl" class="com.zm.mall.dao.business.product.impl.AttributeInfoDaoImpl"/>
+	<bean id="regionInfoDaoImpl" class="com.zm.mall.dao.business.product.impl.RegionInfoDaoImpl"/>
+	<bean id="systemCodeImpl"  class="com.zm.mall.dao.system.impl.SystemCodeDaoImpl"/>
+	<bean id="attributeValueDaoImpl" class="com.zm.mall.dao.business.product.impl.AttributeValueDaoImpl"/>
+	<bean id="productAttributeDaoImpl" class="com.zm.mall.dao.business.product.impl.ProductAttributeDaoImpl"/>
+	<bean id="skuItemDaoImpl" class="com.zm.mall.dao.business.product.impl.SKUItemDaoImpl"/>
+	<bean id="skuRelationDaoImpl" class="com.zm.mall.dao.business.product.impl.SKURelationDaoImpl"/>
+	<bean id="relatedProductDaoImpl" class="com.zm.mall.dao.business.product.impl.RelatedProductDaoImpl"/>
+	<bean id="productImageDaoImpl" class="com.zm.mall.dao.business.product.impl.ProductImageDaoImpl"/>
+	<bean id="thumbnailSizeDaoImpl" class="com.zm.mall.dao.business.product.impl.ThumbnailSizeDaoImpl"/>
+	<bean id="favoriteInfoDaoImpl" class="com.zm.mall.dao.business.product.impl.FavoriteInfoDaoImpl"/>
+	<bean id="productStationModesDaoImpl" class="com.zm.mall.dao.business.product.impl.ProductStationModesDaoImpl"/>
+	<bean id="tradingRecordDaoImpl" class="com.zm.mall.dao.business.accountsUsers.impl.TradingRecordDaoImpl"/>
+	<bean id="privilegeImpl"  class="com.zm.mall.dao.system.impl.MenusDaoImpl"/>
+	<bean id="moneyManager"  class="com.zm.mall.dao.system.impl.MoneyManagerDaoImpl"/>
+	<bean id="orderInfoDaoImpl" class="com.zm.mall.dao.business.orders.impl.OrderInfoDaoImpl"/>
+	<bean id="userDaoImpl" class="com.zm.mall.dao.system.impl.UserDaoImpl"/>
+	<bean id="roleDaoImpl" class="com.zm.mall.dao.system.impl.RoleDaoImpl"/>
+	<bean id="departmentDaoImpl" class="com.zm.mall.dao.system.impl.DepartmentDaoImpl"/>
+	<bean id="privilegeDaoImpl" class="com.zm.mall.dao.system.impl.PrivilegeDaoImpl"/>
+	<bean id="register"  class="com.zm.mall.dao.system.impl.RegisterDaoImpl"/>
+	<bean id="itemSystemCodeImpl"  class="com.zm.mall.dao.system.impl.ItemSystemCodeDaoImpl"/>
+	<bean id="truckManageImpl"  class="com.zm.mall.dao.system.impl.TruckManageDaoImpl"/>
+	<bean id="PurchaseDaoImpl" class="com.zm.mall.dao.business.purchase.impl.PurchaseDaoImpl"/>
+	<bean id="userListDaoImpl"  class="com.zm.mall.dao.business.accountsUsers.impl.UserListDaoImpl"/>
+	<bean id="shippingAddressDaoImpl" class="com.zm.mall.dao.business.accountsUsers.impl.ShippingAddressDaoImpl"/>
+	<bean id="supplierProductImpl" class="com.zm.mall.dao.business.product.impl.SupplierProductDaoImpl"/>
+	<bean id="distributionImpl"  class="com.zm.mall.dao.system.impl.DistributionDaoImpl"/>
+	<bean id="distributionSonImpl"  class="com.zm.mall.dao.system.impl.DistributionSonDaoImpl"/>
+	<bean id="alwaysProfitDaoImpl"  class="com.zm.mall.dao.system.impl.AlwaysProfitDaoImpl"/>
+	<bean id="alwaysProfitSonDaoImpl"  class="com.zm.mall.dao.system.impl.AlwaysProfitSonDaoImpl"/>
+	<bean id="applyCarDaoImpl"  class="com.zm.mall.dao.system.impl.ApplyCarDaoImpl"/>
+	<bean id="applyCarSonDaoImpl"  class="com.zm.mall.dao.system.impl.ApplyCarSonDaoImpl"/>
+	<bean id="deptSystemCodeDaoImpl"  class="com.zm.mall.dao.system.systemCode.impl.DeptSystemCodeDaoImpl"/>
+	<bean id="mallConfigDaoImpl" class="com.zm.mall.dao.system.impl.MallConfigDaoImpl"/>
+	<bean id="couponDaoImpl" class="com.zm.mall.dao.system.impl.CouponDaoImpl"/>
+	<bean id="adDaoImpl" class="com.zm.mall.dao.system.impl.AdDaoImpl"/>
+	<bean id="ShopUserDaoImpl" class="com.zm.mall.dao.business.shopUser.impl.ShopUserDaoImpl"/>
+	<bean id="bankCardDaoImpl" class="com.zm.mall.dao.business.bank.impl.BankCardDaoImpl"/>
+	<!--微信-->
+	<bean id="cartDaoImpl"  class="com.zm.mall.dao.wechat.impl.CartDaoImpl"/>
+	<bean id="productCategoryDaoImpl"  class="com.zm.mall.dao.business.product.impl.ProductCategoryDaoImpl"/>
+	<bean id="shopInfoDaoImpl" class="com.zm.mall.dao.business.shop.impl.ShopInfoDaoImpl"/>
+	<bean id="appointmentDaoImpl" class="com.zm.mall.dao.business.appointment.impl.AppointmentImpl"/>
+<!-- 配置事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="metaDataSource" />
+	</bean>
+	
+	<!-- 集成Mybatis -->
+	<bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="metaDataSource" />
+		<property name="configLocation" value="classpath:sqlmap-config.xml" />
+	</bean>
+
+
+	<bean id="sqlTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sessionFactory" />
+	</bean>
+	<bean id="batchSqlTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sessionFactory" />
+		<constructor-arg index="1" value="BATCH" />
+	</bean>
+	
+    <!-- 配置事务管理器 -->
+    <!--<bean id="mallInfoTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
+        <!--<property name="dataSource" ref="metaDataSource" />-->
+    <!--</bean>-->
+
+	<!--<bean id="mallInfoSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">-->
+		<!--<property name="dataSource" ref="metaDataSource" />-->
+		<!--<property name="configLocation" value="classpath:sqlmap-config.xml" />-->
+	<!--</bean>-->
+
+	<!--<bean id="mallInfoSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">-->
+		<!--<constructor-arg index="0" ref="mallInfoSessionFactory" />-->
+	<!--</bean>-->
+
+	<!-- end mall info special-->
+	<!--自定义Sequence工具类 add by hushengbo 2015-12-25-->
+	<!--<bean id="defaultSequence" class="com.jd.common.util.Sequence">-->
+		<!--<property name="dataSource" ref="metaDataSource"/>-->
+		<!--<property name="blockSize" value="200"/>-->
+	<!--</bean>-->
+
+
+	<!--<bean id="sequenceUtil" class="com.jd.common.util.SequenceUtil">-->
+		<!--<property name="defaultSequence" ref="defaultSequence"/>-->
+		<!--<property name="sequenceMap">-->
+			<!--<map>-->
+			<!--</map>-->
+		<!--</property>-->
+	<!--</bean>-->
+</beans>

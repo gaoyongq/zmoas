@@ -1,0 +1,28 @@
+#set($layout = "layout/empty.vm")
+
+<table class="easyui-datagrid" data-options="
+        fit: true,
+        border: false
+        ">
+    <thead>
+        <tr>
+            <th data-options="field:'code'" width="20%">名称</th>
+            <th data-options="field:'name'" width="80%">信息</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>商城名称</td><td>$!{mall.nickname}</td>
+        </tr>
+        <tr>
+            <td>成立时间</td><td>$!date.format('yyyy-MM-dd HH:mm:ss', $!{mall.updateTime})</td>
+        </tr>
+        <tr>
+            <td>手机</td><td>$!{mall.phone}</td>
+        </tr>
+        <tr>
+            <td>详细地址</td><td>$!{mall.address}</td>
+        </tr>
+
+    </tbody>
+</table>

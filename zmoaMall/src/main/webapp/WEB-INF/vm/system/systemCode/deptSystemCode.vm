@@ -1,0 +1,136 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>部门代码管理</title>
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/demo/demo.css">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.min.js"></script>
+    <script type="text/javascript" src="http://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="http://www.jeasyui.com/easyui/datagrid-filter.js"></script>
+    <script type="text/javascript" src="http://www.jeasyui.com/easyui/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+
+    <table id="tg" class="easyui-treegrid" data-options="
+        url: '/deptSystemCode/getDeptCodeListByDeptParentId.action',
+        toolbar:'#tb',
+        fitColumns:true,
+        border:false,
+        fit:true,
+        rownumbers: true,
+        idField: 'id',
+        treeField: 'name'
+    ">
+
+        <thead>
+            <tr>
+                <th data-options="field:'name',align:'left'" width="30%">部门名称</th>
+                <th data-options="field:'code',align:'left'" width="30%">部门代码</th>
+                <th data-options="field:'description',align:'left'" width="40%">编码描述</th>
+            </tr>
+        </thead>
+    </table>
+
+    <!-- toolbar -->
+    <div id="tb" style="padding:2px 5px;">
+        <a href="javascript:void(0)" class="easyui-linkbutton" style="width:120px" onclick="searchCode();" iconCls="icon-search">筛选</a>
+        &nbsp;&nbsp;
+        <a href="javascript:void(0)" class="easyui-linkbutton c8" style="width:120px" onclick="editDeptSysCode();">设置</a>
+    </div>
+
+    <!-- 修改对话框 -->
+    <div id="dlg" class="easyui-dialog" style="width:400px"
+         closed="true" buttons="#dlg-buttons">
+        <form id="fm" method="post" novalidate style="margin:0;padding:20px 50px">
+            <input name="id" type="hidden">
+            <input name="codeId" type="hidden">
+            <input name="codeParentId" type="hidden" value="$!parentId">
+            <input name="platformId" type="hidden" value="$!userResult.pluteformid">
+            <div style="margin-bottom:20px;font-size:14px;border-bottom:1px solid #ccc">请填写部门编码和编码描述</div>
+            <div style="margin-bottom:10px">
+                <input name="name" class="easyui-textbox" data-options="label:'部门名称',editable:false" style="width:100%">
+            </div>
+            <div style="margin-bottom:10px">
+                <input name="code" class="easyui-textbox" label="部门编码:" style="width:100%">
+            </div>
+            <div style="margin-bottom:10px">
+                <input name="description" class="easyui-textbox" data-options="label:'编码描述:',multiline:true" style="width:100%">
+            </div>
+        </form>
+    </div>
+    <!-- 对话框按钮 -->
+    <div id="dlg-buttons">
+        <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="updateDeptSysCode();" style="width:90px">保存</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">取消</a>
+    </div>
+
+<script>
+
+    function editDeptSysCode(){
+        var row = $('#tg').treegrid('getSelected');
+
+        if (row){
+            $('#dlg').dialog('open').dialog('center').dialog('setTitle','设置部门编码');
+            $('#fm').form('load',row);
+            //url = 'update_user.php?id='+row.id;
+        } else {
+            jQuery.messager.show({
+                title:'操作提示说明！',
+                msg: '点击选中一条记录，然后点击设置按钮',
+                showType:'show',
+                style:{
+                    left:'',
+                    right:0,
+                    top:document.body.scrollTop+document.documentElement.scrollTop,
+                    bottom:''
+                }
+            });
+        }
+    }
+
+    function updateDeptSysCode() {
+        //提交form表单
+        $('#fm').form('submit', {
+            url:'/deptSystemCode/updateDeptCode.action',
+            success: function(data) {
+                var data = eval('(' + data + ')');  // change the JSON string to javascript object
+                if (data.success) {
+                    $('#dlg').dialog('close');
+                    $('#tg').treegrid('reload');
+                    jQuery.messager.show({
+                        title:'数据修改成功提示！',
+                        msg: '您在 ' + new Date().toLocaleString() + ' 成功更新了一条数据',
+                        showType:'show'
+                    });
+                }
+
+            },
+            error: function() {
+                jQuery.messager.show({
+                    title:'请求失败！',
+                    msg: new Date().toLocaleString() + ' 请求服务器失败',
+                    showType:'show'
+                });
+            }
+        });
+    }
+
+    //筛选开关
+    var i = 1;
+    function searchCode() {
+        if (i == 1) {
+            $("#tg").treegrid('enableFilter');
+            i = 0;
+        } else {
+            $("#tg").treegrid('disableFilter');
+            i = 1;
+        }
+    }
+</script>
+
+</body>
+</html>

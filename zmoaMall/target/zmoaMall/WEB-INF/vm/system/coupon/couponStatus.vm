@@ -1,0 +1,99 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>已发放优惠券状态</title>
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/default/easyui.css">
+
+    <script type="text/javascript" src="/js/jeasyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-filter.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-detailview.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+
+<table id="tg" class="easyui-datagrid" data-options="
+        url: '/coupon/getUserCoupons.action',
+        toolbar:'#tb',
+        fitColumns:true,
+        title:'已发放优惠券状态',
+        border:false,
+        fit:true,
+        rownumbers: true,
+        pagination: true,
+        pageSize:20,
+        singleSelect:true,
+        idField: 'id',
+        treeField: 'name'
+    ">
+
+    <thead>
+    <tr>
+        <th data-options="field:'ck',checkbox:true" width="5%"></th>
+        <th data-options="field:'id',align:'left'" width="5%">优惠券Id</th>
+        <th data-options="field:'code',align:'left'" width="10%">优惠券编码</th>
+        <th data-options="field:'sourceName',align:'left'" width="25%">优惠券名称</th>
+        <th data-options="field:'sourceType',align:'left',formatter:typeFormatter" width="10%">优惠券类型</th>
+        <th data-options="field:'userName',align:'left'" width="10%">所属用户</th>
+        <th data-options="field:'faceValue',align:'left'" width="5%">面值</th>
+        <th data-options="field:'usedTime',align:'left'" width="10%">使用时间</th>
+        <th data-options="field:'orderCode',align:'left'" width="10%">使用订单</th>
+        <th data-options="field:'status',align:'left',formatter:statusFormatter" width="5%">状态</th>
+    </tr>
+    </thead>
+</table>
+
+<!-- toolbar -->
+<div id="tb" style="padding:2px 5px;">
+    <a href="javascript:void(0)" class="easyui-linkbutton" style="width:100px" onclick="searchCode();">筛选</a>
+</div>
+
+
+<script>
+    function typeFormatter(value,row,index){
+        if (value == 0){
+            return '普通优惠券';
+        } else if (value == 1) {
+            return '兑换优惠券';
+        } else if (value == 2) {
+            return '赠送优惠券';
+        }
+    }
+
+    function statusFormatter(value,row,index){
+        if (value == 0){
+            return '<span style="color:blue;">[已使用]</span>';
+        } else if (value == 1) {
+            return '<span style="color:green;">[未使用]</span>';
+        }
+    }
+
+    function dateFormatter(value,row,index){
+        console.log(value);
+        return new Date(value).toLocaleString();
+    }
+
+
+    function formatOper(val,row,index){
+        return '<a href="#" onclick="editUser('+index+')">编辑</a>&nbsp;&nbsp;<a href="#" onclick="editUser('+index+')">删除</a>';
+    }
+
+    //筛选开关
+    var i = 1;
+    function searchCode() {
+        if (i == 1) {
+            $("#tg").treegrid('enableFilter');
+            i = 0;
+        } else {
+            $("#tg").treegrid('disableFilter');
+            i = 1;
+        }
+    }
+</script>
+
+</body>
+</html>

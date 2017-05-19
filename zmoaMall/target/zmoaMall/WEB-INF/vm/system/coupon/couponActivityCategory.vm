@@ -1,0 +1,131 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>优惠券分类管理</title>
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/default/easyui.css">
+
+    <script type="text/javascript" src="/js/jeasyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-filter.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-detailview.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+
+<table id="tg" class="easyui-datagrid" sortName="sequence" sortOrder="asc" data-options="
+        url: '/coupon/getCouponActivityCategories.action',
+        toolbar:'#tb',
+        fitColumns:true,
+        title:'活动分类管理',
+        border:false,
+        fit:true,
+        rownumbers: true,
+        pagination: true,
+        singleSelect:true,
+        idField: 'id',
+        treeField: 'name'
+    ">
+
+    <thead>
+    <tr>
+        <th data-options="field:'ck',checkbox:true" width="5%"></th>
+        <th data-options="field:'id',align:'left'" width="25%">活动分类Id</th>
+        <th data-options="field:'name',align:'left'" width="25%">活动分类名称</th>
+        <th data-options="field:'createUserName',align:'left'" width="25%">创建人</th>
+        <th data-options="field:'status',align:'left',formatter:statusFormatter" width="20%">状态</th>
+    </tr>
+    </thead>
+</table>
+
+<!-- toolbar -->
+<div id="tb" style="padding:2px 5px;">
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="addCouponCategoryDlg();" style="width:120px">添加活动分类</a>
+    &nbsp;&nbsp;
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" style="width:100px" onclick="searchCode();">筛选</a>
+</div>
+
+
+<!-- 对话框 -->
+<div id="dlg" class="easyui-dialog" style="width:400px"
+     closed="true" buttons="#dlg-buttons">
+    <form id="fm" method="post" novalidate style="margin:0;padding:20px 50px">
+        <input name="createUser.id" value="$userId" type="hidden">
+        <div style="margin-bottom:20px;font-size:14px;border-bottom:1px solid #ccc">填写活动分类信息</div>
+        <div style="margin-bottom:10px">
+            <p>&bull; 活动分类名称：</p>
+            <input id="name" name="name" class="easyui-textbox" data-options="required:true" style="width:100%">
+        </div>
+        <div style="margin-bottom:10px">
+            <p>&bull; 是否启用：</p>
+            <input id="sb" name="status" class="easyui-switchbutton" data-options="onText:'开启',offText:'关闭',checked:true,value:1,required:true">
+        </div>
+    </form>
+</div>
+<!-- 对话框按钮 -->
+<div id="dlg-buttons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="addCouponCategory();" style="width:90px">保存</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">取消</a>
+</div>
+
+
+<script>
+    function statusFormatter(value,row,index){
+        if (row.status == 1){
+            return '<span style="color:green;">[已启用]</span>';
+        } else {
+            return '<span style="color:blue;">[未启用]</span>';
+        }
+    }
+
+    function addCouponCategoryDlg(){
+        $('#dlg').dialog('open').dialog('center').dialog('setTitle','活动分类添加');
+        $('#name').textbox('clear');
+    }
+
+    function addCouponCategory() {
+        //提交form表单
+        $('#fm').form('submit', {
+            url:'/coupon/addCouponActivityCategory.action',
+            success: function(data) {
+                var data = eval('(' + data + ')');  // change the JSON string to javascript object
+                if (data.success) {
+                    $('#dlg').dialog('close');
+                    $('#tg').datagrid('reload');
+                    jQuery.messager.show({
+                        title:'数据修改成功提示！',
+                        msg: '您在 ' + new Date().toLocaleString() + ' 成功更新了一条数据',
+                        showType:'show'
+                    });
+                }
+
+            },
+            error: function() {
+                jQuery.messager.show({
+                    title:'请求失败！',
+                    msg: new Date().toLocaleString() + ' 请求服务器失败',
+                    showType:'show'
+                });
+            }
+        });
+    }
+
+    /* 筛选开关 Start */
+    var i = 1;
+    function searchCode() {
+        if (i == 1) {
+            $("#tg").treegrid('enableFilter');
+            i = 0;
+        } else {
+            $("#tg").treegrid('disableFilter');
+            i = 1;
+        }
+    }
+    /* 筛选开关 End */
+</script>
+
+</body>
+</html>

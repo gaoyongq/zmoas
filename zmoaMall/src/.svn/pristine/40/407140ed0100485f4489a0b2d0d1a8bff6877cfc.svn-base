@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.product.RegionInfoDao">
+    <resultMap id="RegionInfoMap" type="com.zm.mall.domain.business.product.RegionInfo">
+        <result column="AreaId" property="areaId" jdbcType="BIGINT"></result>
+        <result column="RegionId" property="regionId" jdbcType="BIGINT"></result>
+        <result column="ParentId" property="parentId" jdbcType="BIGINT"></result>
+        <result column="RegionName" property="regionName" jdbcType="VARCHAR"></result>
+        <result column="Spell" property="spell" jdbcType="VARCHAR"></result>
+        <result column="SpellShort" property="spellShort" jdbcType="VARCHAR"></result>
+        <result column="DisplaySequence" property="displaySequence" jdbcType="BIGINT"></result>
+        <result column="Path" property="path" jdbcType="VARCHAR"></result>
+        <result column="Depth" property="depth" jdbcType="BIGINT"></result>
+    </resultMap>
+
+    <!--判断平台Id-->
+    <sql id="b2c_condition">
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND pluteformid=#{pluteformid}
+        </if>
+    </sql>
+
+    <select id="selRegionInfoFirst" resultMap="RegionInfoMap">
+        SELECT  *
+        FROM  b2c_ms_regions
+        where
+        Depth=1
+        <include refid="b2c_condition"/>
+    </select>
+    <select id="selRegionInfoScound" resultMap="RegionInfoMap" parameterType="regionInfo">
+        SELECT  *
+        FROM  b2c_ms_regions
+        where
+        ParentId = #{parentId} AND Depth=#{depth}
+        <!--<include refid="b2c_condition"/>-->
+    </select>
+    <select id="selRegionInfoPath" resultType="regionInfo" parameterType="regionInfo">
+        SELECT *
+        FROM b2c_ms_regions
+        WHERE
+        RegionId = #{regionId}
+        <include refid="b2c_condition"/>
+    </select>
+    <select id="regionInfos" resultMap="RegionInfoMap"  parameterType="regionInfo">
+        SELECT *
+        from b2c_ms_regions
+        WHERE
+        ParentId = (SELECT ParentId from b2c_ms_regions s WHERE RegionId =#{regionId})
+        <include refid="b2c_condition"/>
+    </select>
+    <!-- 微信根据县名称查询regionId-->
+    <select id="selectRegionId"  parameterType="regionInfo" resultType="regionInfo" >
+        select * from b2c_ms_regions where RegionName =#{regionName}
+        <include refid="b2c_condition"/>
+    </select>
+</mapper>

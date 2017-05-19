@@ -1,0 +1,358 @@
+#set($layout = "layout/empty.vm")
+<html>
+<head>
+    <!-- 导入jquery核心类库 -->
+    <script type="text/javascript"
+            src="../../js/jquery-1.8.3.js"></script>
+    <!-- 导入easyui类库 -->
+    <link id="easyuiTheme" rel="stylesheet" type="text/css"
+          href="../../js/easyui/themes/default/easyui.css">
+##        <link rel="stylesheet" type="text/css"
+##              href="../../css/default.css">
+    <script type="text/javascript"
+            src="../../js/easyui/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script type="text/javascript" src="../../My97DatePicker/WdatePicker.js"></script>
+    <script>
+        $(function(){
+            var currentPage = "1";
+            var totalPages;
+            selData();
+            function selData(){
+                 var number = $("#number").val();
+                 var driver = $("#driver").val();
+                 var state = $("#state").val();
+                var stateNumber = $("#state").val();
+                jQuery.post("/system/selectTruckManageList.action",{"currentPage":currentPage,"number":number,"driver":driver,"state":state},function(data){
+                    if(data.resultTruckManage==null){
+                        $("#mytbody").html("<tr><td colspan='11' algin='center'>查无结果</td></tr>");
+                    }else {
+                        var resultData = "";
+                        for (var j = 0,i=1; j < data.resultTruckManage.length; j++,i++) {
+                            resultData += "<tr class='applyCarSonClass' id='"+data.resultTruckManage[j].id+"' ><td><input type='checkbox' class='skuattr' name='Check' id='showproduct'value='"+data.resultTruckManage[j].id+"' /></td>";
+                            resultData += "<td>" + i + "</td>";
+                            resultData += "<td>" + data.resultTruckManage[j].number + "</td>";
+                            resultData += "<td>" + data.resultTruckManage[j].capacity + "</td>";
+                            resultData += "<td>" + data.resultTruckManage[j].life + "</td>";
+                            resultData += "<td>" + data.resultTruckManage[j].driver + "</td>";
+                            resultData += "<td>" + data.resultTruckManage[j].deliveryman + "</td>";
+                            resultData += "<td>" + data.resultTruckManage[j].state + "</td>";
+                            if(stateNumber=="1"){
+                                resultData += "<td> <a class='button border-blue' onclick=sort(number='"+ data.resultTruckManage[j].number +"')><span class='icon-file-alt'>排号</span></a></td>";
+                                resultData += "<td> <a class='button border-blue' onclick=leave(number='"+ data.resultTruckManage[j].number +"')><span class='icon-file-alt'>请假</span></a></td>";
+                            }
+                            if(stateNumber=="2"){
+                                resultData +="<td></td>";
+                                resultData +="<td></td>";
+                            }
+                            if(stateNumber=="3"){
+                                resultData += "<td> <a class='button border-blue' onclick=sort(number='"+ data.resultTruckManage[j].number +"')><span class='icon-file-alt'>排号</span></a></td>";
+                                resultData +="<td></td>";
+                            }
+                            if(stateNumber=="4"){
+                                resultData +="<td></td>";
+                                resultData +="<td></td>";
+                            }
+                            if(stateNumber=="5"){
+                                resultData +="<td></td>";
+                                resultData +="<td></td>";
+                            }
+                            resultData +="<tr>";
+                            /*resultData += "<td> <a class='button border-blue' onclick=sort(number='"+ data.resultTruckManage[j].number +"')><span class='icon-file-alt'>排号</span></a></td>";
+                            resultData += "<td> <a class='button border-blue' onclick=leave(number='"+ data.resultTruckManage[j].number +"')><span class='icon-file-alt'>请假</span></a></td><tr>";*/
+                          /*  resultData += "<td>" + data.resultTruckManage[j].state + "</td><tr>";*/
+
+                        }
+                        $("#mytbody").html(resultData);
+                        currentPage = data.currentPage;
+                        totalPages = data.totalPages;
+                        $("#page").html("" + currentPage + " / " + data.totalPages + "");
+                    }
+                });
+            }
+
+            //点击查询
+            $("#query").click(function(){
+                currentPage = "1";
+                selData();
+            });
+            //上一页
+            $("#upPage").click(function(){
+                if(currentPage==1){
+                    alert("当前已经是第一页")
+                }else{
+                    currentPage = currentPage-1;
+                    selData();
+                }
+            });
+
+            //下一页
+            $("#downPage").click(function () {
+                if(currentPage==totalPages){
+                    alert("已经是最后一页")
+                }else{
+                    currentPage=currentPage+1;
+                    selData();
+                }
+            });
+
+        });
+
+        function addTruckr(){
+            jQuery("#tianjia").window('open');
+        }
+        function deleteTruckr(){
+            var truckManageId="";
+            jQuery("input[name=Check]").each(function() {
+                if ($(this).prop("checked")) {
+                    truckManageId += $(this).val()+",";
+                }
+            });
+            var idLength = truckManageId.split(",").length;
+            if (idLength == 1) {//没有点击
+                alert("至少选中一个!!!");
+                return false;
+            }else if (idLength > 2) {//点击超过1个
+                alert("删除不能多个!!!");
+                return false;
+            } else {
+                var id = truckManageId.split(",")[0];
+                like=window.confirm("是否确定删除？");
+　              if(like==true){
+                    window.location.href="/system/deleteTruck.action?id="+id;
+                }else{
+                    return false;
+                }
+            }
+        }
+        function updateTruckr(){
+            var truckManageId="";
+            jQuery("input[name=Check]").each(function() {
+                if ($(this).prop("checked")) {
+                    truckManageId += $(this).val()+",";
+                }
+            });
+            alert(truckManageId);
+            if(truckManageId==""){
+                alert("至少选中一个!!!")
+                return false;
+            }
+            var idLength = truckManageId.split(",").length;
+            if (idLength == 1) {//没有点击
+                alert("至少选中一个!!!");
+                return false;
+            } else if (idLength > 2) {//点击超过1个
+                alert("更新不能多个!!!");
+                return false;
+            } else {
+                var id = truckManageId.split(",")[0];
+                jQuery.post("/system/selectOneTruckManage.action",{"id":id},function(data){
+                    if(data==null){
+                        $("#mytbody").html("<tr><td colspan='11' algin='center'>数据有误</td></tr>");
+                    }
+                    jQuery ("#truckmanageid").val(data.id) ;
+                    jQuery ("#truckmanagenumber").val(data.number) ;
+                    jQuery ("#truckmanagecapacity").val(data.capacity) ;
+                    jQuery ("#truckmanagelife").val(data.life) ;
+                    jQuery ("#truckmanagedriver").val(data.driver) ;
+
+                });
+               jQuery("#xiugai").window('open');
+            }
+        }
+        function sort(number){
+
+            window.location.href="/system/truckSort.action?number="+number;
+        }
+        function leave(number){
+            jQuery ("#truckmanagenumber2").val(number) ;
+            jQuery("#qingjia").window('open');
+        }
+
+
+    </script>
+</head>
+<body>
+<div class="divtbs">
+    &nbsp; &nbsp; &nbsp; &nbsp;
+    车牌号：
+    <input type="text" id="number" value="">&nbsp;&nbsp;
+    司机：
+    <input type="text" id="driver" value="">&nbsp;
+    状态：
+    <select id="state" name="state">
+        <option value="1">空闲</option>
+        <option value="2">等待</option>
+        <option value="3">请假</option>
+        <option value="4">分配</option>
+        <option value="5">运行</option>
+    </select>
+    <a class="button border-yellow" id="query"><span class="icon-search"></span>搜索</a>&nbsp;
+    <a class="button border-blue" onclick="addTruckr()"><span class="icon-pencil"></span>添加车辆</a>&nbsp;
+    <a class="button border-blue" onclick="updateTruckr()"><span class="icon-pencil"></span>修改</a>&nbsp;
+    <a class="button border-blue" onclick="deleteTruckr()"><span class="icon-pencil"></span>删除</a>&nbsp;
+</div>
+<div>
+    <table class="table text-center" align="center" >
+        <thead>
+        <th width="5%"></th>
+        <th width="2%">序号</th>
+        <th>车牌号</th>
+        <th>车载重</th>
+        <th>车年限</th>
+        <th>司机</th>
+        <th>配送人员</th>
+        <th>车状态</th>
+        <th>排号</th>
+        <th>请假</th>
+        </thead>
+        <tbody id="mytbody"></tbody>
+    </table>
+    <div>
+        <table width="100%">
+            <tr><td colspan="11" align="right"><font id="page"></font> &nbsp;&nbsp;<a href="#" id="upPage">上一页</a>&nbsp;&nbsp;<a href="#" id="downPage">下一页</a></td></tr>
+        </table>
+    </div>
+</div>
+
+#* 弹出框的内容*#
+<div id="tianjia" class="easyui-window" closed="true" collapsible="false" minimizable="false" maximizable="false"
+     resizable="false" title="码表对象"  style="width: 300px; height: 200px; padding: 5px;">
+    <h1 align="center">添加数据</h1>
+    <form action="/system/addTruck.action" method="post">
+
+        <table>
+            <tr>
+                <td>车牌号：</td>
+                <td>
+                    <input class="easyui-validatebox"
+                           size="15" validType="integer" maxlength="12"  name="number"  type="text" >
+
+                </td>
+            </tr>
+            <tr>
+                <td>车容量：</td>
+                <td>
+                    <input class="easyui-validatebox"
+                           size="15" validType="integer" maxlength="12"  name="capacity"  type="text" >
+
+                </td>
+            </tr>
+            <tr>
+                <td>车年限：</td>
+                <td>
+                    <input class="easyui-validatebox"
+                           size="15" validType="integer" maxlength="12"  name="life" readonly="readonly" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH'})" type="text" >
+                </td>
+            </tr>
+            <tr>
+                <td>司机：</td>
+                <td>
+                    <input class="easyui-validatebox"
+                           size="15" validType="integer" maxlength="12"  name="driver"  type="text" >
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <input type="submit" id="submit" value="提交"  />
+                </td>
+
+            </tr>
+        </table>
+    </form>
+</div>
+#* 弹出框的内容*#
+
+<div id="xiugai" class="easyui-window" closed="true" collapsible="false" minimizable="false" maximizable="false"
+     resizable="false" title="码表对象"  style="width: 300px; height: 200px; padding: 5px;">
+    <h1 align="center">修改数据</h1>
+
+    <form action="/system/updateTruck.action" method="post">
+        <input class="easyui-validatebox" required="true"
+               size="15" validType="integer" maxlength="12" name="id" type="hidden" id="truckmanageid">
+
+
+        <table>
+            <tr>
+                <td>车牌号：</td>
+                <td>
+                    <input class="easyui-validatebox" required="true"
+                           size="15" validType="integer" maxlength="12" name="number" type="text" id="truckmanagenumber">
+
+                </td>
+            </tr>
+            <tr>
+                <td>车容量：</td>
+                <td>
+                    <input class="easyui-validatebox" required="true"
+                           size="15" validType="integer" maxlength="12" name="capacity" type="text" id="truckmanagecapacity">
+
+                </td>
+            </tr>
+            <tr>
+                <td>车年限：</td>
+                <td>
+                    <input class="easyui-validatebox" required="true"
+                           size="15" validType="integer" maxlength="12" name="life" type="text" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH'})" id="truckmanagelife">
+
+                </td>
+            </tr>
+            <tr>
+                <td>司机：</td>
+                <td>
+                    <input class="easyui-validatebox" required="true"
+                           size="15" validType="integer" maxlength="12" name="driver" type="text" id="truckmanagedriver">
+
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <input type="submit" value="提交"  />
+                </td>
+
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="qingjia" class="easyui-window" closed="true" collapsible="false" minimizable="false" maximizable="false"
+     resizable="false" title="码表对象"  style="width: 300px; height: 200px; padding: 5px;">
+    <h1 align="center">请假</h1>
+
+    <form action="/system/truckLeave.action" method="post">
+        <input class="easyui-validatebox" required="true"
+               size="15" validType="integer" maxlength="12" name="number" type="hidden" id="truckmanagenumber2">
+
+
+        <table>
+            <tr>
+                <td>请假原因：</td>
+                <td>
+                    <input class="easyui-validatebox" required="true"
+                           size="15" validType="integer" maxlength="12" name="remark" type="text" >
+
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <input type="submit" value="提交"  />
+                </td>
+
+            </tr>
+        </table>
+    </form>
+</div>
+</body>
+
+</html>
+
+
+
+
+
+
+
+

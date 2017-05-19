@@ -1,0 +1,61 @@
+#set($layout = "layout/empty.vm")
+
+<form id="updateProdTypeAttr-fm" method="post" novalidate style="margin:0;padding:20px 50px" enctype="multipart/form-data">
+    <input type="hidden" name="attributeId" value="$!attributeInfo.attributeId" />
+    <div style="margin-bottom:10px">
+        <input name="attributeName" class="easyui-textbox" style="width:100%" data-options="
+                        labelPosition:'top',
+                        required:true,
+                        value: '$!attributeInfo.attributeName',
+                        label:'&bull; 属性名称:'
+                        ">
+    </div>
+
+    <div style="margin-bottom:10px">
+        <input name="usageMode" class="easyui-combobox" style="width:100%;" data-options="
+                valueField: 'value',
+                textField: 'label',
+                labelPosition:'top',
+                disabled: true,
+                required:true,
+                value: '$!attributeInfo.usageMode',
+                panelHeight:'auto',
+                editable:false,
+                label:'&bull; 展现模式:',
+                data: [{
+                    label: '单选',
+                    value: '0'
+                },{
+                    label: '多选',
+                    value: '1'
+                },{
+                    label: '直接填写',
+                    value: '2'
+                }]" />
+    </div>
+
+    #if($attributeInfo.usageMode != 2)
+    <div style="margin-bottom:10px">
+        <input id="valueStr" name="valueStr" class="easyui-tagbox" style="width:100%" data-options="
+                    label:'&bull; 属性值:',
+                    labelPosition:'top',
+                    limitToList: true,
+                    value: '$!valueStr',
+                    editable:false,
+                    buttonIcon:'icon-add',
+                    onClickButton: function(){
+                        var values = $(this).tagbox('getValues');
+                        var tb = $(this);
+                        jQuery.messager.prompt('添加值', '添加值', function(r){
+                            if (r){
+                                values.push(r);
+                                tb.tagbox('setValues', values);
+                            }
+                        });
+                    }
+                    ">
+    </div>
+    #end
+
+
+</form>

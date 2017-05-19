@@ -1,0 +1,18 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>查询产品</title>
+    <link href="/../../css/colorbox.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="/../../js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="/../../js/jquery.colorbox-min.js"></script>
+
+    <script type="text/javascript">
+        $(".iframe").colorbox({ iframe: true, width: "800", height: "420", overlayClose: false });
+    </script>
+</head>
+<body>
+<div class="iframe"></div>
+</body>
+</html>

@@ -1,0 +1,10 @@
+#set($layout = "layout/empty.vm")
+
+<form id="spec-char-add-fm" method="post" novalidate style="margin:0;padding:20px 50px" enctype="multipart/form-data">
+    <input name="attributeId" value="$!attributeId" type="hidden">
+    <div style="margin-bottom:20px;font-size:14px;border-bottom:1px solid #ccc">添加规格值</div>
+    <div style="margin-bottom:10px">
+        <p>&bull; 规格值：</p>
+        <input id="valueStr" name="valueStr" class="easyui-textbox" data-options="required:true" style="width:100%">
+    </div>
+</form>

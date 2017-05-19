@@ -1,0 +1,76 @@
+#set($layout = "layout/empty.vm")
+<br/>
+<div id="checkOrder" align="center">
+    <form ACTION="/OrderInfo/OrderCheck.action" method="post">
+        订单号：<input type="text" name="orderCode"/>&nbsp;
+        收货人：<input type="text" name="shipName"/>&nbsp;
+        用户名：<input type="text" name="buyerName"/>&nbsp;
+        <input type="submit" value="搜索">
+    </form>
+</div>
+<br/>
+<div id="showOrder">
+    <table border="1" style="height: 400;width: 700" align="center">
+       <tr>
+           <th>订单号</th>
+           <th>下单时间</th>
+           <th>订单总额</th>
+           <th>用户名</th>
+           <th>收货人</th>
+           <th>发货状态</th>
+           <th>配送方式</th>
+           <th>支付方式</th>
+           <th>订单状态</th>
+           <th>订单操作</th>
+       </tr>
+        #foreach($order in $orders)
+            <tr>
+
+                <td>$order.orderCode</td>
+                <td>$order.createdDate</td>
+                <td>$order.orderTotal</td>
+                <td>$order.buyerName</td>
+                <td>$order.shipName</td>
+                <td>
+                   #if($order.shippingStatus==0)
+                       未发货
+                   #end
+                    #if($order.shippingStatus==3)
+                        已确认付款
+                    #end
+                    #if($order.shippingStatus==2)
+                        已发货
+                    #end
+                    #if($order.shippingStatus==1)
+                        已确认收货
+                    #end
+
+                </td>
+                <td>$order.realShippingModeName</td>
+                <td>$order.paymentTypeName</td>
+                <td>
+                    #if( $order.orderStatus==0)
+                        等待付款
+                    #end
+                    #if($order.orderStatus==-1)
+                        已取消
+                    #end
+                    #if($order.orderStatus==2)
+                        已完成
+                    #end
+
+                </td>
+                <td><a href="/OrderInfo/OrderInformation.action?orderCode=$order.orderCode" >查看</a>
+                    &nbsp; &nbsp;
+                <a href="/OrderInfo/DeleteOrder.action?orderCode=$order.orderCode">取消</a> </td>
+            </tr>
+        #end
+
+    </table>
+</div>
+<div id="addOrder" align="center">
+    <ul>
+        <li><a href="/OrderInfo/addOrderInfo.action">新增</a> </li>
+    </ul>
+
+</div>

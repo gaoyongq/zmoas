@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.product.SupplierProductDao">
+   <resultMap id="supplierProductMap" type="supplierProduct">
+        <result property="prize" column="prize"/>
+        <result property="count" column="count"/>
+        <result property="productName" column="productName"/>
+        <result property="score" column="score"/>
+        <association property="supplierInfo" javaType="supplierInfo">
+            <id property="supplierId" column="supplierId"/>
+            <result property="name" column="name"/>
+        </association>
+        <association property="skuInfo" javaType="skuInfo">
+            <id property="skuId" column="skuId"/>
+            <result property="productId" column="productId"/>
+            <result property="weight" column="weight"/>
+            <result column="sku" property="sku"/>
+        </association>
+    </resultMap>
+
+    <select id="selectSupplierProductBySupplierId" resultMap="supplierProductMap" parameterType="Integer">
+        SELECT prize,count,sku,shop_skus.skuId,productName,shop_supplierProduct.supplierId from shop_supplierProduct
+        left JOIN shop_skus on shop_supplierProduct.skuId=shop_skus.skuId
+        LEFT join shop_products on shop_products.productId=shop_skus.productId
+         where shop_supplierProduct.supplierId=#{supplierId} and shop_supplierProduct.status=1
+    </select>
+     <select id="findByProductId" resultType="skuInfo" parameterType="java.util.Map">
+        SELECT skuId,sku from shop_skus where productId=#{id}
+        and skuId not in(select skuId from shop_supplierProduct  where supplierId=#{supplierId})
+    </select>
+
+    <select id="selectBySkuId" resultMap="supplierProductMap" parameterType="Integer">
+        SELECT sku,skuId,productName FROM shop_skus  LEFT join shop_products on shop_skus.productId=
+        shop_products.productId where shop_skus.skuId=#{id}
+    </select>
+    <select id="selectBlur" resultMap="supplierProductMap" parameterType="java.util.Map">
+        SELECT prize,count,sku,shop_skus.skuId,productName,shop_supplierProduct.supplierId from shop_supplierProduct
+        left JOIN shop_skus on shop_supplierProduct.skuId=shop_skus.skuId
+        LEFT join shop_products on shop_products.productId=shop_skus.productId
+        <where>
+            shop_supplierProduct.supplierId=#{id} and shop_supplierProduct.status=1
+            <if test="supplierProduct.productName!=null">
+                and shop_products.productName like '%${supplierProduct.productName}%'
+            </if>
+            <if test="supplierProduct.skuInfo.sku!=null">
+                and sku LIKE '%${supplierProduct.skuInfo.sku}%'
+            </if>
+        </where>
+    </select>
+     <select id="selectOnly" resultMap="supplierProductMap" parameterType="java.util.Map">
+         SELECT prize,count,sku,shop_skus.skuId,productName,shop_supplierProduct.supplierId
+         from shop_supplierProduct left JOIN shop_skus on shop_supplierProduct.skuId=shop_skus.skuId
+        LEFT join shop_products on shop_products.productId=shop_skus.productId
+        <where>
+            shop_supplierProduct.supplierId=#{supplierId} and shop_skus.skuId=#{skuId}
+        </where>
+    </select>
+
+    <select id="selectBySku" parameterType="String" resultMap="supplierProductMap">
+        SELECT prize,COUNT,sku,shop_skus.skuId,productName,shop_skus.weight,shop_supplierProduct.supplierId,shop_suppliers.Name,IFNULL(SUM(userscore.score),0) AS score FROM shop_supplierProduct
+        LEFT JOIN shop_skus ON shop_supplierProduct.skuId=shop_skus.skuId
+        LEFT JOIN shop_products ON shop_products.productId=shop_skus.productId
+        LEFT JOIN shop_suppliers ON shop_suppliers.SupplierId=shop_supplierProduct.supplierId
+        LEFT JOIN userscore ON shop_supplierProduct.supplierId=userscore.userId
+        WHERE sku=#{sku}
+        AND shop_supplierProduct.status=1
+        GROUP BY shop_supplierProduct.supplierId
+        ORDER BY prize,score DESC,COUNT desc
+    </select>
+    <update id="withdrawProduct" parameterType="java.util.Map">
+        UPDATE shop_supplierProduct SET status=0 WHERE supplierId=#{supplierId}
+        and skuId=#{skuId}
+    </update>
+    <update id="updateSupplierProduct" parameterType="supplierProduct">
+        UPDATE shop_supplierProduct SET prize=#{prize},count=#{count}
+        WHERE supplierId=#{supplierInfo.supplierId} and skuId=#{skuInfo.skuId}
+    </update>
+
+    <insert id="addSupplierProduct" parameterType="supplierProduct">
+        INSERT into shop_supplierProduct(supplierId,skuId,prize,count,status)VALUES
+        (#{supplierInfo.supplierId},#{skuInfo.skuId},#{prize},#{count},1)
+    </insert>
+
+</mapper>
+

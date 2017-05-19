@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.product.FavoriteInfoDao">
+    <resultMap id="FavoriteInfoMap" type="com.zm.mall.dao.business.product.FavoriteInfoDao">
+        <result property="favoriteId" column="favoriteId" jdbcType="BIGINT"></result>
+        <result property="type" column="type" jdbcType="BIGINT"></result>
+        <result property="targetId" column="targetId" jdbcType="BIGINT"></result>
+        <result property="userId" column="userId" jdbcType="BIGINT"></result>
+        <result property="tags" column="tags" jdbcType="VARCHAR"></result>
+        <result property="remark" column="remark" jdbcType="VARCHAR"></result>
+        <result property="createdDate" column="createdDate" jdbcType="DATE"></result>
+        <result property="pluteformid" column="pluteformid" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <!--判断平台Id-->
+    <sql id="b2c_condition">
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND pluteformid=#{pluteformid}
+        </if>
+    </sql>
+
+    <!--添加收藏商品-->
+    <insert id="AddShopFavorite" parameterType="favoriteInfo">
+        INSERT INTO b2c_shop_favorite(type,targetid,userid,tags,remark,createdDate,pluteformid)
+        VALUES (#{type},#{targetId},#{userId},#{tags},#{remark},now(),#{pluteformid})
+    </insert>
+    <!--根据产品ID查询-->
+    <select id="selFavoriteInfoById" resultMap="FavoriteInfoMap" parameterType="productInfo">
+        SELECT  * FROM b2c_shop_favorite WHERE targetId=#{productId}
+        <include refid="b2c_condition"/>
+    </select>
+    <!--主键删除-->
+    <delete id="delFavoriteInfoById" parameterType="favoriteInfo">
+        DELETE FROM b2c_shop_favorite WHERE favoriteId=#{favoriteId}
+        <include refid="b2c_condition"/>
+    </delete>
+    <!--移动App根据UserId查询-->
+    <select id="selFavoriteInfoByUserId" resultMap="FavoriteInfoMap" parameterType="favoriteInfo">
+        SELECT  * FROM b2c_shop_favorite WHERE userId=#{userId}
+        <include refid="b2c_condition"/>
+    </select>
+    <!--移动App根据UserId查询-->
+    <select id="getFavoriteInfoCount" resultType="int" parameterType="String">
+        SELECT  count(userId) FROM b2c_shop_favorite WHERE userId=#{userId}
+    </select></mapper>

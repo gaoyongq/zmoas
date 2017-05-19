@@ -1,0 +1,14 @@
+#set($layout = "layout/updateRole.vm")
+#*
+<br/>
+$!user.platefromId
+<a href="/shopBase/index.action">基础数据管理</a>
+<br/>
+<br/>
+<a href="/shopTemplate/list.action">模板管理</a>
+<br/>
+<br/>
+<a href="/shopInstance/index.action">模板实例管理</a>
+<br/>
+<br/>
+<a href="/shopInstance/moduleUpdate.action">实例模板维护</a>*#

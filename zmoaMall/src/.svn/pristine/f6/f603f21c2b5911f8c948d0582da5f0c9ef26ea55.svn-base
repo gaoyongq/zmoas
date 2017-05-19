@@ -1,0 +1,161 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html style="height: 100%" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>商家产品列表</title>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <script type="text/javascript" src="/js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+             $("#cloosealertfunction").click(function(){
+                 temp.undisablePage();
+             });
+            var temp = {
+                msg:function(text){
+                    var count = 0;
+                    if(count==0){
+                        $("body").find(".msg").remove();
+                        var m ="<div class='msg'><div style='margin-top: 10%;margin-right: 5%;margin-bottom: 10%;margin-left: 5%'>"+text+"</div></div>";
+                        $("body").append(m);
+                        $(".msg").fadeIn(500);
+                        count=0;
+                        setTimeout(function(){
+                            $(".msg").fadeOut(500);
+                             count=0;
+                            },
+                            2000
+                        );
+                    }
+                },
+                disablePage: function () {
+                    var sandglassSpan = 1;
+                    var ctrlSandglass = document.getElementById("divSandglass");
+                    if (sandglassSpan == 0) {
+                        ctrlSandglass.style.display = "none";
+                        document.body.style.cursor = 'auto';
+                        sandglassSpan = 1;
+                    } else {
+                        ctrlSandglass.style.display = "block";
+                    }
+                },
+                undisablePage: function () {
+                    var ctrlSandglass = document.getElementById("divSandglass");
+                    ctrlSandglass.style.display = "none";
+                    document.body.style.cursor = 'default';
+                }
+            }
+            $(".alertdiv").click(function(){
+                temp.disablePage();
+            });
+            $("#cloose").click(function(){
+                temp.undisablePage();
+            });
+            $(".alert").click(function(){
+                temp.msg("你好！！");
+            });
+
+//            $(".confirm").click(function(){
+//                confirms("dsdsds")
+//            });
+//            function confirms(text){
+//                var m ="<div class='confirms'><div style='background-color: #f7f5f5;margin-top: 10%;border-radius: 1px;margin-left:30%;width:40%;height:60%;border:1px solid #95B8E7'> " +
+//                        "<div style='font-size: 20px;float: left;width: 60%;text-align: right;font-weight: 200'>"+text+"</div>" +
+//                        "<div style='overflow:scroll;overflow-x:hidden;height: 83%'>" +
+//                        "<div style='word-wrap: break-word;margin-top: 5px;margin-left: 5px;width: 98%'>" +
+//                        "</div>" +
+//                        "<button class='button border-blue' onclick='ture()'>确定</button>&nbsp;&nbsp;&nbsp;&nbsp;<button class='button border-blue'onclick='false()'>取消</button>" +
+//                        "</div>
+//                        "</div>";
+//                $("body").append(m);
+//                $(".confirms").fadeIn(500);
+//            }
+        })
+    </script>
+    <style>
+        .confirms {
+            position:fixed;
+            left:0;
+            top:0;
+            height:100%;
+            width:100%;
+            display:none;
+            text-align:center;
+            filter:alpha(opacity=80);
+            opacity: 0.8;
+            background-color: rgba(14, 14, 14, 0.38);
+        }
+        .msg {
+            position:fixed;
+            overflow:hidden;
+            left:43%;
+            top:25%;
+            height:auto;
+            width:auto;
+            min-width:10% ;
+            display:none;
+            border-radius:3px ;
+            text-align:center;
+            filter:alpha(opacity=80);
+            opacity: 0.8;
+            background-color: rgba(14, 14, 14, 0.38);
+        }
+        .lockDiv {
+            position:fixed;
+            left:0;
+            top:0;
+            height:100%;
+            width:100%;
+            display:none;
+            text-align:center;
+            filter:alpha(opacity=80);
+            opacity: 0.8;
+            background-color: rgba(14, 14, 14, 0.38);
+        }
+    </style>
+</head>
+<body>
+
+    <div style="height: 900px">
+        <input type="button" value="弹窗" class="alertdiv"/>
+        <input type="button" value="提示" class="alert"/>
+##        <input type="button" value="询问" class="confirm"/>
+
+    </div>
+    </div>
+    <div class="lockDiv" id="divSandglass">
+            <div style="background-color: #f7f5f5;margin-top: 10%;border-radius: 1px;margin-left:30%;width:40%;height:60%;border:1px solid #95B8E7">
+            <div style="margin-top: 10px;margin-bottom: 10px">
+                <div style="font-size: 20px;float: left;width: 60%;text-align: right;font-weight: 200">
+                    选择规格
+                </div>
+                <div style="text-align: right;font-size: 15px">
+                    <span class="icon icon-times" id="cloosealertfunction"></span>&nbsp;&nbsp;&nbsp;&nbsp;
+                </div>
+            </div>
+            <hr>
+            <div style="overflow:scroll;overflow-x:hidden;height: 83%">
+                <div style="word-wrap: break-word;margin-top: 5px;margin-left: 5px;width: 98%">
+                    法第三方斯蒂芬斯蒂芬放松放松额粉色粉色粉色粉色粉色是粉色粉色粉色粉色粉色粉色粉色粉色粉色粉色粉色
+sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+                    555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555
+                            <input id="skuData" type="hidden">
+                            <div align="center"><d1 id="price" align="left">售价：<input readonly="readonly" type="text" id="salePrice"></d1></div>
+                            <br/>
+                            <div align="center" id="divbody"></div>
+                            <br/>
+                            <div align="center">
+                                <input id="min"  type="button" value="-" />
+                                <input id="number" name="" type="text" value="1"style="width:30px;"/>
+                                <input id="add"  type="button" value="+" />
+                            </div>
+                            <br/>
+                            <div align="center" style="padding-bottom: 15px"><input type="button" value="确定" id="sure">&nbsp;&nbsp;<input type="button" value="取消" id="cloose"></div>
+                            <div style="height: 500px"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+</body>
+</html>

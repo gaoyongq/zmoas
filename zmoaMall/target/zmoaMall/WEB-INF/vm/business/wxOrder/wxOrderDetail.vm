@@ -1,0 +1,19 @@
+#set($layout = "layout/empty.vm")
+
+<div style="height: 100%;width: 100%;">
+    <div style="height: 100%;width: 30%;float: left;margin-right: 10px;">
+        <img src="/coupon/showImage.action?relUrl=$!imgUrl" height="100%">
+    </div>
+    <div style="height: 100%;width: 30%;float: left;margin-right: 10px;overflow-y: scroll;">
+        <span style="font-weight: bold;">应用商品：</span><br/>
+        #foreach($prod in $productList)
+            $!prod.name &nbsp;&bull;&nbsp;
+        #end
+    </div>
+    <div style="height: 100%;width: 30%;float: left;margin-right: 10px;overflow-y: scroll;">
+        <span style="font-weight: bold;">应用商品分类：</span><br/>
+        #foreach($prodCat in $productCatList)
+            $!prodCat.name &nbsp;&bull;&nbsp;
+        #end
+    </div>
+</div>

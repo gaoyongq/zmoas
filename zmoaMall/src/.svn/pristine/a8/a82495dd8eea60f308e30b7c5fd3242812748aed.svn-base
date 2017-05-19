@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.role.RoleDao">
+    <!--查询所有-->
+    <select id="select" resultMap="getRole" parameterType="role">
+      SELECT r.id,r.name,r.description,d.id AS dId,d.name AS dName,d.description AS dDe FROM b2c_role r INNER JOIN b2c_department d ON r.department_id=d.id AND r.pluteformid=#{pluteformid}
+  </select>
+    <!--查询一个定位-->
+    <select id="selectOne" resultMap="getRole" parameterType="role">
+        SELECT r.id,r.name,r.description,d.id AS dId,d.name AS dName,d.description AS dDe FROM b2c_role r INNER JOIN b2c_department d ON r.department_id=d.id and r.id=#{id} AND r.pluteformid=#{pluteformid}
+    </select>
+    <!--  通过主键更新-->
+    <update id="update" parameterType="role">
+        update b2c_role set name=#{name},description=#{description},department_id=#{department.id},pluteformid=#{pluteformid}
+        where id = #{id} AND pluteformid=#{pluteformid}
+    </update>
+    <!--  增加-->
+    <insert id="insertRole" parameterType="role">
+        insert into b2c_role (name,description,department_id,pluteformid)
+        values(#{name},#{description},#{department.id},#{pluteformid});
+    </insert>
+    <delete id="deleteEntryByKey" parameterType="role">
+        DELETE  from b2c_role where id=#{id} AND pluteformid=#{pluteformid}
+    </delete>
+    <!-- 删除岗位用户关联表-->
+    <delete id="deleteRoleUser" parameterType="role">
+        DELETE from  b2c_role_user where role_id=#{id} AND pluteformid=#{pluteformid}
+    </delete>
+    <!-- 删除岗位权限关联表-->
+    <delete id="deleteRolePrivilege" parameterType="role">
+        DELETE  from b2c_privilege_role where role_privilege=#{id}
+        <!--AND pluteformid=#{pluteformid}-->
+    </delete>
+    <insert id="insertPrivilegeRole" parameterType="privilegeRole">
+        INSERT  INTO b2c_privilege_role (role_privilege,privilege_id,pluteformid)
+        VALUES (#{rolePrivilege},#{privilegeId},#{pluteformid})
+    </insert>
+    <resultMap id="getRole" type="role">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="pluteformid" column="pluteformid"/>
+        <association property="department" javaType="Department">
+            <id property="id" column="dId"/>
+            <result property="name" column="dName"/>
+            <result property="description" column="dDe"/>
+            <result property="pluteformid" column="pluteformid"/>
+        </association>
+    </resultMap>
+
+</mapper>

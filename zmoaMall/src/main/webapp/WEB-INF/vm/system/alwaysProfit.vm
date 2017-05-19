@@ -1,0 +1,295 @@
+#set($layout = "layout/empty.vm")
+<html>
+    <head>
+        <!-- 导入jquery核心类库 -->
+        <script type="text/javascript"
+                src="../../js/jquery-1.8.3.js"></script>
+        <!-- 导入easyui类库 -->
+       <link id="easyuiTheme" rel="stylesheet" type="text/css"
+              href="../../js/easyui/themes/default/easyui.css">
+##        <link rel="stylesheet" type="text/css"
+##              href="../../js/easyui/themes/icon.css">
+##        <link rel="stylesheet" type="text/css"
+##              href="../../css/default.css">
+        <script type="text/javascript"
+                src="../../js/easyui/jquery.easyui.min.js"></script>
+        <!-- 导入ztree类库 -->
+        <link rel="stylesheet" href="../../css/print.css" type="text/css" media="print">
+        <link rel="stylesheet" href="../../css/zmoaStyle.css">
+        <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+        <script src="../../js/jquery.jqprint-0.3.js"></script>
+
+        <script>
+            $(function(){
+                var currentPage = "1";
+                var totalPages;
+                selData();
+                function selData(){
+                    var purchaseCode = $("#purchaseCode").val();
+                    var profit = $("#profit").val();
+                    jQuery.post("/business/alwaysProfitList.action",{"currentPage":currentPage,"purchaseCode":purchaseCode,"profit":profit},function(data){
+
+                        if(data.resultAlwaysProfit==null){
+                            $("#mytbody").html("<tr><td colspan='11' algin='center'>查无结果</td></tr>");
+                        }else {
+
+                            var resultData = "";
+                            for (var j = 0,k=1; j < data.resultAlwaysProfit.length; j++,k++) {
+                                //alert(data.resultPurchaseItems[j].orderCode)
+                                resultData += "<tr class='alwaysProfitClass' id='" + data.resultAlwaysProfit[j].alwaysProfitCode + "'><td><input type='checkbox' attr='check' class='skuattr' name='purchaseCheck' id='showproduct'value='"+data.resultAlwaysProfit[j].alwaysProfitCode+"' /></td>";
+                                resultData += "<td>" + k + "</td>";
+                                resultData += "<td>" + data.resultAlwaysProfit[j].alwaysProfitCode + "</td>";
+                                resultData += "<td>" + data.resultAlwaysProfit[j].purchaseCode + "</td>";
+                                //resultData += "<td> <label  title='"+data.resultPurchaseItems[j].productName+"' style='cursor: pointer;'>" + cutstr(data.resultPurchaseItems[j].productName,10) + "</td>";
+                                resultData += "<td>" + data.resultAlwaysProfit[j].alwaysRealNumber + "</td>";
+                                resultData += "<td>" + data.resultAlwaysProfit[j].alwaysRealWeight + "</td>";
+                                resultData += "<td>" + data.resultAlwaysProfit[j].alwaysOrderNumber + "</td>";
+                                resultData += "<td>" + data.resultAlwaysProfit[j].alwaysOrderWeight + "</td>";
+                                resultData += "<td>" + data.resultAlwaysProfit[j].alwaysOrderMoney + "</td>";
+                               /* resultData += "<td>" + data.resultAlwaysProfit[j].allRealWeigth + "</td>";*/
+                                resultData += "<td>" + data.resultAlwaysProfit[j].alwaysRealMoney+"</td>";
+                                resultData += "<td>" + data.resultAlwaysProfit[j].money+ "</td>";
+                                resultData += "<td>" + data.resultAlwaysProfit[j].realMoney+ "</td>";
+                                resultData += "<td>" + data.resultAlwaysProfit[j].alwaysWornMoney+ "</td>";
+                                resultData += "<td>" + data.resultAlwaysProfit[j].aWipeOffMoney+ "</td>";
+                                resultData += "<td>" + data.resultAlwaysProfit[j].aReceiveMoney+ "</td>";
+                                resultData += "<td>" + data.resultAlwaysProfit[j].profit+ "</td>";
+                                resultData += "<td>" + data.resultAlwaysProfit[j].realProfit+ "</td><tr>";
+                               /* resultData += "<td>" + data.resultAlwaysProfit[j].truckFinishTime+ "</td>";
+                                resultData += "<td><input type=submit value=查看 onclick=see(distributionCode='"+ data.resultDistribution[j].distributionCode +"')></td><tr>";*/
+                            }
+                            $("#mytbody").html(resultData);
+                            currentPage = data.currentPage;
+                            totalPages=data.totalPages;
+                            $("#page").html("" + currentPage + " / " + data.totalPages + "");
+                            //珠子列表
+                            $(".alwaysProfitClass").click(function () {
+                                var id = $(this).attr("id")
+                                //如果珠子列表打开关闭
+                                if ($("tr").hasClass("s" + id + "")) {
+                                    $("tr").remove(".s" + id + "");
+                                    return false;
+                                }
+                                jQuery.post("/business/alwaysProfitSonList.action", {"alwaysProfitCode": id}, function (message) {
+                                    var str = "<tr class='s" + id + "'><td></td><td colspan='10'><table class='tableson' border='1'><tr><th>序号</th><th>编码</th> <th>主表编码</th> <th>采购单编码</th> <th>订单编码</th> <th>订单数量</th> <th>订单重量</th> <th>采购数量</th> <th>采购重量</th> <th>订单价</th> <th>采购价</th><th>订单毛利润</th></tr>"
+                                    for (var i = 0,g=1; i < message.length; i++,g++) {
+                                       /* str += "<tr class='s" + id + "'><td><input attr='check' type='checkbox' value='" + message[i].skuId + "'></td>   "*/
+                                        /*str += "<td>" + message[i].sku + "</td><tr>";*/
+                                        str += "<tr class='s" + id + "'>  "
+                                        str += "<td>" + g + "</td>"
+                                        str += "<td>" + message[i].alwaysProfitSonCode + "</td>"
+                                        str += "<td>" + message[i].alwaysProfitCode + "</td>"
+                                        str += "<td>" + message[i].purchaseCode + "</td>"
+                                        str += "<td>" + message[i].orderCode + "</td>"
+                                        str += "<td>" + message[i].orderNumber + "</td>"
+                                        str += "<td>" + message[i].orderWeight + "</td>"
+                                        str += "<td>" + message[i].purchaseNumber + "</td>"
+                                        str += "<td>" + message[i].purchaseWeight + "</td>"
+                                        str += "<td>" + message[i].orderPrice + "</td>"
+                                        str += "<td>" + message[i].purchasePrice + "</td>"
+                                        str += "<td>" + message[i].grossProfit + "</td><tr>"
+
+                                    }
+                                    str += "</table></td></tr>";
+                                    $(".s" + id + "").remove()
+                                    $("#" + id + "").after(str)
+                                })
+                            })
+                        }
+                    });
+                }
+                //点击查询
+                $("#query").click(function(){
+                    currentPage = "1";
+                    selData();
+                });
+                //上一页
+                $("#upPage").click(function(){
+                    if(currentPage==1){
+                        alert("当前已经是第一页")
+                    }else{
+                        currentPage = currentPage-1;
+                        selData();
+                    }
+                });
+
+                //下一页
+                $("#downPage").click(function () {
+                    if(currentPage==totalPages){
+                        alert("已经是最后一页")
+                    }else{
+                        currentPage=currentPage+1;
+                        selData();
+                    }
+                });
+                //打印
+                $("#print").click(function(){
+                    var ids ='';
+                    $("input[attr='check']").each(function(i,v){
+                        if($(v).is(":checked")){
+                            if(ids){
+                                ids+=',';
+                            }
+                            ids=ids+$(v).val();
+                        }
+                    });
+                    if(!ids){
+                        alert("你没选中任何记录");
+                        return false;
+                    }
+                   /*jQuery.post("/print/profit.action",{"ids":ids},function(data){
+                       for(var i=0;i<data.length;i++){
+                            var str="";
+                            str+="<h2 align='center'><font size='5px'>兆美商城利润表</font></h2><br>"
+                            str+="<table border='1' cellspacing='0' cellpadding='0' width='100%'><tr><td>主表编号</td><td colspan='2'>"+data[i].alwaysProfit.alwaysProfitCode+"</td>"
+                            str+="<td>采购单编号</td><td>"+data[i].alwaysProfit.purchaseCode+"</td>"
+                            str+="<td>预支旅费</td><td>"+data[i].alwaysProfit.money+"</td>"
+                            str+="<td>利润</td><td>"+data[i].alwaysProfit.profit+"</td></tr>"
+                            str+="<tr><td>序号</td><td>子表编码</td><td>订单编码</td><td>订单数量</td><td>订单重量</td><td>采购数量</td><td>采购重量</td><td>订单总价</td><td>采购总价</td></tr>"
+                            for(var j=0;j<data[i].list.length;j++){
+                                str+="<tr><td>"+(j+1)+"</td>"
+                                str+="<td>"+data[i].list[j].alwaysProfitSonCode+"</td>"
+                                str+="<td>"+data[i].list[j].orderCode+"</td>"
+                                str+="<td>"+data[i].list[j].orderNumber+"</td>"
+                                str+="<td>"+data[i].list[j].orderWeight+"</td>"
+                                str+="<td>"+data[i].list[j].purchaseNumber+"</td>"
+                                str+="<td>"+data[i].list[j].purchaseWeight+"</td>"
+                                str+="<td>"+data[i].list[j].orderPrice+"</td>"
+                                str+="<td>"+data[i].list[j].purchasePrice+"</td></tr>"
+                            }
+                            str+="<tr><td>合计</td><td colspan='2'></td><td>"+data[i].alwaysProfit.alwaysOrderNumber+"</td>"
+                            str+="<td>"+data[i].alwaysProfit.alwaysOrderWeight+"</td>"
+                            str+="<td>"+data[i].alwaysProfit.alwaysRealNumber+"</td>"
+                            str+="<td>"+data[i].alwaysProfit.alwaysRealWeight+"</td>"
+                            str+="<td>"+data[i].alwaysProfit.alwaysOrderMoney+"</td>"
+                            str+="<td>"+data[i].alwaysProfit.alwaysRealMoney+"</td></tr>"
+                            str+="</table>"
+                            $("#printShow").append(str);
+                        }
+                        $("#printShow").jqprint({});
+                        //打印完成后清空div
+                        $('#printShow').html("");
+                    })*/
+                    jQuery.post("/print/profit.action",{"ids":ids},function(data){
+                        for(var i=0;i<data.length;i++){
+                            var str="";
+                            str+="<h2 align='center'><font size='5px'>兆美商城利润表</font></h2><br>"
+                            /*str+="<table border='1' cellspacing='0' cellpadding='0' width='100%'><tr><td>主表编号</td><td colspan='2'>"+data[i].alwaysProfit.alwaysProfitCode+"</td>"*/
+                            str+="<table border='1' cellspacing='0' cellpadding='0' width='100%'><tr><td>采购单编号</td><td>"+data[i].alwaysProfit.purchaseCode+"</td>"
+                            str+="<td>预支旅费  "+data[i].alwaysProfit.money+"</td>"
+                            str+="<td>差旅费  "+data[i].alwaysProfit.realMoney+"</td>"
+                            str+="<td>破损费</td><td>"+data[i].alwaysProfit.alwaysWornMoney+"</td>"
+                            str+="<td>预估利润</td><td>"+data[i].alwaysProfit.profit+"</td>"
+                            str+="<td>利润</td><td>"+data[i].alwaysProfit.realProfit+"</td></tr>"
+                            str+="<tr><td>序号</td><td>子表编码</td><td>订单编码</td><td>订单数量</td><td>订单重量</td><td>采购数量</td><td>采购重量</td><td>订单总价</td><td>采购总价</td><td>毛利润</td></tr>"
+                            for(var j=0;j<data[i].list.length;j++){
+                                str+="<tr><td>"+(j+1)+"</td>"
+                                str+="<td>"+data[i].list[j].alwaysProfitSonCode+"</td>"
+                                str+="<td>"+data[i].list[j].orderCode+"</td>"
+                                str+="<td>"+data[i].list[j].orderNumber+"</td>"
+                                str+="<td>"+data[i].list[j].orderWeight+"</td>"
+                                str+="<td>"+data[i].list[j].purchaseNumber+"</td>"
+                                str+="<td>"+data[i].list[j].purchaseWeight+"</td>"
+                                str+="<td>"+data[i].list[j].orderPrice+"</td>"
+                                str+="<td>"+data[i].list[j].purchasePrice+"</td>"
+                                str+="<td>"+data[i].list[j].grossProfit+"</td></tr>"
+                            }
+                            str+="<tr><td>合计</td><td colspan='2'></td><td>"+data[i].alwaysProfit.alwaysOrderNumber+"</td>"
+                            str+="<td>"+data[i].alwaysProfit.alwaysOrderWeight+"</td>"
+                            str+="<td>"+data[i].alwaysProfit.alwaysRealNumber+"</td>"
+                            str+="<td>"+data[i].alwaysProfit.alwaysRealWeight+"</td>"
+                            str+="<td>"+data[i].alwaysProfit.alwaysOrderMoney+"</td>"
+                            str+="<td>"+data[i].alwaysProfit.alwaysRealMoney+"</td></tr>"
+                            str+="</table>"
+                            $("#printShow").append(str);
+                        }
+                        $("#printShow").jqprint({});
+                        //打印完成后清空div
+                        $('#printShow').html("");
+                    })
+                    return true;
+
+                });
+
+
+            });
+
+
+        </script>
+    </head>
+    <body>
+    <div class="divtbs">
+        &nbsp; &nbsp; &nbsp; &nbsp;
+        采购单编号：
+        <input type="text" id="purchaseCode" value="">&nbsp;
+        利润：
+        <input type="text" id="profit" value="">&nbsp;
+##        <input type="submit" id="query" value="查询">&nbsp;
+##        <input type="button" value="打印" id="print">&nbsp;
+        <button class="button border-yellow " id="query"><span class="icon-search"></span>搜索</button>&nbsp;
+        <a id="print" class="button border-blue">打印</a>&nbsp;
+    </div>
+
+        <div>
+            <table class="table text-center">
+                <thead>
+                <th width="5%"></th>
+                <th width="2%">序号</th>
+                <th>编码</th>
+                <th>采购单编号</th>
+                <th>采购总数</th>
+                <th>采购总重</th>
+                <th>总订单数量</th>
+                <th>总订单重量</th>
+                <th>订单总价</th>
+                <th>采购总价</th>
+                <th>预支差旅费</th>
+                <th>差旅费</th>
+                <th>破损金额</th>
+                <th>抹零金额</th>
+                <th>实际收款</th>
+                <th>预估利润</th>
+                <th>利润</th>
+                </thead>
+                <tbody id="mytbody"></tbody>
+              #*  <tr>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                </tr>*#
+                #*<tr>
+
+
+
+                    <td colspan="11" align="right"><font id="page"></font> &nbsp;&nbsp;<a href="#" id="upPage">上一页</a>&nbsp;&nbsp;<a href="#" id="downPage">下一页</a></td>
+                </tr>*#
+            </table>
+            <div>
+                <table width="100%" >
+                    <tr><td colspan="11" align="right"><font id="page"></font> &nbsp;&nbsp;<a href="#" id="upPage">上一页</a>&nbsp;&nbsp;<a href="#" id="downPage">下一页</a></td></tr>
+                </table>
+
+            </div>
+            <div id="printShow"></div>
+     </div>
+    </body>
+
+</html>
+
+
+
+
+
+
+
+

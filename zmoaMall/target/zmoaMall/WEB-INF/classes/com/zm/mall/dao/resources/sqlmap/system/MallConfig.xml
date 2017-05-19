@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.system.MallConfigDao">
+    <resultMap id="mallConfigMap" type="com.zm.mall.client.vo.system.MallConfigVo">
+        <id column="id" property="id" ></id>
+        <result column="pId" property="pid" ></result>
+        <result column="parentpId" property="parentpId" ></result>
+        <result column="secretkey" property="secretkey" ></result>
+        <result column="nickname" property="nickname" ></result>
+        <result column="logo" property="logo" ></result>
+        <result column="openId" property="openId" ></result>
+        <result column="address" property="address" ></result>
+        <result column="regionId" property="regionId"></result>
+        <result column="updatetime" property="updateTime"></result>
+    </resultMap>
+
+
+    <insert id="InsertMallConfig" useGeneratedKeys="true" keyProperty="id" parameterType="mallConfig">
+        INSERT INTO b2c_mall_config(pId,parentpId,secretkey,nickname,logo,openId,phone,address,regionId,userId)
+        VALUES (#{pid},#{parentpId},#{secretkey},#{nickname},#{logo},#{openId},#{phone},#{address},#{regionId},#{userId})
+    </insert>
+    <!--查询密钥-->
+    <select id="selSecretkeyByAppId" resultType="mallConfig" parameterType="mallConfig">
+        SELECT  * FROM  b2c_mall_config WHERE 1=1
+        <if test="pid != null and pid !=''">
+            and pId=#{pid}
+        </if>
+        <if test="openId !=null and openId !=''">
+            and openid=#{openId}
+        </if>
+        <if test="parentpId !=null and parentpId !=''">
+            and parentpId=#{parentpId}
+        </if>
+    </select>
+    <select id="getAllMallConfig" resultMap="mallConfigMap">
+        select * from b2c_mall_config mall
+        <where>
+            mall.status!='2'
+            <if test="filterValue != null">and mall.${filterName} like concat('%', #{filterValue}, '%')</if>
+        </where>
+        limit #{start}, #{size}
+    </select>
+
+    <select id="listMall" resultType="mallConfig">
+        SELECT * from  b2c_mall_config mallConfig
+        ORDER BY mallConfig.updateTime
+        Limit #{start},#{size}
+    </select>
+
+    <select id="countMall" resultType="long">
+        SELECT count(*) from  b2c_mall_config
+    </select>
+
+    <select id="getCount" resultType="long" >
+        select count(*) from b2c_mall_config mall
+        <where>
+            mall.status!='2'
+            <if test="filterValue != null and filterValue !=''" >
+            </if>
+        </where>
+    </select>
+    <select id="getMallInfoById" resultType="com.zm.mall.client.vo.system.MallConfigVo">
+        select   * from b2c_mall_config where id=#{id}
+    </select>
+    <update id="updatasta" parameterType="com.zm.mall.client.vo.system.MallConfigVo">
+        update b2c_mall_config set status=#{status} where id=#{id}
+    </update>
+
+</mapper>

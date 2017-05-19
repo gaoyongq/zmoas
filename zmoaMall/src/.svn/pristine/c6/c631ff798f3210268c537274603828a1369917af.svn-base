@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.system.DepartmentDao">
+    <select id="select" resultMap="getDepartment" parameterType="department">
+        SELECT d.id,d.name,d.description,d1.id as nextId,d1.name as nextName,d1.description as nextDescription,
+        d2.id as lastId,d2.name as lastName,d2.description as lastDescription
+        from b2c_department d LEFT join b2c_department d1 on d1.departmentid=d.id
+        LEFT join b2c_department d2 on d2.departmentid=d1.id
+        where d.departmentid is null AND d.pluteformid=#{pluteformid}
+    </select>
+    <select id="selectTop" resultMap="getDepartment" parameterType="department">
+        select id,name,description,pluteformid,code from b2c_department where departmentid is null AND pluteformid=#{pluteformid}
+    </select>
+
+    <select id="selectNext" resultMap="getDepartment" parameterType="department">
+        SELECT d.id,d.name,d.description,d1.id as topId,d1.name as topName
+        FROM b2c_department d LEFT JOIN b2c_department d1
+        ON d.departmentid=d1.id WHERE d.departmentid=#{id} AND d.pluteformid=#{pluteformid}
+    </select>
+   <select id="selectOne" parameterType="department" resultMap="getDepartment">
+         SELECT d.id,d.name,d.description,d1.id as topId,d1.name as topName
+        FROM b2c_department d LEFT JOIN b2c_department d1
+        ON d.departmentid=d1.id WHERE d.id=#{id} AND d.pluteformid=#{pluteformid}
+    </select>
+
+    <insert id="insert" parameterType="department">
+        insert into b2c_department(name,description,departmentid,pluteformid,code)
+        values(#{name},#{description},#{department.id},#{pluteformid},#{code});
+    </insert>
+
+    <update id="update"  parameterType="department">
+        UPDATE  b2c_department set name=#{name},description=#{description}
+        ,departmentid=#{department.id}
+        where id=#{id} AND pluteformid=#{pluteformid}
+    </update>
+    <resultMap id="getDepartment" type="department">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="code" column="code"/>
+        <result property="pluteformid" column="pluteformid"/>
+        <association property="department" javaType="Department">
+            <id property="id" column="topId"/>
+            <result property="name" column="topName"/>
+            <result property="pluteformid" column="pluteformid"/>
+        </association>
+        <collection property="departments" ofType="department">
+            <id property="id" column="nextId"/>
+            <result property="name" column="nextName"/>
+            <result property="description" column="nextDescription"/>
+            <result property="pluteformid" column="pluteformid"/>
+            <collection property="departments" ofType="department">
+                <id property="id" column="lastId"/>
+                <result property="name" column="lastName"/>
+                <result property="description" column="lastDescription"/>
+                <result property="pluteformid" column="pluteformid"/>
+            </collection>
+            <collection property="roles" ofType="role">
+                <id property="id" column="rId"/>
+                <result property="description" column="description"/>
+                <result property="name" column="rName"/>
+                <result property="pluteformid" column="pluteformid"/>
+            </collection>
+        </collection>
+        <collection property="roles" ofType="role">
+            <id property="id" column="rId"></id>
+            <result property="name" column="rName"></result>
+            <result property="pluteformid" column="pluteformid"/>
+        </collection>
+    </resultMap>
+    <sql id="all_column">id,name,description,pLuteFormId</sql>
+
+
+    <delete id="delete" parameterType="department">
+        DELETE  from b2c_department where id=#{id} AND pluteformid=#{pluteformid}
+    </delete>
+    <update id="updateDepartmentId" parameterType="department">
+        UPDATE b2c_department set departmentid=null where departmentid=#{id} AND pluteformid=#{pluteformid}
+    </update>
+    <update id="updateUser" parameterType="department">
+        UPDATE b2c_user SET department_id=null where department_id=#{id} AND pluteformid=#{pluteformid}
+    </update>
+    <update id="updateRole" parameterType="department">
+        UPDATE b2c_role set department_id=null where department_id=#{id} AND pluteformid=#{pluteformid}
+    </update>
+    <select id="selectRoleByDepartment" resultMap="getDepartment" parameterType="department">
+        select b2c_department.id, b2c_department.name, b2c_role.id as rId ,b2c_role.name as rName from b2c_department INNER JOIN b2c_role
+        on b2c_role.department_id=b2c_department.id and b2c_department.id=#{id} AND b2c_department.pluteformid=#{pluteformid}
+    </select>
+    <!--微信注册查询商户部门-->
+    <select id="selectWX" resultMap="getDepartment" parameterType="department">
+--         select b2c_department.id,b2c_department.pluteformid,b2c_department.code from b2c_department
+       select b2c_department.id, b2c_department.code, b2c_role.id as rId ,b2c_role.name as rName from b2c_department
+       INNER JOIN b2c_role   on b2c_role.department_id=b2c_department.id  and
+       b2c_department.pluteformid=#{pluteformid} and b2c_department.code=#{code}
+    </select>
+</mapper>

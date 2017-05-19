@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.product.AttributeValueDao">
+    <resultMap id="AttributeValueMap" type="com.zm.mall.domain.business.product.AttributeValue">
+            <result property="valueId" column="ValueId" jdbcType="BIGINT"></result>
+            <result property="attributeId" column="AttributeId" jdbcType="BIGINT"></result>
+            <result property="displaySequence" column="DisplaySequence" jdbcType="BIGINT"></result>
+            <result property="valueStr" column="ValueStr" jdbcType="VARCHAR"></result>
+    </resultMap>
+
+    <!--平台Id-->
+    <sql id="b2c_condition">
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND pluteformid=#{pluteformid}
+        </if>
+    </sql>
+
+    <insert id="insertAttributeValue" useGeneratedKeys="true" keyProperty="valueId" parameterType="attributeValue">
+        INSERT INTO b2c_shop_attributevalues(attributeid,displaysequence,valuestr,pluteformid)
+        VALUES (#{attributeId},#{displaySequence},#{valueStr},#{pluteformid})
+    </insert>
+    <select id="selAttributeValueId" resultType="attributeValue" parameterType="attributeValue" >
+          SELECT  *
+          FROM  b2c_shop_attributevalues
+          WHERE attributeid=#{attributeId} AND valuestr=#{valueStr}
+        <!--<include refid="b2c_condition"/>-->
+    </select>
+    <delete id="delAttributeValue" parameterType="productInfo">
+        DELETE
+        from  b2c_shop_attributevalues
+        where ValueId IN ( SELECT ValueId from b2c_shop_productattributes p,b2c_shop_attributes a where p.AttributeId=a.AttributeId AND a.UsageMode=2 AND ProductId =#{productId})
+        <!--<include refid="b2c_condition"/>-->
+    </delete>
+</mapper>

@@ -1,0 +1,62 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="icon" href="/js/bootstrap/favicon.ico">
+
+    <title>提交成功 | 店铺申请 | 兆美商城</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/js/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/js/bootstrap/jumbotron-narrow.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="container">
+    <div class="header clearfix">
+        <nav>
+            <ul class="nav nav-pills pull-right">
+                <li role="presentation"><a href="#">1. 填写信息 <i class='fa fa-check fa-lg'></i></a></li>
+                <li role="presentation" class="active"><a href="#">2. 提交成功 <i class='fa fa-check fa-lg'></i></a></li>
+            </ul>
+        </nav>
+        <h3 class="text-muted">店铺申请 | <small>兆美商城</small></h3>
+    </div>
+
+    <div class="jumbotron">
+        <h1>提交成功</h1>
+        <p class="lead">欢迎您申请店铺，我们将在1周内对您的信息进行审核，结果将会以邮件或短信的形式通知您。成功后您可以点击下面的按钮登录店铺管理后台。</p>
+        <p><a class="btn btn-lg btn-success" target="_blank" href="http://$image.ip():8081/privileges/login.action" role="button">登录后台</a></p>
+    </div>
+
+    <div class="row marketing">
+        <div class="col-lg-6">
+            <h4><a target="_blank" href="http://www.chinazmglass.com/">中国兆美</a></h4>
+            <p>玉玻贸易有限公司经营范围：玻璃、建筑材料、五金制品销售......</p>
+        </div>
+
+        <div class="col-lg-6">
+            <h4><a target="_blank" href="http://www.中国兆美.com/">兆美商城</a></h4>
+            <p>中国兆美商城是一家服务于建筑与装饰玻璃行业的B2B交易平台......</p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2016-2017 北京兆美网络科技有限公司 版权所有 冀ICP备15004031号</p>
+    </footer>
+
+</div> <!-- /container -->
+
+</body>
+</html>

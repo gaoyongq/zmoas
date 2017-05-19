@@ -1,0 +1,65 @@
+#set($layout = "layout/empty.vm")
+
+<div id="addProdType-tabs" class="easyui-tabs" data-options="
+        pill:true,
+        border:false,
+        fit:true,
+        justified:true,
+        onSelect:function(title,index){
+            if (step != index) {
+                $('#addProdType-tabs').tabs('select', step);
+            } else {
+                $('#addProdType-tabs').tabs('select', index);
+            }
+        }
+        ">
+    <div title="1.填写基本信息 <i class='fa fa-chevron-right fa-lg'></i>" data-options="fit:true" style="padding:10px;">
+        <form id="addProdType-fm" method="post" novalidate style="margin:0;padding:20px 50px" enctype="multipart/form-data">
+            <div style="margin-bottom:20px;font-size:14px;border-bottom:1px solid #ccc">
+                <b>添加新的商品类型</b><br>
+                <small>您可以商品类型是一系列属性的组合，可以用来向客户展示某些商品具有的特有的属性。</small>
+            </div>
+
+            <div style="margin-bottom:10px">
+                <input name="typeName" class="easyui-textbox" style="width:100%" data-options="
+                        labelPosition:'top',
+                        required:true,
+                        label:'&bull; 商品类型名称:'
+                        ">
+            </div>
+
+            <div style="margin-bottom:10px">
+                <input name="brandIds" class="easyui-tagbox" style="width:100%" data-options="
+                        url: '/business/prodCat/getProdBrands',
+                        method: 'get',
+                        valueField: 'brandId',
+                        textField: 'brandName',
+                        label:'&bull; 关联商品品牌:',
+                        labelPosition:'top',
+                        limitToList: true,
+                        hasDownArrow: true,
+                        prompt: '选择与些商品类型关联的商品品牌',
+                        panelHeight:'auto',
+                        editable:false
+                        ">
+            </div>
+
+            <div style="margin-bottom:10px">
+                <input name="remark" class="easyui-textbox" style="width:100%;height:100px;" data-options="
+                labelPosition:'top',
+                required:true,
+                multiline:true,
+                label:'&bull; 备注:'
+                ">
+            </div>
+
+        </form>
+    </div>
+
+    <div title="2.填写属性及属性值 <i class='fa fa-chevron-right fa-lg'></i>" style="padding:10px" data-options="">
+        <h2>请先完成上一步操作，点击下一步继续。</h2>
+    </div>
+    <div title="3.添加规格及规格值 <i class='fa fa-check fa-lg'></i>" data-options="" style="padding:10px">
+        <h2>请先完成上一步操作，点击下一步继续。</h2>
+    </div>
+</div>

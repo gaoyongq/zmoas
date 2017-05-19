@@ -1,0 +1,592 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper  namespace="com.zm.mall.dao.business.product.ProductInfoDao">
+       <resultMap id="ProductInfoMap" type="com.zm.mall.domain.business.product.ProductInfo">
+              <result column="CategoryId" property="categoryId" jdbcType="BIGINT"></result>
+              <result column="TypeId" property="typeId" jdbcType="BIGINT"></result>
+              <result column="ProductId" property="productId" jdbcType="BIGINT"></result>
+              <result column="BrandId" property="brandId" jdbcType="BIGINT"></result>
+              <result column="ProductName" property="productName" jdbcType="VARCHAR"></result>
+              <result column="ProductCode" property="productCode" jdbcType="VARCHAR"></result>
+              <result column="SupplierId" property="supplierId" jdbcType="BIGINT"></result>
+              <result column="RegionId" property="regionId" jdbcType="BIGINT"></result>
+              <result column="ShortDescription" property="shortDescription" jdbcType="VARCHAR"></result>
+              <result column="Unit" property="unit" jdbcType="VARCHAR"></result>
+              <result column="Description" property="description" jdbcType="VARCHAR"></result>
+              <result column="Meta_Title" property="meta_Title" jdbcType="VARCHAR"></result>
+              <result column="Meta_Description" property="meta_Description" jdbcType="VARCHAR"></result>
+              <result column="Meta_Keywords" property="meta_Keywords" jdbcType="VARCHAR"></result>
+              <result column="SaleStatus" property="saleStatus" jdbcType="BIGINT"></result>
+              <result column="AddedDate" property="addedDate" jdbcType="TIMESTAMP"></result>
+              <result column="VistiCounts" property="vistiCounts" jdbcType="BIGINT"></result>
+              <result column="SaleCounts" property="saleCounts" jdbcType="BIGINT"></result>
+              <result column="Stock" property="stock" jdbcType="BIGINT"></result>
+              <result column="DisplaySequence" property="displaySequence" jdbcType="BIGINT"></result>
+              <result column="LineId" property="lineId" jdbcType="BIGINT"></result>
+              <result column="MarketPrice" property="marketPrice" jdbcType="DOUBLE"></result>
+              <result column="LowestSalePrice" property="lowestSalePrice" jdbcType="DOUBLE"></result>
+              <result column="AdjustedPrice" property="adjustedPrice" jdbcType="DOUBLE"></result>
+              <result column="PenetrationStatus" property="penetrationStatus" jdbcType="BIGINT"></result>
+              <result column="MainCategoryPath" property="mainCategoryPath" jdbcType="VARCHAR"></result>
+              <result column="ExtendCategoryPath" property="extendCategoryPath" jdbcType="VARCHAR"></result>
+              <result column="HasSKU" property="hasSku" jdbcType="BOOLEAN"></result>
+              <result column="Points" property="points" jdbcType="DOUBLE"></result>
+              <result column="ImageUrl" property="imageUrl" jdbcType="VARCHAR"></result>
+              <result column="ThumbnailUrl1" property="thumbnailUrl1" jdbcType="VARCHAR"></result>
+              <result column="ThumbnailUrl2" property="thumbnailUrl2" jdbcType="VARCHAR"></result>
+              <result column="ThumbnailUrl3" property="thumbnailUrl3" jdbcType="VARCHAR"></result>
+              <result column="ThumbnailUrl4" property="thumbnailUrl4" jdbcType="VARCHAR"></result>
+              <result column="ThumbnailUrl5" property="thumbnailUrl5" jdbcType="VARCHAR"></result>
+              <result column="ThumbnailUrl6" property="thumbnailUrl6" jdbcType="VARCHAR"></result>
+              <result column="ThumbnailUrl7" property="thumbnailUrl7" jdbcType="VARCHAR"></result>
+              <result column="ThumbnailUrl8" property="thumbnailUrl8" jdbcType="VARCHAR"></result>
+              <result column="MaxQuantity" property="maxQuantity" jdbcType="BIGINT"></result>
+              <result column="MinQuantity" property="minQuantity" jdbcType="BIGINT"></result>
+              <result column="Tags" property="tags" jdbcType="VARCHAR"></result>
+              <result column="SeoUrl" property="seoUrl" jdbcType="VARCHAR"></result>
+              <result column="SeoImageAlt" property="seoImageAlt" jdbcType="VARCHAR"></result>
+              <result column="SeoImageTitle" property="seoImageTitle" jdbcType="VARCHAR"></result>
+              <result column="SalesType" property="salesType" jdbcType="BIGINT"></result>
+              <result column="RestrictionCount" property="restrictionCount" jdbcType="BIGINT"></result>
+              <result column="DeliveryTip" property="deliveryTip" jdbcType="VARCHAR"></result>
+              <result column="Remark" property="remark" jdbcType="VARCHAR"></result>
+              <result column="Profit" property="profit" jdbcType="DOUBLE"></result>
+              <result property="pluteformid" column="pluteformid" jdbcType="VARCHAR"/>
+              <result column="shopId" property="shopId" jdbcType="BIGINT"></result>
+                   <collection property="favorites" ofType="favoriteInfo" >
+                       <id column="favoriteId" property="favoriteId"></id>
+                       <result column="type" property="type"></result>
+                       <result column="targetId" property="targetId"></result>
+                       <result column="userId" property="userId"></result>
+                       <result column="tags" property="tags"></result>
+                       <result column="remark" property="remark"></result>
+                       <result column="createdDate" property="createdDate"></result>
+                   </collection>
+       </resultMap>
+
+        <!--判断平台Id-->
+        <sql id="b2c_condition">
+            <choose>
+                <when test="shopId != null">and shopId = #{shopId}</when>
+                <otherwise>and shopId is null</otherwise>
+            </choose>
+            <if test="pluteformid !=null  and  pluteformid  !='' ">
+                AND pluteformid=#{pluteformid}
+            </if>
+        </sql>
+
+
+       <sql id="all_column">categoryid,typeid,productid,brandid,productname,productcode,supplierid,regionid,unit,description,salestatus,addeddate,visticounts,salecounts,displaysequence,lineid,marketprice,lowestsaleprice,hassku,points,imageurl,thumbnailurl1,thumbnailurl2,thumbnailurl3,thumbnailurl4,thumbnailurl5,thumbnailurl6,thumbnailurl7,thumbnailurl8,salestype,restrictioncount </sql>
+
+       <sql id="condition">
+           <if test="productInfo.searchProductCategories != null and productInfo.searchProductCategories != ''">
+               AND pc.categorypath LIKE '%${productInfo.searchProductCategories}%'
+           </if>
+           <if test="productInfo.productName != null and productInfo.productName != ''">
+               AND p.productname LIKE '%${productInfo.productName}%'
+           </if>
+           <if test="productInfo.productCode != null and productInfo.productCode != ''">
+               AND p.productcode = #{productInfo.productCode}
+           </if>
+           <if test="productInfo.saleStatus != null">
+               AND p.salestatus = #{productInfo.saleStatus}
+           </if>
+           <choose>
+               <when test="shopId !=null">AND p.shopId=#{shopId}</when>
+               <otherwise>AND p.shopId is null</otherwise>
+           </choose>
+           <if test="pluteformid !=null  and  pluteformid  !='' ">
+               AND p.pluteformid=#{pluteformid}
+           </if>
+              AND p.salestatus !=2
+       </sql>
+        <!-- 分页 -->
+       <select id="selectByContion" resultMap="ProductInfoMap" parameterType="page">
+           SELECT *
+           FROM
+           <choose>
+               <when test="productInfo.searchProductCategories != null and productInfo.searchProductCategories != ''">
+                   b2c_shop_products p join b2c_shop_productcategories pc on p.ProductId = pc.ProductId
+               </when>
+               <otherwise>
+                   b2c_shop_products p
+               </otherwise>
+           </choose>
+           WHERE 1=1
+           <include refid="condition"/>
+           GROUP BY p.ProductId Limit #{beginNumber},#{pageSize}
+       </select>
+        <!--查询总数-->
+        <select id="selectAllCount" resultType="int" parameterType="page">
+            SELECT count(distinct p.ProductId)
+            FROM b2c_shop_products p join b2c_shop_productcategories pc on p.ProductId = pc.ProductId
+            WHERE 1=1
+            <include refid="condition"/>
+        </select>
+         <!--根据编码查询-->
+        <select id="productInfoCode" resultMap="ProductInfoMap" parameterType="productInfo">
+            SELECT *
+            FROM b2c_shop_products
+            WHERE productcode = #{productCode}
+            <include refid="b2c_condition"/>
+        </select>
+        <!--录入产品-->
+        <insert id="InsertProduct" parameterType="productInfo" useGeneratedKeys="true" keyColumn="ProductId" keyProperty="productId">
+            INSERT INTO
+            b2c_shop_products(categoryid,typeid,brandid,productname,productcode,supplierid,regionid,unit,description,salestatus,addeddate,displaysequence,marketprice,lowestsaleprice,hassku,points,salestype,shopId,pluteformid, adjustedPrice)
+            VALUES (#{categoryId},#{typeId},#{brandId},#{productName},#{productCode},#{supplierId},#{regionId},#{unit},#{description},#{saleStatus},#{addedDate},#{displaySequence},#{marketPrice},#{lowestSalePrice},#{hasSku},#{points},#{salesType},#{shopId},#{pluteformid},#{adjustedPrice})
+        </insert>
+        <!--根据编码获得产品id-->
+        <select id="selProductId" resultType="productInfo" parameterType="productInfo">
+            SELECT *
+            FROM b2c_shop_products
+            where productCode = #{productCode}
+            <include refid="b2c_condition"/>
+        </select>
+        <!--更新图片url与最低价-->
+        <update id="updateProduct" parameterType="productInfo">
+            UPDATE b2c_shop_products SET ImageUrl=#{imageUrl},thumbnailurl1 = #{thumbnailUrl1},pluteformid=#{pluteformid}
+            WHERE ProductId = #{productId}
+            <include refid="b2c_condition"/>
+        </update>
+        <!--删除产品-->
+        <delete id="delProduct" parameterType="productInfo">
+            UPDATE b2c_shop_products
+            SET salestatus=2
+            WHERE ProductId=#{productId}
+            <include refid="b2c_condition"/>
+        </delete>
+    <!--更新产品查询id-->
+        <select id="selProductInfoById" resultType="productInfo" parameterType="productInfo">
+            SELECT  *
+            FROM b2c_shop_products
+            WHERE ProductId=#{productId}
+            <include refid="b2c_condition"/>
+        </select>
+    <!--根据版面和厚度查产品-->
+    <!--产品分页-->
+    <select id="selProductCountBySku" resultType="int" parameterType="orderBySku">
+        SELECT COUNT(DISTINCT sp.ProductId)
+        from
+        <if test="hdValue != null or bmValue != null">
+            b2c_shop_skuitems s,
+        </if>
+        <if  test="searchProductCategories != null and searchProductCategories != ''">
+            b2c_shop_productcategories p,
+        </if>
+            b2c_shop_products sp
+        where 1=1
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND sp.pluteformid=#{pluteformid}
+        </if>
+        <if  test="searchProductCategories != null and searchProductCategories != ''">
+            AND sp.ProductId = p.ProductId
+        </if>
+        <if  test="searchProductCategories != null and hdValue != null or bmValue != null">
+            AND s.ProductId = p.ProductId
+        </if>
+        <if test="hdValue != null or bmValue != null">
+            AND s.ProductId = sp.ProductId
+        </if>
+        <if test="typeId != null and typeId != ''">
+            AND sp.TypeId =#{typeId}
+        </if>
+        <if test="searchProductCategories != null and searchProductCategories != ''">
+            AND p.CategoryPath LIKE '%${searchProductCategories}%'
+        </if>
+        <if test="productName != null and productName != ''">
+            AND sp.ProductName LIKE '%${productName}%'
+        </if>
+        <if test="productCode != null and productCode != ''">
+            AND sp.ProductCode = #{productCode}
+        </if>
+        <if test="bmValue != null and hdValue == null">
+            and  sp.ProductId IN (select s.ProductId from b2c_shop_skuitems s  where s.AttributeId =#{bmId} AND s.ValueId=#{bmValue})
+        </if>
+        <if test="hdValue != null and bmValue == null">
+            and  sp.ProductId IN (select s.ProductId from b2c_shop_skuitems s where s.AttributeId =#{hdId} AND s.ValueId=#{hdValue})
+        </if>
+        <if test="hdValue != null and bmValue != null">
+            and  sp.ProductId IN (select s.ProductId from b2c_shop_skuitems s where 1=1 and (s.AttributeId =#{hdId} AND s.ValueId=#{hdValue}) OR (s.AttributeId =#{bmId} AND s.ValueId=#{bmValue}))
+        </if>
+        AND sp.salestatus !=2
+    </select>
+    <select id="selProductBySku" resultMap="ProductInfoMap" parameterType="orderBySku">
+        SELECT sp.* 
+        from
+        <if test="hdValue != null or bmValue != null">
+            b2c_shop_skuitems s,
+        </if>
+        <if  test="searchProductCategories != null and searchProductCategories != ''">
+            b2c_shop_productcategories p,
+        </if>
+            b2c_shop_products sp
+        where 1=1
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND sp.pluteformid=#{pluteformid}
+        </if>
+        <if  test="searchProductCategories != null and searchProductCategories != ''">
+            AND sp.ProductId = p.ProductId
+        </if>
+        <if  test="searchProductCategories != null and hdValue != null or bmValue != null">
+            AND s.ProductId = p.ProductId
+        </if>
+        <if test="hdValue != null or bmValue != null">
+            AND s.ProductId = sp.ProductId
+        </if>
+        <if test="typeId != null and typeId != ''">
+            AND sp.TypeId =#{typeId}
+        </if>
+        <if test="searchProductCategories != null and searchProductCategories != ''">
+            AND p.CategoryPath LIKE '%${searchProductCategories}%'
+        </if>
+        <if test="productName != null and productName != ''">
+            AND sp.ProductName LIKE '%${productName}%'
+        </if>
+        <if test="productCode != null and productCode != ''">
+            AND sp.ProductCode = #{productCode}
+        </if>        
+		<if test="bmValue != null and hdValue == null">
+            and  sp.ProductId IN (select s.ProductId from b2c_shop_skuitems s  where s.AttributeId =#{bmId} AND s.ValueId=#{bmValue})
+        </if>
+        <if test="hdValue != null and bmValue == null">
+            and  sp.ProductId IN (select s.ProductId from b2c_shop_skuitems s where s.AttributeId =#{hdId} AND s.ValueId=#{hdValue})
+        </if>
+        <if test="hdValue != null and bmValue != null">
+            and  sp.ProductId IN (select s.ProductId from b2c_shop_skuitems s where 1=1 and (s.AttributeId =#{hdId} AND s.ValueId=#{hdValue}) OR (s.AttributeId =#{bmId} AND s.ValueId=#{bmValue}))
+        </if>
+           AND sp.salestatus !=2
+           GROUP BY sp.ProductId LIMIT #{beginNumber},#{pageSize};
+    </select>
+    <!--查询关联产品-->
+    <select id="selProductById" resultMap="ProductInfoMap" parameterType="productInfo">
+        SELECT * from b2c_shop_products where ProductId in (SELECT r.RelatedId from b2c_shop_relatedproducts r where r.ProductId = #{productId})
+        <include refid="b2c_condition"/>
+    </select>
+    <!--更新-->
+    <update id="updateProductById" parameterType="productInfo">
+         UPDATE b2c_shop_products SET ProductId = #{productId},categoryid=#{categoryId},description=#{description},typeid=#{typeId},brandid=#{brandId},productname=#{productName},productcode=#{productCode},supplierid=#{supplierId},regionid=#{regionId},unit=#{unit},salestatus=#{saleStatus},addeddate=#{addedDate},displaysequence=#{displaySequence},marketprice=#{marketPrice},lowestsaleprice=#{lowestSalePrice},hassku=#{hasSku},points=#{points},salestype=#{salesType}
+         WHERE ProductId = #{productId}
+        <include refid="b2c_condition"/>
+    </update>
+
+    <sql id="weCartApp_condition">
+        <!--<if test="productInfo.searchProductCategories != null and productInfo.searchProductCategories != ''">-->
+            <!--AND pc.categorypath LIKE '%${productInfo.searchProductCategories}%'-->
+        <!--</if>-->
+        <if test="productInfo.categoryId != null">
+            AND pc.CategoryId = #{productInfo.categoryId}
+        </if>
+        <if test="productInfo.productName != null and productInfo.productName != ''">
+            AND p.productname LIKE '%${productInfo.productName}%'
+        </if>
+        <if test="productInfo.saleStatus != null">
+            AND p.salestatus = #{productInfo.saleStatus}
+        </if>
+        <if test="productInfo.stationType != null">
+            AND p.productId in (SELECT psm.productId FROM b2c_shop_productstationmodes psm WHERE psm.type=#{productInfo.stationType})
+        </if>
+        <choose>
+            <when test="shopId !=null">AND p.shopId=#{shopId}</when>
+            <otherwise>AND p.shopId is null</otherwise>
+        </choose>
+
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND p.pluteformid=#{pluteformid}
+        </if>
+        AND p.salestatus !=2
+    </sql>
+    <!--根据用户购买的产品   查找产品-->
+    <select id="productListByCate" resultMap="ProductInfoMap" parameterType="user">
+        SELECT *
+        FROM (SELECT cs.CategoryId AS cateId,h.OrderId,p.* FROM b2c_shop_productcategories cs RIGHT JOIN  (SELECT s.CategoryId,o.OrderId FROM b2c_shop_orders o JOIN b2c_shop_orderitems os ON o.OrderId =os.OrderId JOIN b2c_shop_productcategories s ON s.ProductId= os.ProductId JOIN b2c_shop_categories c ON s.CategoryId=c.CategoryId WHERE o.BuyerID=#{userId} GROUP BY s.CategoryId) h ON h.CategoryId=cs.CategoryId JOIN b2c_shop_products p ON p.ProductId = cs.ProductId GROUP BY p.ProductId) po
+        LEFT JOIN (SELECT os.ProductId AS product FROM b2c_shop_orders o LEFT JOIN b2c_shop_orderitems os ON o.OrderId =os.OrderId
+        WHERE o.BuyerID=#{userId} GROUP BY os.ProductId) o ON po.ProductId = o.product
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            WHERE po.pluteformid=#{pluteformid}
+        </if>
+        ORDER BY o.product DESC
+        LIMIT #{beginNumber},#{pageSize}
+    </select>
+    <!-- wecartAddApp分页查询 -->
+    <select id="weCartAddAppSelectByContion" resultMap="ProductInfoMap" parameterType="page">
+        SELECT *
+        FROM
+        <choose>
+            <when test="productInfo.categoryId != null">
+                b2c_shop_products p join b2c_shop_productcategories pc on p.ProductId = pc.ProductId
+            </when>
+            <otherwise>
+                b2c_shop_products p
+            </otherwise>
+        </choose>
+        <where>
+            <if test="pluteformid !=null  and  pluteformid  !='' ">
+                AND p.pluteformid=#{pluteformid}
+            </if>
+            <choose>
+                <when test="shopId != null">and p.shopId = #{shopId}</when>
+                <otherwise>and p.shopId is null</otherwise>
+            </choose>
+            <if test="productInfo.categoryId != null">AND pc.CategoryId = #{productInfo.categoryId}</if>
+
+            <if test="productInfo.productName != null and productInfo.productName != ''">
+                AND p.productname LIKE '%${productInfo.productName}%'
+            </if>
+            <if test="productInfo.saleStatus != null">
+                AND p.salestatus = #{productInfo.saleStatus}
+            </if>
+            <if test="productInfo.stationType != null">
+                AND p.productId in (SELECT psm.productId FROM b2c_shop_productstationmodes psm WHERE psm.type=#{productInfo.stationType})
+            </if>
+            AND p.salestatus !=2
+
+        </where>
+        GROUP BY p.ProductId Limit #{beginNumber},#{pageSize}
+    </select>
+    <!--wecartAddApp分页查询获得总数-->
+    <select id="weCartAddAppSelectAllCount" resultType="int" parameterType="page">
+        SELECT count(distinct p.ProductId)
+        FROM b2c_shop_products p join b2c_shop_productcategories pc on p.ProductId = pc.ProductId
+        <where>
+            <include refid="weCartApp_condition"/>
+        </where>
+    </select>
+    <!--根据产品ID查询-->
+    <select id="selFavoriteInfoById" parameterType="page" resultMap="ProductInfoMap">
+         select * from b2c_shop_favorite f , b2c_shop_products s
+         where f.targetid =s.productid and userid =#{favoriteInfo.userId}
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND f.pluteformid=#{pluteformid}
+        </if>
+        Limit #{beginNumber},#{pageSize}
+    </select>
+    <!--webserivce数据同步-->
+    <insert id="web_insertProductInfo" parameterType="productInfo">
+        INSERT INTO
+        b2c_shop_products(categoryid,typeid,brandid,ProductId,productname,productcode,supplierid,regionid,ShortDescription,unit,description,Meta_Title,Meta_Description,Meta_Keywords,salestatus,addeddate,VistiCounts,SaleCounts,Stock,displaysequence,LineId,marketprice,lowestsaleprice,PenetrationStatus,MainCategoryPath,ExtendCategoryPath,hassku,points,ImageUrl,ThumbnailUrl1,ThumbnailUrl2,ThumbnailUrl3,ThumbnailUrl4,ThumbnailUrl5,ThumbnailUrl6,ThumbnailUrl7,ThumbnailUrl8,MaxQuantity,MinQuantity,Tags,SeoUrl,SeoImageAlt,SeoImageTitle,salestype,RestrictionCount,DeliveryTip,Remark,Profit)
+        VALUES (#{categoryId},#{typeId},#{brandId},#{productId},#{productName},#{productCode},#{supplierId},#{regionId},#{shortDescription},#{unit},#{description},#{meta_Title},#{meta_Description},#{meta_Keywords},#{saleStatus},#{addedDate},#{vistiCounts},#{saleCounts},#{stock},#{displaySequence},#{lineId},#{marketPrice},#{lowestSalePrice},#{penetrationStatus},#{mainCategoryPath},#{extendCategoryPath},#{hasSku},#{points},#{imageUrl},#{thumbnailUrl1},#{thumbnailUrl2},#{thumbnailUrl3},#{thumbnailUrl4},#{thumbnailUrl5},#{thumbnailUrl6},#{thumbnailUrl7},#{thumbnailUrl8},#{maxQuantity},#{minQuantity},#{tags},#{seoUrl},#{seoImageAlt},#{seoImageTitle},#{salesType},#{restrictionCount},#{deliveryTip},#{remark},#{profit})
+    </insert>
+    <insert id="web_insertProductCategories" parameterType="productCategories">
+        INSERT INTO b2c_shop_productcategories(categoryid,productid,categorypath)
+        VALUES(#{categoryId},#{productId},#{categoryPath})
+    </insert>
+    <insert id="web_insertAttributeValue" parameterType="attributeValue">
+        INSERT INTO b2c_shop_attributevalues(valueId,attributeid,displaysequence,valuestr,imageUrl)
+        VALUES (#{valueId},#{attributeId},#{displaySequence},#{valueStr},#{imageUrl})
+    </insert>
+    <insert id="web_insertProductAttribute" parameterType="productAttribute">
+        insert INTO b2c_shop_productattributes(productId,attributeId,valueId)
+        VALUES (#{productId},#{attributeId},#{valueId})
+    </insert>
+    <insert id="web_insertSKUInfo" parameterType="skuInfo">
+        INSERT INTO b2c_shop_skus(skuid,productid,sku,weight,stock,alertstock,costprice,saleprice,upselling,profit)
+        VALUES (#{skuId},#{productId},#{sku},#{weight},#{stock},#{alertStock},#{costPrice},#{salePrice},#{upSelling},#{profit})
+    </insert>
+    <insert id="web_insertSKUItem" parameterType="skuItem">
+        insert INTO b2c_shop_skuitems(specId,attributeid,valueid,imageUrl,valueStr,productid)
+        VALUES (#{specId},#{attributeId},#{valueId},#{imageUrl},#{valueStr},#{productId})
+    </insert>
+    <insert id="web_insetSKURelation" parameterType="skuRelation">
+        insert INTO b2c_shop_skurelation(skuid,specid,productid)
+        VALUES (#{skuId},#{specId},#{productId})
+    </insert>
+    <insert id="web_insertRelatedProduct" parameterType="relatedProduct">
+        INSERT INTO b2c_Shop_RelatedProducts(RelatedId,ProductId)
+        VALUES (#{relatedId},#{productId})
+    </insert>
+    <insert id="web_insertProductImage" parameterType="productImage">
+        INSERT INTO  b2c_shop_productimages(ProductId,ImageUrl,ThumbnailUrl1,ThumbnailUrl2,ThumbnailUrl3,ThumbnailUrl4,ThumbnailUrl5,ThumbnailUrl6,ThumbnailUrl7,ThumbnailUrl8)
+         VALUES (#{productId},#{imageUrl},#{thumbnailUrl1},#{thumbnailUrl2},#{thumbnailUrl3},#{thumbnailUrl4},#{thumbnailUrl5},#{thumbnailUrl6},#{thumbnailUrl7},#{thumbnailUrl8})
+    </insert>
+    <delete id="web_deleteProductStationModes" parameterType="productStationModes">
+        DELETE  * FROM b2c_shop_productstationmodes WHERE ProductId=#{productId} AND Type=#{type}
+    </delete>
+    <insert id="web_insertProductStationModes" parameterType="productStationModes">
+        INSERT INTO  b2c_shop_productstationmodes(StationId,ProductId,DisplaySequence,Type) VALUES(#{stationId},#{productId},#{displaySequence},#{type})
+    </insert>
+    <insert id="web_insertProductPackage" parameterType="productPackage">
+        INSERT INTO  b2c_shop_productpackage(ProductId,PackageId,) VALUES (#{productId},#{packageId})
+    </insert>
+    <!--更新数据-->
+    <delete id="web_delProductCategories" parameterType="long">
+        DELETE  FROM b2c_shop_productcategories
+        where productid=#{productId}
+    </delete>
+    <update id="web_updateGroupBuy" parameterType="groupBuy">
+        UPDATE b2c_Shop_GroupBuy  SET ProductName=#{productName} WHERE ProductId=#{productId}
+    </update>
+    <delete id="web_delProductAttribute" parameterType="long">
+        DELETE from  b2c_shop_productattributes WHERE productId=#{productId}
+    </delete>
+    <delete id="web_delSKUInfo" parameterType="long">
+        DELETE FROM b2c_shop_skus WHERE productid = #{productId}
+    </delete>
+    <delete id="web_delSKUItem" parameterType="long">
+        DELETE from b2c_shop_skuitems WHERE productid = #{productId}
+    </delete>
+    <delete id="web_delSKURelation" parameterType="long">
+        DELETE from b2c_shop_skurelation  WHERE productid=#{productId}
+    </delete>
+    <delete id="web_delRelatedProduct" parameterType="long">
+        DELETE FROM b2c_Shop_RelatedProducts WHERE ProductId=#{productId}
+    </delete>
+    <delete id="web_delProductImage" parameterType="long">
+        DELETE FROM b2c_shop_productimages WHERE ProductId=#{productId}
+    </delete>
+    <delete id="web_delSkuMemberPrice" parameterType="long">
+        DELETE FROM b2c_Shop_SKUMemberPrice WHERE SkuId IN(SELECT SkuId FROM Shop_SKUs WHERE ProductId =#{productId})
+    </delete>
+    <delete id="web_delAccessoriesValue" parameterType="long">
+        DELETE FROM b2c_Shop_AccessoriesValues WHERE  AccessoriesId in  (SELECT AccessoriesId  FROM Shop_ProductAccessories WHERE  ProductId = #{productId})
+    </delete>
+    <delete id="web_delProductAccessories" parameterType="long">
+        DELETE FROM b2c_shop_productaccessories where ProductId=#{productId}
+    </delete>
+    <update id="web_updateProductById" parameterType="productInfo">
+        UPDATE b2c_shop_products SET categoryid=#{categoryId},typeid=#{typeId},ProductId=#{productId},brandid=#{brandId},productname=#{productName},productcode=#{productCode},supplierid=#{supplierId},regionid=#{regionId},ShortDescription=#{shortDescription},unit=#{unit},description=#{description},Meta_Title=#{meta_Title},Meta_Description=#{meta_Description},Meta_Keywords=#{meta_Keywords},salestatus=#{saleStatus},addeddate=#{addedDate},VistiCounts=#{vistiCounts},SaleCounts=#{saleCounts},Stock=#{stock},displaysequence=#{displaySequence},LineId=#{lineId},marketprice=#{marketPrice},lowestsaleprice=#{lowestSalePrice},PenetrationStatus=#{penetrationStatus},MainCategoryPath=#{mainCategoryPath},ExtendCategoryPath=#{extendCategoryPath},hassku=#{hasSku},points=#{points},ImageUrl=#{imageUrl},ThumbnailUrl1=#{thumbnailUrl1},ThumbnailUrl2=#{thumbnailUrl2},ThumbnailUrl3=#{thumbnailUrl3},ThumbnailUrl4=#{thumbnailUrl4},ThumbnailUrl5=#{thumbnailUrl5},ThumbnailUrl6=#{thumbnailUrl6},ThumbnailUrl7=#{thumbnailUrl7},ThumbnailUrl8=#{thumbnailUrl8},MaxQuantity=#{maxQuantity},MinQuantity=#{minQuantity},Tags=#{tags},SeoUrl=#{seoUrl},SeoImageAlt=#{seoImageAlt},SeoImageTitle=#{seoImageTitle},salestype=#{salesType},RestrictionCount=#{restrictionCount},DeliveryTip=#{deliveryTip},Remark=#{remark},Profit=#{profit}
+        WHERE ProductId = #{productId}
+    </update>
+    <!--数据同步删除，上架，下架-->
+    <update id="web_deleteProductById" parameterType="productInfo">
+            UPDATE b2c_shop_products
+            SET salestatus=#{saleStatus}
+            WHERE ProductId=#{productId}
+    </update>
+    <!--根据产品id查询-->
+    <select id="productInfoId" resultMap="ProductInfoMap" parameterType="productInfo">
+        SELECT *
+        FROM b2c_shop_products
+        WHERE productid = #{productId}
+        <include refid="b2c_condition"/>
+        <choose>
+            <when test="shopId !=null">AND shopId=#{shopId}</when>
+            <otherwise>AND shopId is null</otherwise>
+        </choose>
+    </select>
+
+
+    <select id="listSelfProductByShopId" resultMap="ProductInfoMap">
+        select
+            product.*
+        from b2c_shop_self_product_shop product_shop
+            left join b2c_shop_products product on product.ProductId = product_shop.product_id
+        <where>
+            <if test="shopId != null">and shop_id = #{shopId}</if>
+        </where>
+        limit #{start}, #{size}
+    </select>
+
+    <select id="countSelfProductByShopId" resultType="long">
+        select count(*) from b2c_shop_self_product_shop
+        <where>
+            <if test="shopId != null">and shop_id = #{shopId}</if>
+        </where>
+    </select>
+
+    <select id="listSelfProductByMallId" resultMap="ProductInfoMap">
+        select
+        product.*
+        from b2c_shop_self_product_mall product_mall
+        left join b2c_shop_products product on product.ProductId = product_mall.product_id
+        <where>
+            <if test="mallId != null">and mall_id = #{mallId}</if>
+        </where>
+        limit #{start}, #{size}
+    </select>
+
+    <select id="countSelfProductByMallId" resultType="long">
+        select count(*) from b2c_shop_self_product_mall
+        <where>
+            <if test="mallId != null">and mall_id = #{mallId}</if>
+        </where>
+    </select>
+
+    <delete id="removeSelfProductByMallId">
+        delete from b2c_shop_self_product_mall
+        <where>
+            <if test="mallId != null">and mall_id = #{mallId}</if>
+            <if test="productId != null">and product_id = #{productId}</if>
+        </where>
+    </delete>
+
+    <delete id="removeSelfProductByShopId">
+        delete from b2c_shop_self_product_shop
+        <where>
+            <if test="shopId != null">and shop_id = #{shopId}</if>
+            <if test="productId != null">and product_id = #{productId}</if>
+        </where>
+    </delete>
+
+    <insert id="saveShopSelfProducts">
+        insert into b2c_shop_self_product_shop (
+            product_id,
+            shop_id
+        ) values
+        <foreach collection="productIds" separator="," item="productId">
+            (#{productId}, #{shopId})
+        </foreach>
+    </insert>
+
+    <insert id="saveMallSelfProducts">
+        insert into b2c_shop_self_product_mall (
+            product_id,
+            mall_id
+        ) values
+        <foreach collection="productIds" separator="," item="productId">
+            (#{productId}, #{mallId})
+        </foreach>
+    </insert>
+
+
+    <update id="updateSelfProduct">
+        update b2c_shop_products set selfSell = #{selfSell} where ProductId = #{productId}
+    </update>
+	<!--根据店铺id获取店铺的产品-->
+    <select id="getProductId" resultMap="ProductInfoMap" parameterType="productInfo">
+        SELECT p.productId,p.productname,p.shopId
+        FROM b2c_shop_products p
+        WHERE p.shopId =#{shopId}
+        <if test="pluteformid != null and pluteformid != ''">
+            AND p.pluteformid = #{pluteformid}
+        </if>
+
+    </select>
+
+    <insert id="insertProductImageUrls">
+        insert into b2c_shop_product_image
+        (image_id, product_id, image_url, shop_id, platform_id, create_date)
+        values
+        <foreach collection="imageUrls" separator="," item="imageUrl">
+            (null, #{productId}, #{imageUrl}, #{shopId}, #{platformId}, now())
+        </foreach>
+    </insert>
+
+    <select id="listProductImageUrl" resultType="string">
+        select image_url from b2c_shop_product_image
+        <where>
+            <choose>
+                <when test="shopId != null">
+                    and shop_id = #{shopId}
+                </when>
+                <otherwise>
+                    and shop_id is null
+                </otherwise>
+            </choose>
+            and platform_id = #{platformId}
+            and product_id = #{productId}
+        </where>
+    </select>
+    <select id="getServicePhoneByShopIdOrPId" parameterType="productInfo" resultType="string">
+        <if test="shopId!=null and shopId!=''">
+            select ServicePhone from b2c_shop_suppliers where SupplierId=#{shopId}
+        </if>
+        <if test="pluteformid!=null and pluteformid!=''">
+            select ServicePhone from b2c_mall_config where pId=#{pluteformid}
+        </if>
+    </select>
+</mapper>
+
+

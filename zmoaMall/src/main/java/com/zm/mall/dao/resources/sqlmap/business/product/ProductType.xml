@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.product.ProductTypeDao">
+    <resultMap id="ProductTypeMap" type="com.zm.mall.domain.business.product.ProductType">
+        <result column="TypeId" property="typeId" jdbcType="BIGINT"></result>
+        <result column="TypeName" property="typeName" jdbcType="VARCHAR"></result>
+        <result column="Remark" property="remark" jdbcType="VARCHAR"></result>
+        <collection property="brandsTypes" ofType="com.zm.mall.domain.business.product.ProductTypeBrand">
+            <result column="ProductTypeId" property="productTypeId" jdbcType="BIGINT"></result>
+            <result column="BrandId" property="brandId" jdbcType="BIGINT"></result>
+        </collection>
+    </resultMap>
+
+    <!--平台Id-->
+    <sql id="b2c_condition">
+        <choose>
+            <when test="shopId != null">and shopId = #{shopId}</when>
+            <otherwise>and shopId is null</otherwise>
+        </choose>
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND pluteformid=#{pluteformid}
+        </if>
+    </sql>
+
+    <select id="selAllProductType" resultMap="ProductTypeMap">
+        SELECT *
+        FROM b2c_shop_producttypes
+        WHERE 1=1
+        <include refid="b2c_condition"/>
+    </select>
+    <select id="selectTypeById" resultMap="ProductTypeMap" parameterType="productType">
+        SELECT *
+        FROM b2c_shop_producttypes
+        WHERE 1=1 AND typeId = #{typeId}
+        <include refid="b2c_condition"/>
+    </select>
+</mapper>

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.zm.mall.dao.business.shop.ShopInfoDao">
+
+    <select id="getWeChatIdentityByUserId" resultType="com.zm.mall.domain.business.shop.WeChatIdentity">
+        select
+            Parentpluteformid as platformId,
+            openId as openId
+        from b2c_user where id = #{userId}
+    </select>
+
+    <select id="getWeChatIdentityByAccountsUserId" resultType="com.zm.mall.domain.business.shop.WeChatIdentity">
+        select
+            pluteformid as platformId,
+            openId as openId
+        from b2c_accounts_users where UserID = #{userId}
+    </select>
+
+    <select id="getUserByWeChatIdentity" resultType="com.zm.mall.domain.business.accountsUsers.Users">
+        select * from b2c_accounts_users where pluteformid = #{platformId} and openId = #{openId}
+    </select>
+
+    <sql id="shopInfoColumns">
+        ${alias}.SupplierId,${alias}.Name,${alias}.ShopName,${alias}.StoreStatus,${alias}.CategoryId,${alias}.Rank,${alias}.UserId,${alias}.UserName,${alias}.TelPhone,${alias}.CellPhone,${alias}.ContactMail,${alias}.Introduction,${alias}.RegisteredCapital,${alias}.RegionId,${alias}.Address,${alias}.Contact,${alias}.EstablishedDate,${alias}.EstablishedCity,${alias}.LOGO,${alias}.Fax,${alias}.PostCode,${alias}.HomePage,${alias}.ArtiPerson,${alias}.CompanyType,${alias}.BusinessLicense,${alias}.TaxNumber,${alias}.AccountBank,${alias}.AccountInfo,${alias}.ServicePhone,${alias}.QQ,${alias}.MSN,${alias}.Status,${alias}.CreatedDate,${alias}.CreatedUserId,${alias}.UpdatedDate,${alias}.UpdatedUserId,${alias}.ExpirationDate,${alias}.Balance,${alias}.IsUserApprove,${alias}.IsSuppApprove,${alias}.ScoreDesc,${alias}.ScoreService,${alias}.ScoreSpeed,${alias}.Recomend,${alias}.Sequence,${alias}.ProductCount,${alias}.PhotoCount,${alias}.ThemeId,${alias}.Remark,${alias}.AgentId,${alias}.IndexProdTop,${alias}.IndexContent,${alias}.Latitude,${alias}.Longitude,${alias}.pluteformid
+    </sql>
+
+    <insert id="addShopInfo">
+        INSERT into b2c_shop_suppliers(
+            SupplierId,Name,ShopName,StoreStatus,CategoryId,Rank,UserId,UserName,TelPhone,CellPhone,ContactMail,Introduction,RegisteredCapital,RegionId,Address,Contact,EstablishedDate,EstablishedCity,LOGO,Fax,PostCode,HomePage,ArtiPerson,CompanyType,BusinessLicense,TaxNumber,AccountBank,AccountInfo,ServicePhone,QQ,MSN,Status,CreatedDate,CreatedUserId,UpdatedDate,UpdatedUserId,ExpirationDate,Balance,IsUserApprove,IsSuppApprove,ScoreDesc,ScoreService,ScoreSpeed,Recomend,Sequence,ProductCount,PhotoCount,ThemeId,Remark,AgentId,IndexProdTop,IndexContent,Latitude,Longitude,pluteformid
+        ) VALUES (
+            #{supplierId},#{name},#{name},#{storeStatus},#{categoryId},#{rank},#{userId},#{userName},#{telPhone},#{cellPhone},#{contactMail},#{introduction},#{registeredCapital},#{regionId},#{address},#{contact},#{establishedDate},#{establishedCity},#{logo},#{fax},#{postCode},#{homePage},#{artiPerson},#{companyType},#{businessLicense},#{taxNumber},#{accountBank},#{accountInfo},#{servicePhone},#{qq},#{msn},#{status},now(),#{createdUserId},#{updatedDate},#{updatedUserId},#{expirationDate},#{balance},#{isUserApprove},#{isSuppApprove},#{scoreDesc},#{scoreService},#{scoreSpeed},#{recomend},#{sequence},#{productCount},#{photoCount},#{themeId},#{reMark},#{agentId},#{indexProdTop},#{indexContent},#{latitude},#{longitude},#{pluteformid}
+        )
+    </insert>
+
+    <resultMap id="shopInfoMap" type="com.zm.mall.domain.business.product.SupplierInfo">
+        <id property="supplierId" column="SupplierId" />
+        <result property="name" column="Name" />
+        <result property="shopName" column="ShopName" />
+        <result property="storeStatus" column="StoreStatus" />
+        <result property="categoryId" column="CategoryId" />
+        <result property="rank" column="Rank" />
+        <result property="userId" column="UserId" />
+        <result property="userName" column="UserName" />
+        <result property="telPhone" column="TelPhone" />
+        <result property="cellPhone" column="CellPhone" />
+        <result property="contactMail" column="ContactMail" />
+        <result property="introduction" column="Introduction" />
+        <result property="registeredCapital" column="RegisteredCapital" />
+        <result property="regionId" column="RegionId" />
+        <result property="address" column="Address" />
+        <result property="contact" column="Contact" />
+        <result property="establishedDate" column="EstablishedDate" />
+        <result property="establishedCity" column="EstablishedCity" />
+        <result property="logo" column="LOGO" />
+        <result property="fax" column="Fax" />
+        <result property="postCode" column="PostCode" />
+        <result property="homePage" column="HomePage" />
+        <result property="artiPerson" column="ArtiPerson" />
+        <result property="companyType" column="CompanyType" />
+        <result property="businessLicense" column="BusinessLicense" />
+        <result property="taxNumber" column="TaxNumber" />
+        <result property="accountBank" column="AccountBank" />
+        <result property="accountInfo" column="AccountInfo" />
+        <result property="servicePhone" column="ServicePhone" />
+        <result property="qq" column="QQ" />
+        <result property="msn" column="MSN" />
+        <result property="status" column="Status" />
+        <result property="createdDate" column="CreatedDate" />
+        <result property="createdUserId" column="CreatedUserId" />
+        <result property="updatedDate" column="UpdatedDate" />
+        <result property="updatedUserId" column="UpdatedUserId" />
+        <result property="expirationDate" column="ExpirationDate" />
+        <result property="balance" column="Balance" />
+        <result property="isUserApprove" column="IsUserApprove" />
+        <result property="isSuppApprove" column="IsSuppApprove" />
+        <result property="scoreDesc" column="ScoreDesc" />
+        <result property="scoreService" column="ScoreService" />
+        <result property="scoreSpeed" column="ScoreSpeed" />
+        <result property="recomend" column="Recomend" />
+        <result property="sequence" column="Sequence" />
+        <result property="productCount" column="ProductCount" />
+        <result property="photoCount" column="PhotoCount" />
+        <result property="themeId" column="ThemeId" />
+        <result property="remark" column="Remark" />
+        <result property="agentId" column="AgentId" />
+        <result property="indexProdTop" column="IndexProdTop" />
+        <result property="indexContent" column="IndexContent" />
+        <result property="latitude" column="Latitude" />
+        <result property="longitude" column="Longitude" />
+        <result property="pluteformid" column="pluteformid" />
+    </resultMap>
+    <select id="getShopInfoList" resultMap="shopInfoMap">
+        select * from b2c_shop_suppliers shop
+        <where>
+            <if test="pluteformid != null">and shop.pluteformid = #{pluteformid}</if>
+            and shop.UserId is not null and Status != 3
+            <if test="filterValue != null">and shop.${filterName} like concat('%', #{filterValue}, '%')</if>
+        </where>
+        limit #{start}, #{size}
+    </select>
+
+    <select id="getShopInfoCount" resultType="long">
+        select count(*) from b2c_shop_suppliers shop
+        <where>
+            shop.pluteformid = #{pluteformid} and shop.UserId is not null and Status != 3
+            <if test="filterValue != null">and shop.${filterName} like concat('%', #{filterValue}, '%')</if>
+        </where>
+    </select>
+
+    <select id="getShopInfoListByAccountUser" resultMap="shopInfoMap">
+        select * from b2c_shopuser shopUser
+            left join b2c_shop_suppliers shop on shop.SupplierId = shopUser.shopInfoId and shop.pluteformid = shopUser.pluteformid
+        <where>
+            shopUser.userId = #{user.userId} and shopUser.pluteformid = #{shopInfo.pluteformid} and shop.UserId is not null and shop.Status != 3
+        </where>
+        limit #{shopInfo.start}, #{shopInfo.size}
+    </select>
+
+    <select id="getShopInfoCountByAccountUser" resultType="long">
+        select count(*) from b2c_shopuser shopUser
+        left join b2c_shop_suppliers shop on shop.SupplierId = shopUser.shopInfoId and shop.pluteformid = shopUser.pluteformid
+        <where>
+            shopUser.userId = #{user.userId} and shopUser.pluteformid = #{shopInfo.pluteformid} and shop.UserId is not null and shop.Status != 3
+        </where>
+    </select>
+
+    <select id="getShopInfo" resultMap="shopInfoMap">
+        select * from b2c_shop_suppliers shop
+        where shop.pluteformid = #{pluteformid} and shop.SupplierId = #{supplierId}
+    </select>
+
+    <update id="checkShop">
+        update b2c_shop_suppliers set status = #{status} where SupplierId = #{supplierId}
+    </update>
+
+    <update id="recommendShop">
+        update b2c_shop_suppliers set Recomend = #{recomend} where SupplierId = #{supplierId}
+    </update>
+
+    <select id="getDepartmentByName" resultType="com.zm.mall.domain.system.Department">
+        select * from b2c_department where name = #{deptName} and pluteformid = #{platformId}
+    </select>
+
+    <select id="getRoleByNameAndDeptId" resultType="com.zm.mall.domain.system.Role">
+        select * from b2c_role where name = #{roleName} and department_id = #{deptId} and pluteformid = #{platformId}
+    </select>
+
+    <select id="addUserRole">
+        insert into b2c_role_user (role_id, user_id, pluteformid) values (#{roleId}, #{userId}, #{platformId})
+    </select>
+
+    <insert id="addDepartment" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into b2c_department (id, name, description, departmentid, pluteformid, code) values (null, #{name}, #{description}, #{department.id}, #{pluteformid}, #{code})
+    </insert>
+
+    <insert id="addRole" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into b2c_role (id, name, description, department_id, pluteformid) values (null, #{name}, #{description}, #{department.id}, #{pluteformid})
+    </insert>
+
+    <select id="getUserRoleCount" resultType="int">
+        select count(*) from b2c_role_user where role_id = #{roleId} and user_id = #{userId} and pluteformid = #{platformId}
+    </select>
+
+    <update id="updateUserDept">
+        update b2c_user set department_id = #{deptId}, shopId = #{shopId} where id = #{userId}
+    </update>
+
+    <select id="getShopInfoByUserId" resultMap="shopInfoMap">
+        select * from b2c_shop_suppliers shop  where shop.UserId=#{userId}
+    </select>
+
+    <delete id="deleteUserRole">
+        delete from b2c_role_user where user_id = #{userId} and pluteformid = #{platformId}
+    </delete>
+
+    <!--��ѯƽ̨�µ���-->
+    <select id="getAllShop" resultMap="shopInfoMap">
+        SELECT * FROM b2c_shop_suppliers shop
+        WHERE shop.pluteformid = #{pluteformid}
+        AND shop.UserId IS NOT NULL
+        AND STATUS != 3
+    </select>
+	<!--��ѯ��������-->
+    <select id="getOneShop" resultMap="shopInfoMap">
+        SELECT * FROM b2c_shop_suppliers shop
+        WHERE shop.pluteformid = #{pluteformid}
+        AND shop.UserId IS NOT NULL
+        AND STATUS != 3
+        AND shop.supplierId = #{supplierId}
+    </select>
+</mapper>

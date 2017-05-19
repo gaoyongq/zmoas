@@ -1,0 +1,194 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/html" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script src="../../js/jquery.js"></script>
+</head>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#role").change(function(){
+//            var openShop = $("#openShop").attr("status");
+//            var roletext = $(this).children('option:selected').text();
+//            if (roletext.indexOf("商户") !=-1 && openShop=="B") {
+//                alert("添加商户用户，请先开启平台ID");
+//                window.location.reload();
+//            }
+            //获取下拉框选中option
+            var role = $(this).children('option:selected').val();
+            //用ajax后台获取部门对应的信息
+            jQuery.ajax({
+                url: "/system/addU.action",
+                type: "post",
+                data: {roleId:role},
+                dataType: 'json',
+                success:function(data){
+                    if(data.length>0){
+                        //将以前在数据删除
+                        $("#depart").children().remove();
+                        var roles = data[0].roles;
+                        for(var i=0;i<roles.length;i++){
+                            $("#depart").append('<option class="roles" value=' + roles[i].id + '>'+roles[i].name+'</option>');
+                        }
+                    }else{
+                        $("#depart").html('<option class="roles" value=""></option>');
+                    }
+                }
+            });
+        })
+//        $("#openShop").click(function(){
+//            var text ='<div class="body-content"><div class="label"><div>C端商户标识:</div></div><div class="field"><input type="text" name="pluteformid"  class="input w50"  size="50"></div></div>';
+//            var status =  $(this).attr("status");
+//            if(status == "B"){
+//                $(this).text("添加B端用户");
+//                $(this).attr("status","C");
+//                $("#cOpen").append(text);
+//                $("#role").find("option").each(function() {
+//                        $(this).attr("selected",false);
+//                });
+//                $("#role").find("option").each(function() {
+//                    if (this.text.indexOf("商户") !=-1) {
+//                        $(this).attr("selected",true);
+//                        $(this).change();
+//                    }
+//                });
+//                $("#role").attr("disabled","disabled");
+//                $("#depart").attr("disabled","disabled");
+//            }else{
+//                $(this).text("开启C端用户");
+//                $(this).attr("status","B");
+//                $("#cOpen").find("div").remove();
+//                $("#role").removeAttr("disabled");
+//                $("#depart").removeAttr("disabled");
+//                $("#role").find("option").each(function() {
+//                    if (this.text.indexOf("无上级部门") !=-1) {
+//                        $(this).attr("selected",true);
+//                        $(this).change();
+//                    }
+//                });
+//            }
+//            return false;
+//        });
+    });
+
+//    function check(){
+//        var openShop = $("#openShop").attr("status");
+//        if ( openShop=="C") {
+//            var pluteformid = $("input[name=pluteformid]").val();
+//            if(!pluteformid){
+//                alert("请先填写商户标识");
+//                return false;
+//            }
+//        }
+//        $("#role").removeAttr("disabled");
+//        $("#depart").removeAttr("disabled");
+//    }
+</script>
+<body>
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li><a>录入</a></li>
+    </ul>
+</div>
+        <form action="addUser.action" method="post" class="form-x" onsubmit="return check()">
+            <div class="form-group">
+##                <div class="form-foot" style="height: 50px">
+##                    #vela("/system/openShop.action" "开启c端用户" "openShop" "button border-blue" "B")
+##                </div>
+##                <div class="body-content" id="cOpen">
+##
+##                </div>
+                <div class="body-content">
+                    <div class="label">
+                        <div>登录名:</div>
+                    </div>
+                    <div class="field">
+                        <input type="text" name="name"  class="input w50"  size="50">
+                    </div>
+                </div>
+                <div class="body-content">
+                    <div class="label">
+                        <div for="sitename">姓名:</div>
+                    </div>
+                    <div class="field">
+                        <input type="text" name="realName"  class="input w50"  size="50">
+                    </div>
+                </div>
+                <div class="body-content">
+                    <div class="label">
+                        <div for="sitename">部门:</div>
+                    </div>
+                    <div class="field">
+                        <select name="department.id" class="input w50" id="role">
+                            <option value="0">无上级部门</option>
+                            #foreach($r in $departmentResults)
+                                <option value="$r.id">$r.name</option>
+                            #end
+                        </select>
+                    </div>
+                </div>
+                <div class="body-content">
+                    <div class="label">
+                        <div >性别:</div>
+                    </div>
+                    <div class="field">
+                        <select name="gender"  class="input w50">
+                            <option value="男" >男</option>
+                            <option value="女" >女</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="body-content">
+                    <div class="label">
+                        <div for="sitename">联系电话:</div>
+                    </div>
+                    <div class="field">
+                        <input type="text" name="phone"  class="input w50"  size="50">
+                    </div>
+                </div>
+                <div class="body-content">
+                    <div class="label">
+                        <div for="sitename">密码:</div>
+                    </div>
+                    <div class="field">
+                        <input type="text" name="password"  class="input w50"  size="50">
+                    </div>
+                </div>
+                <div class="body-content">
+                    <div class="label">
+                        <div for="sitename">E-mail:</div>
+                    </div>
+                    <div class="field">
+                        <input type="text" name="email"  class="input w50"  size="25">
+                    </div>
+                </div>
+                <input type="hidden" name="state" value="在职">
+                <div class="body-content">
+                    <div class="label">
+                        <div>备注:</div>
+                    </div>
+                    <div class="field"> <textarea type="text"  style="height:80px;width: 25%;"  name="description" ></textarea>
+                    </div>
+                    <div class="body-content">
+                        <div class="label">
+                            <div for="sitename">岗位:</div>
+                        </div>
+                        <div class="field">
+                            <select name="roleId" class="input w50" id="depart">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-foot">
+                    <button class="button border-green icon-check" type="submit"> 提交</button>&nbsp;
+                    <input type="button" class="button border-blue" value="返回" class="input-button" onclick="history.back();" />
+                </div>
+            </div>
+        </form>
+        </div>
+    </div>
+</body>
+</html>

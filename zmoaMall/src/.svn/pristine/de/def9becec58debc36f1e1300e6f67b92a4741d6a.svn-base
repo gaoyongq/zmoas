@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.system.MoneyManagerDao">
+
+    <resultMap id="MoneyManagerMap" type="com.zm.mall.domain.system.MoneyManager">
+        <!--<id column="id" property="id" jdbcType="BIGINT"></id>-->
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="userName" property="userName" jdbcType="VARCHAR"/>
+        <result column="departmentName" property="departmentName" jdbcType="VARCHAR"/>
+        <result column="departmentCode" property="departmentCode" jdbcType="LONGVARCHAR"/>
+        <result column="deparmentUserName" property="deparmentUserName" jdbcType="VARCHAR"/>
+        <result column="deparmentUserCode" property="deparmentUserCode" jdbcType="LONGVARCHAR"/>
+        <result column="dpartCheckConment" property="dpartCheckConment" jdbcType="VARCHAR"/>
+        <result column="leaderCode" property="leaderCode" jdbcType="LONGVARCHAR"/>
+        <result column="leaderName" property="leaderName" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="leaderCheckConment" property="leaderCheckConment" jdbcType="VARCHAR"/>
+        <result column="money" property="money" />
+        <result column="moneyType" property="moneyType" jdbcType="VARCHAR"/>
+        <result column="statusCode" property="statusCode" jdbcType="VARCHAR"/>
+        <result column="statusName" property="statusName" jdbcType="VARCHAR"/>
+        <result column="createDate" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="deparmentStatusCode" property="deparmentStatusCode" jdbcType="VARCHAR"/>
+        <result column="deparmentStatusName" property="deparmentStatusName" jdbcType="VARCHAR"/>
+        <result column="leaderStatusCode" property="leaderStatusCode" jdbcType="VARCHAR"/>
+        <result column="leaderStatusName" property="leaderStatusName" jdbcType="VARCHAR"/>
+
+        <result column="fileURL" property="fileURL" jdbcType="VARCHAR"/>
+        <!--<association property="activityTaskResult" column="{id=statusName}"  select="selectActivityTask"></association>-->
+        <collection property="itemSet" ofType="moneyItem" select="selectMoneyItem" column="{id=id}"></collection>
+
+    </resultMap>
+
+
+    <resultMap id="TaskMap" type="com.zm.mall.domain.system.ActivityTask">
+        <!--<id column="id" property="id" jdbcType="BIGINT"></id>-->
+        <result column="ID_" property="id" />
+        <result column="EXECUTION_ID_" property="executionid" />
+        <result column="NAME_" property="name" />
+        <result column="ASSIGNEE_" property="assignname" />
+    </resultMap>
+    <!--<sql id="all_column">id ,name,code,departmentName,departmentCode,userName,deparmentUserName,deparmentUserCode,deparmentStatusName,deparmentStatusCode,dpartCheckConment,leaderCode-->
+        <!--,leaderName,leaderStatusName,leaderStatusCode,leaderCheckConment,description,money,moneyType,statusName,statusCode,createDate,moneyItemParamer,checkConment,itemSet-->
+
+    <!--</sql>-->
+
+    <sql id="condition">
+        <if test="name != null  and name !=''">
+            AND name  LIKE CONCAT('%',#{name},'%' )
+        </if>
+        <if test="departmentName != null  and departmentName !='' ">
+            AND departmentName = #{departmentName}
+        </if>
+
+        <if test="moneyType != null and moneyType !='' ">
+            AND moneyType = #{moneyType}
+        </if>
+        <if test="statusCode != null and statusCode !='' ">
+            AND statusCode LIKE CONCAT('%',#{statusCode},'%' )
+        </if>
+        <if test="id != null and id >0 ">
+            AND id = #{id}
+        </if>
+    </sql>
+
+    <!--查询自己报销单信息总条数-->
+
+    <select id="selectAllMoneyCount" resultType="int" parameterType="moneyManager">
+        SELECT
+        COUNT(*)
+        FROM money_manager
+        <where>
+            <include refid="condition"></include>
+            <if test="realName != null and realName !='' ">
+                AND userName=#{realName}
+            </if>
+            AND status =1
+        </where>
+
+    </select>
+    <!--查询自己报销单信息-->
+    <select id="selectMoneyByContion" resultMap="MoneyManagerMap" parameterType="moneyManager">
+        SELECT
+        *
+        FROM money_manager
+        <where>
+            <include refid="condition"></include>
+            <if test="realName != null and realName !='' ">
+                AND userName=#{realName}
+            </if>
+            AND status =1
+        </where>
+        ORDER BY createDate DESC
+        Limit #{beginNumber},#{pageSize}
+  </select>
+
+    <!--查询审核报销单信息总条数-->
+    <select id="selectAllCheckCount" resultType="int" parameterType="moneyManager">
+        SELECT
+        COUNT(*)
+        FROM money_manager
+        WHERE  status =1
+        <if test="departmentName != null and departmentName !='' ">
+            AND departmentName=#{departmentName}
+        </if>
+        AND statusName IN
+            (SELECT EXECUTION_ID_
+            FROM act_ru_task
+            WHERE PROC_DEF_ID_= 'MoneyCheck:1:42504'  AND ASSIGNEE_=#{realName})
+
+    </select>
+    <!--查询审核报销单信息-->
+    <select id="selectCheckByContion" resultMap="MoneyManagerMap" parameterType="moneyManager">
+        SELECT
+        *
+        FROM money_manager
+        WHERE  status =1
+            <if test="departmentName != null and departmentName !='' ">
+                AND departmentName=#{departmentName}
+            </if>
+            AND statusName IN
+                (SELECT EXECUTION_ID_
+                FROM act_ru_task
+                WHERE PROC_DEF_ID_= 'MoneyCheck:1:42504'  AND ASSIGNEE_=#{realName})
+        ORDER BY createDate DESC
+        Limit #{beginNumber},#{pageSize}
+
+    </select>
+
+    <!--根据id查询报销单-->
+    <select id="selectMoneyManagerById" resultMap="MoneyManagerMap" parameterType="moneyManager">
+        SELECT
+        *
+        FROM money_manager
+        <where>
+            <include refid="condition"></include>
+            AND status =1
+        </where>
+    </select>
+
+
+
+    <select id="selectMoneyItem" resultType="moneyItem">
+        SELECT
+        *
+        FROM money_item
+        WHERE money_manager_id=#{id} AND status=1
+    </select>
+    <!--查询工作流task的id-->
+    <select id="selectTaskId"   parameterType="String" resultMap="TaskMap">
+      SELECT ID_
+      FROM act_ru_task
+      WHERE EXECUTION_ID_=#{exeId}
+    </select>
+    <!--删除-->
+    <update id="deleteMoneyManager" parameterType="String">
+        UPDATE money_manager SET status=0 WHERE id=#{id}
+    </update>
+    <!--更新部门审核信息-->
+    <update id="updateMoneyDepCheck" parameterType="moneyManager">
+        update money_manager SET deparmentStatusCode=#{deparmentStatusCode},dpartCheckConment=#{dpartCheckConment},statusCode=#{statusCode} WHERE id=#{id}
+    </update>
+    <!--更新leader审核信息-->
+    <update id="updateMoneyLeaCheck" parameterType="moneyManager">
+        update money_manager SET leaderStatusCode=#{leaderStatusCode},leaderCheckConment=#{leaderCheckConment},statusCode=#{statusCode}  WHERE id=#{id}
+    </update>
+    <!--删除moneyitem费用项-->
+    <update id="deleteMoneyManagerItem" parameterType="Long">
+        update money_item SET status=0  WHERE money_manager_id=#{id}
+    </update>
+    <!--修改报销单信息-->
+    <update id="updateMoneyManager" parameterType="moneyManager">
+        update money_manager SET name=#{name},userName=#{userName},moneyType=#{moneyType},money=#{money},description=#{description},fileURL=#{fileURL}  WHERE id=#{id}
+    </update>
+    <!--新增对应的moneyitem费用项-->
+    <update id="insertMoneyManagerItem" parameterType="moneyItem">
+        INSERT INTO money_item (moneyName,description,money,money_manager_id,status) VALUES (#{moneyName},#{description},#{money},#{moneyManageId},1)
+    </update>
+    <!--新增报销单信息-->
+    <insert id="insertMoneyManager" parameterType="moneyManager">
+        INSERT INTO money_manager (name,userName,departmentName,moneyType,money,description,statusName,fileURL,statusCode,Status) VALUES (#{name},#{userName},#{departmentName},#{moneyType},#{money},#{description},#{statusName},#{fileURL},'未审批',1)
+    </insert>
+    <!--根据工作流状态报销单id-->
+    <select id="selectMoneyManager" resultMap="MoneyManagerMap" parameterType="String">
+        SELECT
+        *
+        FROM money_manager
+        WHERE statusName=#{statusName} AND status=1
+    </select>
+</mapper>

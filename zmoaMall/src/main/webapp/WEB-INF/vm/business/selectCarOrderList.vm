@@ -1,0 +1,240 @@
+#set($layout = "layout/empty.vm")
+<html>
+<head>
+    <!-- 导入jquery核心类库 -->
+    <script type="text/javascript"
+            src="../../js/jquery-1.8.3.js"></script>
+    <!-- 导入easyui类库 -->
+    <link id="easyuiTheme" rel="stylesheet" type="text/css"
+          href="../../js/easyui/themes/default/easyui.css">
+##        <link rel="stylesheet" type="text/css"
+##              href="../../css/default.css">
+    <script type="text/javascript"
+            src="../../js/easyui/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script>
+        $(function(){
+            var currentPage = "1";
+            var totalPages;
+            selData();
+            function selData(){
+                 var smallgroup = $("#smallgroup").val();
+
+                jQuery.post("/business/selectCarOrderList.action",{"currentPage":currentPage,"smallgroup":smallgroup},function(data){
+                    if(data.resultApplyCar==null){
+                        $("#mytbody").html("<tr><td colspan='11' algin='center'>查无结果</td></tr>");
+                    }else {
+                        var resultData = "";
+                        for (var j = 0,i=1; j < data.resultApplyCar.length; j++,i++) {
+                            resultData += "<tr class='applyCarSonClass' id='"+data.resultApplyCar[j].applyCarCode+"' ><td><input type='checkbox' class='applyCarclass' name='Check' id='showproduct'value='"+data.resultApplyCar[j].applyCarCode+"' /></td>";
+                            resultData += "<td>" + i + "</td>";
+                            resultData += "<td>" + data.resultApplyCar[j].applyCarCode + "</td>";
+                            resultData += "<td>" + data.resultApplyCar[j].smallgroup + "</td>";
+                            resultData += "<td>" + data.resultApplyCar[j].number + "</td><tr>";
+                        }
+                        $("#mytbody").html(resultData);
+                        currentPage = data.currentPage;
+                        totalPages = data.totalPages;
+                        $("#page").html("" + currentPage + " / " + data.totalPages + "");
+                        //珠子列表
+                        $(".applyCarSonClass").click(function () {
+                            var id = $(this).attr("id")
+                            //如果珠子列表打开关闭
+                            if ($("tr").hasClass("s" + id + "")) {
+                                $("tr").remove(".s" + id + "");
+                                return false;
+                            }
+                            jQuery.post("/business/selectApplyCarSonList.action", {"applyCarCode": id}, function (message) {
+                                var str = "<tr class='s" + id + "'><td></td><td colspan='10'><table class='tableson' border='1'><tr><th>序号</th><th>订单编号</th> <th>订单重量</th> <th>小组名称</th> <th>订单办理人</th></tr>"
+                                for (var i = 0,g=1; i < message.length; i++,g++) {
+                                    /* str += "<tr class='s" + id + "'><td><input attr='check' type='checkbox' value='" + message[i].skuId + "'></td>   "*/
+                                    /*str += "<td>" + message[i].sku + "</td><tr>";*/
+                                    str += "<tr class='s" + id + "'>  "
+                                    str += "<td>" + g + "</td>"
+                                    str += "<td>" + message[i].orderCode + "</td>"
+                                    str += "<td>" + message[i].orderWeigth + "</td>"
+                                    str += "<td>" + message[i].smallGroup + "</td>"
+                                    str += "<td>" + message[i].transactor + "</td><tr>"
+
+                                }
+                                str += "</table></td></tr>";
+                                $(".s" + id + "").remove()
+                                $("#" + id + "").after(str)
+                            })
+                        })
+                    }
+                });
+            }
+            //点击查询
+            $("#query").click(function(){
+                currentPage = "1";
+                selData();
+            });
+            //点击添加车辆
+            $("#saveCar").click(function(){
+                var applyCarCodes="";
+                jQuery("input[name=Check]").each(function() {
+                    if ($(this).prop("checked")) {
+                        applyCarCodes += $(this).val()+",";
+                    }
+                });
+                var applyCarCodeLength = applyCarCodes.split(",").length;
+                if (applyCarCodeLength == 1) {//没有点击
+                    alert("至少选中一个!!!");
+                    return false;
+                }else if (applyCarCodeLength > 2) {//点击超过1个
+                    alert("不能选择多个!!!");
+                    return false;
+                } else {
+                    var applyCarCode = applyCarCodes.split(",")[0];
+                    var carCode =jQuery ("#car").val() ;
+                    if(carCode!=null){
+                        window.location.href="/business/applyCarAddCar.action?applyCarCode="+applyCarCode+"&carCode="+carCode;
+                    }else{
+                        alert("请选择车辆")
+                        return false;
+                    }
+
+
+                }
+
+            });
+
+            //点击取消车辆
+            $("#cancelCar").click(function(){
+                var applyCarCodes="";
+                jQuery("input[name=Check]").each(function() {
+                    if ($(this).prop("checked")) {
+                        applyCarCodes += $(this).val()+",";
+                    }
+                });
+                var applyCarCodeLength = applyCarCodes.split(",").length;
+                if (applyCarCodeLength == 1) {//没有点击
+                    alert("至少选中一个!!!");
+                    return false;
+                }else if (applyCarCodeLength > 2) {//点击超过1个
+                    alert("不能选择多个!!!");
+                    return false;
+                } else {
+                    var applyCarCode = applyCarCodes.split(",")[0];
+                    var carCode ="";
+                    if(carCode!=null){
+                        window.location.href="/business/applyCarAddCar.action?applyCarCode="+applyCarCode+"&carCode="+carCode;
+                    }else{
+                        alert("请选择车辆")
+                        return false;
+                    }
+
+
+                }
+
+            });
+            //上一页
+            $("#upPage").click(function(){
+                if(currentPage==1){
+                    alert("当前已经是第一页")
+                }else{
+                    currentPage = currentPage-1;
+                    selData();
+                }
+            });
+
+            //下一页
+            $("#downPage").click(function () {
+                if(currentPage==totalPages){
+                    alert("已经是最后一页")
+                }else{
+                    currentPage=currentPage+1;
+                    selData();
+                }
+            });
+
+            /*//先查询车辆，再把车放到下拉选中
+            jQuery.post("/business/selectCar.action", function (data) {
+                var tbHtml = "";//定义HTML
+               tbHtml += "<option></option>";
+
+               for (var j = 0; j < data.length; j++) {
+                   tbHtml+="<option value="+data[j].number+">"+data[j].number+"</option>"//显示查询出来的结果内容
+               }
+               $('#car').html(tbHtml);//显示HTML
+            })*/
+
+            //先按照排号顺序查询车辆，获取第一辆车放到输入框中
+            jQuery.post("/business/selectCar.action", function (data) {
+                var tbHtml = "";//定义HTML
+                //tbHtml += "<option></option>";
+
+                for (var j = 0; j < 1; j++) {
+                    tbHtml+="<option value="+data[j].number+">"+data[j].number+"</option>"//显示查询出来的结果内容
+                }
+                $('#car').html(tbHtml);//显示HTML
+            })
+        });
+
+        function addOrder(){
+
+            var orderCode="";
+            var pcs= new Array();
+            jQuery("input[name=purchaseCheck]").each(function() {
+
+                if ($(this).prop("checked")) {
+                    orderCode += $(this).val()+",";
+                }
+            });
+
+            if(orderCode==""){
+                alert("至少选中一个订单!!!")
+                return false;
+            }
+            if(orderCode!=""){
+                window.location.href="/business/carAddOrder.action?orderCode="+orderCode;
+            }
+
+        }
+
+
+    </script>
+</head>
+<body>
+<div class="divtbs">
+    &nbsp; &nbsp; &nbsp; &nbsp;
+    小组：
+    <input type="text" id="smallgroup" value="">&nbsp;
+    <a class="button border-yellow" id="query"><span class="icon-search"></span>搜索</a>&nbsp;
+    请选择车辆
+    <select id="car" name="car"></select>
+    <a class="button border-yellow" id="saveCar"><span class="icon-search"></span>保存</a>&nbsp;
+    <a class="button border-yellow" id="cancelCar"><span class="icon-search"></span>取消</a>&nbsp;
+</div>
+<div>
+    <table class="table text-center" align="center" >
+        <thead>
+        <th width="5%"></th>
+        <th width="2%">序号</th>
+        <th>申请车辆编号</th>
+        <th>申请小组</th>
+        <th>选择车辆</th>
+        </thead>
+        <tbody id="mytbody"></tbody>
+    </table>
+    <div>
+        <table width="100%">
+            <tr><td colspan="11" align="right"><font id="page"></font> &nbsp;&nbsp;<a href="#" id="upPage">上一页</a>&nbsp;&nbsp;<a href="#" id="downPage">下一页</a></td></tr>
+        </table>
+    </div>
+</div>
+
+
+</body>
+
+</html>
+
+
+
+
+
+
+
+

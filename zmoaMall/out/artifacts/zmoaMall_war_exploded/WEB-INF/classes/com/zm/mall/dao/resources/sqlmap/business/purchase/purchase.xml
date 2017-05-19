@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.purchase.PurchaseDao">
+    <!--订单基本信息查询结果集-->
+    <resultMap id="PurchaseInfoMap" type="purchaseInfo">
+        <result column="purchaseId" property="purchaseId" jdbcType="BIGINT" />
+        <result column="purchaseCode" property="purchaseCode" jdbcType="VARCHAR"/>
+        <result column="procurementTime" property="procurementTime" jdbcType="TIMESTAMP"/>
+        <result column="totalweights" property="totalweights" jdbcType="DOUBLE"/>
+        <result column="totalnumber" property="totalnumber" jdbcType="BIGINT"/>
+        <result column="totalmoney" property="totalmoney" jdbcType="DOUBLE"/>
+        <result column="rackmoney" property="rackMoney" jdbcType="BIGINT"/>
+        <result column="state" property="state" jdbcType="BIGINT"/>
+        <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="DepartmentId" property="departmentId" jdbcType="BIGINT"/>
+        <association property="user" javaType="User">
+        <result column="id" property="id"/>
+        <result property="realName" column="realName"/>
+    </association>
+        <collection property="purchaseInfos" ofType="purchaseItems">
+            <result column="ItemId" property="itemId" jdbcType="BIGINT"/>
+            <result column="purchaseId" property="purchaseId" jdbcType="BIGINT" />
+            <result column="purchaseCode" property="purchaseCode" jdbcType="VARCHAR"/>
+            <result column="sku" property="sku" jdbcType="VARCHAR"/>
+            <result column="productId" property="productId" jdbcType="BIGINT"/>
+            <result column="weight" property="weight" jdbcType="DOUBLE"/>
+            <result column="purchasePrice" property="purchasePrice" jdbcType="DOUBLE"/>
+            <result column="productCode" property="productCode" jdbcType="VARCHAR"/>
+            <!--<result column="orderItems" property="orderItems" jdbcType="BIGINT"/>-->
+            <result column="number" property="number" jdbcType="INTEGER"/>
+            <result column="orderId" property="orderId" jdbcType="VARCHAR"/>
+            <result column="orderState" property="orderState" jdbcType="INTEGER"/>
+            <result column="productSell" property="productSell" jdbcType="DOUBLE"/>
+            <result column="orderCode" property="orderCode" jdbcType="VARCHAR"/>
+            <result column="ShipperName" property="shipperName" jdbcType="VARCHAR"/>
+            <result column="ShipAddress" property="shipAddress" jdbcType="VARCHAR"/>
+            <result column="ShipCellphone" property="shipCellphone" jdbcType="VARCHAR"/>
+            <result column="productStyles" property="productStyles" jdbcType="VARCHAR"/>
+            <result column="ProductName" property="productName" jdbcType="VARCHAR"/>
+            <result column="purchaseN" property="purchaseN" jdbcType="INTEGER"/>
+            <result column="purchaseM" property="purchaseM" jdbcType="INTEGER"/>
+            <collection property="purchaseItems" ofType="purchaseSupplierItems">
+                <result column="SupplierId" property="SupplierId" jdbcType="INTEGER"></result>
+                <result column="purchaseItemId" property="purchaseItemId" jdbcType="INTEGER"></result>
+                <result column="purchaseItemCode" property="purchaseItemCode" jdbcType="VARCHAR"></result>
+                <result column="SupplierName" property="supplierName" jdbcType="VARCHAR"></result>
+                <result column="numbers" property="numbers" jdbcType="BIGINT"></result>
+                <result column="costPrice" property="costPrice" jdbcType="DOUBLE"></result>
+                <result column="Singleweight" property="Singleweight" jdbcType="DOUBLE"></result>
+                <result column="PursupplierId" property="SupplierId" jdbcType="INTEGER"></result>
+                <result column="totalWeight" property="totalWeight" jdbcType="INTEGER"></result>
+                <result column="prices" property="prices" jdbcType="DOUBLE"></result>
+            </collection>
+        </collection>
+    </resultMap>
+    <resultMap id="PurchaseInfoMap2" type="purchaseInfo">
+        <result column="purchaseId" property="purchaseId" jdbcType="BIGINT" />
+        <result column="purchaseCode" property="purchaseCode" jdbcType="VARCHAR"/>
+        <result column="procurementTime" property="procurementTime" jdbcType="TIMESTAMP"/>
+        <result column="totalweight" property="totalweight" jdbcType="DOUBLE"/>
+        <result column="totalnumber" property="totalnumber" jdbcType="BIGINT"/>
+        <result column="totalmoney" property="totalmoney" jdbcType="DOUBLE"/>
+        <result column="state" property="state" jdbcType="BIGINT"/>
+        <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <resultMap id="PurchaseItemsMap" type="purchaseItems">
+
+        <result column="ItemId" property="itemId" jdbcType="BIGINT"/>
+        <result column="purchaseId" property="purchaseId" jdbcType="BIGINT" />
+        <result column="purchaseCode" property="purchaseCode" jdbcType="VARCHAR"/>
+        <result column="sku" property="sku" jdbcType="VARCHAR"/>
+        <result column="productId" property="productId" jdbcType="BIGINT"/>
+        <result column="weight" property="weight" jdbcType="DOUBLE"/>
+        <result column="purchasePrice" property="purchasePrice" jdbcType="DOUBLE"/>
+        <result column="ProductCode" property="productCode" jdbcType="VARCHAR"/>
+        <!--<result column="orderItems" property="orderItems" jdbcType="BIGINT"/>-->
+        <result column="number" property="number" jdbcType="INTEGER"/>
+        <result column="ProductName" property="ProductName" jdbcType="VARCHAR"/>
+        <result column="orderId" property="orderId" jdbcType="BIGINT"/>
+        <result column="orderState" property="orderState" jdbcType="INTEGER"/>
+        <result column="purchaseN" property="purchaseN" jdbcType="INTEGER"/>
+        <result column="orderCode" property="orderCode" jdbcType="VARCHAR"/>
+        <result column="ShipperName" property="shipperName" jdbcType="VARCHAR"/>
+        <result column="ShipAddress" property="shipAddress" jdbcType="VARCHAR"/>
+        <result column="ShipCellphone" property="shipCellPhone" jdbcType="VARCHAR"/>
+        <result column="productStyles" property="productStyles" jdbcType="VARCHAR"/>
+
+    </resultMap>
+    <sql id="all_column">purchaseId, purchaseCode,purchaser ,procurementTime , totalweights ,totalnumber ,totalmoney,updateTime</sql>
+    <!--查询采购单信息-->
+    <select id="select" resultMap="PurchaseInfoMap" parameterType="purchasePage">
+        SELECT  shop_purchase.purchaseId,shop_purchase.purchaser,shop_purchase.state,shop_purchase.totalweights,shop_purchase.totalnumber,shop_purchase.totalmoney,shop_purchase.purchaseCode,
+        shop_purchase.procurementTime,shop_purchase.rackmoney,shop_orderitems.OrderId,shop_orderitems.ProductId,shop_orderitems.SKU,shop_orderitems.Weight,shop_orderitems.Quantity ,user.realName
+        from shop_purchase,shop_purchaseitems,shop_orderitems,user
+        where shop_orderitems.OrderId=shop_purchaseitems.orderId and shop_purchase.purchaser=user.id and shop_purchase.state=#{state}
+        <if test="purchaseCode!='' and purchaseCode!=null">
+          and   shop_purchase.purchaseCode=#{purchaseCode}
+        </if>
+        <if test="beginTime!='' and beginTime!=null or endTime !='' and endTime !=null" >
+            AND shop_purchase.procurementTime BETWEEN #{beginTime} AND #{endTime}
+        </if>
+        <if test="numMoney!='' and numMoney!=null or bigMoney !='' and bigMoney !=null" >
+            AND shop_purchase.totalmoney BETWEEN #{numMoney} AND #{bigMoney}
+        </if>
+        AND shop_purchase.DepartmentId = #{departmentId}
+        and  shop_purchase.state = #{state}
+--         GROUP BY(purchaseId)
+--         ORDER BY shop_purchase.procurementTime DESC
+         Limit #{begionNumber},#{pageSize}
+    </select>
+    <select id="selectAll" resultMap="PurchaseInfoMap">
+       SELECT
+        <include refid="all_column"/>
+       from shop_purchase
+       WHERE state=0
+    </select>
+    <!--给采购单主表增加数据-->
+    <insert id="insertPuchaseInfo" parameterType="purchaseInfo" useGeneratedKeys="true" keyProperty="purchaseId">
+        INSERT  INTO  shop_purchase(purchaseCode,purchaser,procurementTime,totalweights,totalnumber,totalmoney,state,updateTime,rackmoney,DepartmentId)VALUES
+        (#{purchaseCode},#{purchaser},now(),#{totalweights},#{totalnumber},#{totalmoney},0,now(),#{rackMoney},#{departmentId})
+    </insert>
+    <!--增加采购单产品子表-->
+    <insert id="insertPurchaseItems" parameterType="purchaseItems" useGeneratedKeys="true" keyProperty="ItemId">
+        insert into shop_purchaseitems(purchaseId,productId,purchaseCode,weight,ProductCode,number,orderId,OrderCode,shipperName,ShipAddress,shipCellphone,ProductName,sku,productStyles,orderState,itemTimes,purchaseN,purchaseW,purchasePrice,productSell)
+        VALUES (#{purchaseId},#{productId},#{purchaseCode},#{weight},#{productCode},#{number},#{orderId},#{orderCode},#{shipperName},#{shipAddress},#{shipCellPhone},#{productName},#{sku},#{productStyles},1,now(),#{purchaseN},#{purchaseW},#{purchasePrice},#{productSell})
+    </insert>
+    <!--增加采购价供应商子表-->
+    <insert id="insertPurchaseSupplier" >
+        INSERT into shop_purchaesupplier(SupplierId,purchaseItemId,purchaseItemCode,SupplierName,numbers,costPrice,Singleweight,suppTimes,totalWeight,count,prices)VALUES
+        (#{SupplierId},#{purchaseItemId},#{purchaseItemCode},#{supplierName},#{numbers},#{costPrice},#{Singleweight},now(),#{totalWeight},#{count},#{prices})
+    </insert>
+    <!--采购单审核通过-->
+    <update id="updatePurchaseState" parameterType="purchaseInfo">
+        UPDATE  shop_purchase set state=1 where purchaseId=#{id}
+    </update>
+    <!--采购单审核不通过-->
+    <update id="updateNoPurchaseState" parameterType="purchaseInfo">
+        UPDATE  shop_purchase set state=-1 where purchaseId=#{id}
+    </update>
+    <!--根据供应商ID查询采购-->
+    <select id="selectBySupplierId" parameterType="Integer" resultMap="PurchaseInfoMap">
+        select shop_purchaesupplier.numbers,shop_purchaesupplier.purchaseItemId,shop_purchaseitems.purchaseNumber,shop_purchaesupplier.SupplierId,shop_purchaseitems.sku,shop_purchaseitems.ProductName,shop_purchaseitems.purchasePrice,shop_purchaseitems.ItemId
+        from shop_purchaseitems,shop_purchaesupplier
+        where shop_purchaseitems.ItemId=shop_purchaesupplier.purchaseItemId and shop_purchaesupplier.SupplierId=3
+    </select>
+    <!--采购单详情-->
+    <select id="selectOne" resultMap="PurchaseInfoMap" parameterType="purchaseInfo">
+        select shop_purchase.totalnumber,shop_purchase.totalmoney,shop_purchase.totalweights, user.realName,shop_purchase.purchaseCode,shop_purchaseitems.ProductCode,shop_purchase.purchaseId,shop_purchase.totalnumber,shop_purchase.purchaser,shop_purchase.totalmoney, 
+        shop_purchase.totalweights,shop_purchaseitems.ProductName,shop_purchaseitems.sku,shop_purchaseitems.purchasePrice,
+        shop_purchaseitems.purchaseN,shop_purchaseitems.purchaseW,shop_purchaseitems.number,shop_purchaseitems.orderCode,
+        shop_purchaesupplier.prices,shop_purchaesupplier.numbers,shop_purchaesupplier.totalWeight,shop_purchaesupplier.SupplierName,shop_purchaesupplier.costPrice
+        from shop_purchase,shop_purchaseitems,shop_purchaesupplier,user
+        where shop_purchase.purchaseId=shop_purchaseitems.purchaseId and shop_purchaesupplier.purchaseItemId=shop_purchaseitems.ItemId and shop_purchase.purchaser=user.id and shop_purchase.purchaseId=#{purchaseId}
+    </select>
+    <!--采购单分页展示-->
+    <select id="selectPurchaseCount" resultType="integer" parameterType="purchasePage">
+         SELECT count(*) FROM shop_purchase
+         WHERE shop_purchase.state = #{state}
+        <if test="purchaseCode!='' and purchaseCode!=null">
+            and   shop_purchase.purchaseCode=#{purchaseCode}
+        </if>
+        <if test="beginTime!='' and beginTime!=null or endTime !='' and endTime !=null" >
+            AND shop_purchase.procurementTime BETWEEN #{beginTime} AND #{endTime}
+        </if>
+        <if test="numMoney!='' and numMoney!=null or bigMoney !='' and bigMoney !=null" >
+            AND shop_purchase.totalmoney BETWEEN #{numMoney} AND #{bigMoney}
+        </if>
+        AND shop_purchase.DepartmentId = #{departmentId}
+    </select>
+
+   <!--分页查询展-->
+    <select id="selectByLimit" resultMap="PurchaseItemsMap" parameterType="page">
+        SELECT DISTINCT shop_purchaseitems.OrderCode,shop_purchaseitems.ShipAddress,shop_purchaseitems.ShipCellPhone
+        from shop_purchase,shop_purchaseitems
+        WHERE  shop_purchase.purchaseCode=shop_purchaseitems.purchaseCode AND shop_purchase.state=1 AND shop_purchaseitems.orderState=1
+        AND shop_purchase.DepartmentId=#{departmentId} AND shop_purchaseitems.orderCode LIKE '%${purchaseItems.orderCode}%'
+        AND shop_purchaseitems.shipAddress LIKE '%${purchaseItems.shipAddress}%'
+        Limit #{beginNumber},#{pageSize}
+    </select>
+   <!-- 分页查询展-->
+    <!--<select id="selectByLimit" resultMap="PurchaseItemsMap" parameterType="page">
+        SELECT DISTINCT shop_purchaseitems.OrderCode,shop_purchaseitems.productStyles,shop_purchaseitems.ShipAddress,shop_purchaseitems.ShipCellPhone
+        from shop_purchase,shop_purchaseitems
+        where shop_purchase.purchaseCode=shop_purchaseitems.purchaseCode AND shop_purchase.state=0
+        Limit #{beginNumber},#{pageSize}
+    </select>-->
+
+    <select id="selectOnePurchaseItems" resultMap="PurchaseItemsMap" parameterType="String">
+        SELECT DISTINCT shop_purchaseitems.OrderCode
+        from shop_purchase,shop_purchaseitems
+        where shop_purchase.purchaseCode=shop_purchaseitems.purchaseCode AND shop_purchaseitems.orderCode=#{orderCode}
+
+    </select>
+    <!-- <select id="selectProductName" resultMap="PurchaseItemsMap" parameterType="String">
+         SELECT *
+         from shop_purchase,shop_purchaseitems
+         where shop_purchase.purchaseCode=shop_purchaseitems.purchaseCode AND shop_purchaseitems.orderCode=#{orderCode}
+
+     </select>-->
+
+
+    <select id="selectAllCount" resultType="int" parameterType="page">
+        SELECT count(DISTINCT shop_purchaseitems.OrderCode)
+        FROM shop_purchase,shop_purchaseitems
+        WHERE shop_purchase.purchaseCode=shop_purchaseitems.purchaseCode AND shop_purchase.state=1 AND shop_purchaseitems.orderState=1 AND shop_purchase.DepartmentId=#{departmentId} AND shop_purchaseitems.orderCode LIKE '%${purchaseItems.orderCode}%' AND shop_purchaseitems.shipAddress LIKE '%${purchaseItems.shipAddress}%'
+
+    </select>
+    <select id="selectOrderCodeAll" resultMap="PurchaseItemsMap" parameterType="String">
+        SELECT shop_purchaseitems.purchaseCode,shop_purchaseitems.OrderCode,shop_purchaseitems.number,shop_purchaseitems.purchaseN,shop_purchaseitems.weight,shop_purchaseitems.purchaseW,shop_purchaseitems.productStyles,shop_purchaseitems.purchasePrice,shop_purchaseitems.productSell,shop_purchaseitems.ShipCellPhone,shop_purchaseitems.ShipAddress
+        from shop_purchase,shop_purchaseitems
+        where shop_purchase.purchaseCode=shop_purchaseitems.purchaseCode AND shop_purchaseitems.orderCode=#{orderCode}
+
+    </select>
+     <select id="selectPurchaseCodeByorderCode" resultMap="PurchaseItemsMap" parameterType="String">
+            SELECT DISTINCT shop_purchaseitems.PurchaseCode
+            from shop_purchaseitems
+            where  shop_purchaseitems.orderCode=#{orderCode}
+
+        </select>
+    <update id="updateStateByPurchaseCode" parameterType="String">
+        update shop_purchase
+        SET shop_purchase.state=2
+        WHERE shop_purchase.PurchaseCode = #{purchaseCode}
+    </update>
+    <update id="updateStateByOrderCode" parameterType="String">
+        update shop_purchaseitems
+        SET shop_purchaseitems.orderState=2
+        WHERE shop_purchaseitems.orderCode = #{orderCode}
+    </update>
+    <update id="purchaseUpdateFinishState" parameterType="String">
+        update shop_purchase
+        SET shop_purchase.state=4
+        WHERE shop_purchase.purchaseCode = #{purchaseCode}
+    </update>
+    <select id="selectAllFinishState" resultMap="PurchaseInfoMap2" >
+        SELECT shop_purchase.purchaseCode,shop_purchase.totalnumber,shop_purchase.totalweights,shop_purchase.totalmoney
+        from shop_purchase
+        where state=4
+    </select>
+    <select id="selectPurchaseItems" resultMap="PurchaseItemsMap"  parameterType="String">
+        SELECT shop_purchaseitems.OrderCode,shop_purchaseitems.orderState
+        from shop_purchaseitems
+        where shop_purchaseitems.purchaseCode=#{purchaseCode}
+    </select>
+    <select id="selectPurchaseItemsNoRepetition" resultMap="PurchaseItemsMap"  parameterType="String">
+        SELECT DISTINCT shop_purchaseitems.OrderCode
+        from shop_purchaseitems
+        where shop_purchaseitems.purchaseCode=#{purchaseCode}
+    </select>
+
+    <select id="selectOnePurchaseInfo" resultMap="PurchaseInfoMap" parameterType="String">
+        SELECT shop_purchase.totalnumber,shop_purchase.totalmoney,shop_purchase.totalweights,shop_purchase.rackmoney
+        from shop_purchase,shop_purchaseitems
+        where shop_purchase.purchaseCode=#{purchaseCode}
+
+    </select>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,30 @@
+#set($layout = "layout/empty.vm")
+<form id="update-fm" method="post" novalidate style="margin:0;padding:20px 50px" enctype="multipart/form-data">
+<input type="hidden" name="id" value="$!ad.id">
+<input type="hidden" name="imgUrl" value="$!ad.imgUrl">
+    <div style="margin-bottom:20px;font-size:14px;border-bottom:1px solid #ccc">添加广告</div>
+    <div style="margin-bottom:10px">
+        <p>&bull; 图片</p>
+        <img src="/business/ad/showImage.action?relUrl=$!ad.imgUrl" width="50%" />
+        <input name="file" class="easyui-filebox" style="width:100%" data-options="
+                prompt:'选择图片'
+                ">
+    </div>
+    <div style="margin-bottom:10px">
+        <input name="name" class="easyui-textbox" data-options="labelPosition:'top',required:true,value:'$!ad.name'" label="&bull; 名称:" style="width:100%">
+    </div>
+    <div style="margin-bottom:10px">
+        <input name="url" class="easyui-textbox" data-options="labelPosition:'top',required:true,value:'$!ad.url'" label="&bull; 点击图片转向页面链接:" style="width:100%">
+    </div>
+    <div style="margin-bottom:10px">
+        <span>是否启用：</span><br/>
+        <input name="status" class="easyui-switchbutton" data-options="
+            onText:'开启',
+            offText:'关闭',
+            checked:true,
+            value:'$!ad.status',
+            required:true
+            ">
+    </div>
+
+</form>

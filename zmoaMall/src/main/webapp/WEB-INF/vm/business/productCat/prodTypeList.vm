@@ -1,0 +1,70 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>产品类型管理</title>
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/default/easyui.css">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script type="text/javascript" src="/js/jeasyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-filter.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-detailview.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/locale/easyui-lang-zh_CN.js"></script>
+
+    <script type="text/javascript" src="/js/productType/prodType.js"></script>
+</head>
+<body>
+
+<table id="type-dg" class="easyui-datagrid" data-options="
+        toolbar:'#tb',
+        title:'产品类型列表',
+        fit:true,
+        singleSelect:true,
+        fitColumns:true,
+        rownumbers:true,
+        remoteFilter: true,
+        url:'/business/prodCat/getProdTypes.action',
+        idField: 'typeId',
+        pagination:true,
+        pageSize:20
+        ">
+    <thead>
+    <tr>
+        <th field="typeId" width="30%">Id</th>
+        <th field="typeName" width="30%">商品类型名称</th>
+        <th field="remark" width="40%">备注</th>
+    </tr>
+    </thead>
+</table>
+
+<!-- toolbar -->
+<div id="tb" style="padding:2px 5px;">
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" style="width:100px;" onclick="addProdTypeDlg();">添加</a>
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'" style="width:100px;" onclick="updateProdTypeDlg();">修改</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" style="width:100px;" onclick="searchCode();">搜索筛选</a>
+</div>
+
+
+<div id="addProdType-dlg" style="width:500px"></div>
+<div id="updateProdType-dlg" style="width:500px"></div>
+
+<div id="addProdTypeCharSpec-dlg" style="width:500px"></div>
+<div id="addProdTypePicSpec-dlg" style="width:500px"></div>
+
+<div id="addProdTypeInputAttr-dlg" style="width:500px"></div>
+
+<div id="updateProdTypeAttr-dlg" style="width:500px"></div>
+<div id="updateProdTypeSpec-dlg" style="width:500px"></div>
+
+<div id="addSpecPic-dlg" style="width:500px"></div>
+<div id="addSpecChar-dlg" style="width:500px"></div>
+
+
+<div id="addProdTypeAttr-dlg" style="width:500px"></div>
+<div id="addProdTypeSpec-dlg" style="width:500px"></div>
+
+</body>
+</html>

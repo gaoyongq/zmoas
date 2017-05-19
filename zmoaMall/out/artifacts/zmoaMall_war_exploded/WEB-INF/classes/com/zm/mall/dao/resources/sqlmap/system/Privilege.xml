@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.system.PrivilegeDao">
+
+    <sql id="b2c_condition">
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND pluteformid=#{pluteformid}
+        </if>
+    </sql>
+
+    <select id="select" resultMap="getPrivilege" parameterType="privilege">
+        SELECT p.id,p.name,p.type,p.cion,p1.id as nextId,p1.name as nextName,p1.cion as nextCion,
+          p2.id as lastId,p2.name as lastName,p2.cion as lastCoin
+          FROM b2c_privilege p LEFT JOIN b2c_privilege p1
+          ON p.id=p1.privilegeid
+          LEFT JOIN b2c_privilege p2 ON p2.privilegeid=p1.id
+        WHERE p.privilegeid IS null
+    </select>
+    <select id="selectTop" resultMap="getPrivilege" parameterType="privilege">
+        select id,name,type,cion,pluteformid from b2c_privilege where privilegeid is null
+    </select>
+    <select id="selectNext" resultMap="getPrivilege" parameterType="privilege">
+        SELECT p.id,p.name,p.type,p.cion,p1.id as topId,p1.name as topName,p1.cion as topCion
+        FROM b2c_privilege p LEFT JOIN b2c_privilege p1
+         ON p.privilegeid=p1.id
+        WHERE p.privilegeid=#{id}
+    </select>
+
+    <select id="selectOne" resultMap="getPrivilege" parameterType="privilege">
+        SELECT p.id,p.name,p.url,p.cion,p1.id as topId,p1.name as topName
+        from b2c_privilege p left join  b2c_privilege p1
+        on p.privilegeid=p1.id where p.id=#{id} AND p.pluteformid=#{pluteformid}
+    </select>
+    <update id="update" parameterType="privilege">
+        UPDATE b2c_privilege set name=#{name},url=#{url},cion=#{cion},privilegeid=#{privilege.id},pluteformid=#{pluteformid} where id=#{id} AND pluteformid=#{pluteformid}
+    </update>
+    <insert id="insert" parameterType="privilege">
+        INSERT  into b2c_privilege (name,cion,url,privilegeid,pluteformid) VALUES (#{name},#{cion},#{url},#{privilege.id},#{pluteformid});
+    </insert>
+
+    <delete id="delete" parameterType="privilege">
+         delete from b2c_privilege where id=#{id} AND pluteformid=#{pluteformid}
+    </delete>
+    <update id="updatePrivilegeId" parameterType="privilege">
+        UPDATE b2c_privilege SET privilegeid=null where privilegeid=#{id} AND pluteformid=#{pluteformid}
+    </update>
+    <delete id="deleteRolePrivilege" parameterType="privilege">
+        DELETE from b2c_privilege_role where privilege_id=#{id} AND pluteformid=#{pluteformid}
+    </delete>
+
+
+    <!--查询全部菜单-->
+    <resultMap id="PrivilegeMap" type="com.zm.mall.domain.system.Privileges">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="privilegeid" property="pid" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="url" property="url" jdbcType="VARCHAR"/>
+    </resultMap>
+    <select id="updatePrivilegeRoleByAll" resultMap="PrivilegeMap" parameterType="role">
+        SELECT
+        *
+        FROM b2c_privilege
+        <!--WHERE id IN (SELECT privilege_id FROM b2c_privilege_role WHERE 1=1-->
+        <!--<include refid="b2c_condition"/>-->
+        <!--)-->
+    </select>
+
+    <!--<select id="updatePrivilegeRoleByCode" parameterType="department" resultMap="PrivilegeMap">-->
+    <!--SELECT b2c_privilege.* FROM (SELECT b2c_role.* FROM b2c_department-->
+    <!--INNER JOIN b2c_role   ON b2c_role.department_id=b2c_department.id  AND-->
+    <!--b2c_department.pluteformid='-1' AND b2c_department.code='zm_sh') role LEFT JOIN b2c_privilege_role ON b2c_privilege_role.role_privilege=role.id AND b2c_privilege_role.pluteformid='-1' LEFT JOIN b2c_privilege ON b2c_privilege_role.privilege_id=b2c_privilege.id-->
+    <!--</select>-->
+    <select id="updatePrivilegeRoleByCode" parameterType="department" resultMap="PrivilegeMap">
+    SELECT b2c_privilege.* FROM (SELECT b2c_role.* FROM b2c_department
+    INNER JOIN b2c_role   ON b2c_role.department_id=b2c_department.id  AND
+    b2c_department.pluteformid=#{pluteformid} AND b2c_department.code=#{code}) role LEFT JOIN b2c_privilege_role ON b2c_privilege_role.role_privilege=role.id AND b2c_privilege_role.pluteformid='-1' LEFT JOIN b2c_privilege ON b2c_privilege_role.privilege_id=b2c_privilege.id
+    GROUP BY privilege_id
+   </select>
+
+
+    <resultMap id="PublicPrivilegeMap" type="com.zm.mall.domain.system.Publicprivilege">
+        <result column="privilegeid" property="privilegeid" jdbcType="BIGINT"/>
+    </resultMap>
+    <select id="selPublicprivilegelist" resultMap="PublicPrivilegeMap">
+        SELECT *
+        from b2c_publicprivilege
+    </select>
+
+    <resultMap id="getPrivilege" type="privilege">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="url" column="url"/>
+        <result property="cion" column="cion"/>
+        <result property="pluteformid" column="pluteformid"/>
+        <result property="type" column="type"/>
+        <association property="privilege" javaType="Privilege">
+            <id property="id" column="topId"/>
+            <result property="name" column="topName"/>
+            <result property="pluteformid" column="pluteformid"/>
+        </association>
+        <collection property="privileges" ofType="privilege">
+            <id property="id" column="nextId"/>
+            <result property="name" column="nextName"/>
+            <result property="cion" column="nextCion"/>
+            <result property="pluteformid" column="pluteformid"/>
+            <collection property="privileges" ofType="privilege">
+                <id property="id" column="lastId"/>
+                <result property="name" column="lastName"/>
+                <result property="cion" column="lastCoin" />
+                <result property="pluteformid" column="pluteformid"/>
+            </collection>
+        </collection>
+    </resultMap>
+</mapper>

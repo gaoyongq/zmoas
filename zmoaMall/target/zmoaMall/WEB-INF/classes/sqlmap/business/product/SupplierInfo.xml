@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.product.SupplierInfoDao">
+       <resultMap id="SupplierInfoMap" type="supplierInfo">
+           <id column="supplierId" property="supplierId"></id>
+           <result column="name" property="name"></result>
+           <result column="userName" property="userName"/>
+           <result column="categoryId" property="categoryId"/>
+           <result column="companyType" property="companyType"/>
+           <result column="establishedDate" property="establishedDate"/>
+           <result column="createdDate"  property="createdDate"/>
+           <result column="status" property="status"/>
+           <result column="artiPerson" property="artiPerson"/>
+           <result column="registeredCapital" property="registeredCapital"/>
+           <result column="balance" property="balance"/>
+           <result column="telPhone" property="telPhone"/>
+           <result column="cellPhone" property="cellPhone"/>
+           <result column="contactMail" property="contactMail"/>
+           <result column="address" property="address"/>
+           <result column="contact" property="contact"/>
+           <result column="fax" property="fax"/>
+           <result column="postCode" property="postCode"/>
+           <result column="homePage" property="homePage"/>
+           <result column="rank" property="rank"/>
+           <result column="taxNumber" property="taxNumber"/>
+           <result column="accountBank" property="accountBank"/>
+           <result column="accountInfo" property="accountInfo"/>
+           <result column="msn" property="msn"/>
+           <result column="introduction" property="introduction"/>
+           <result column="reMark" property="reMark"/>
+           <result column="establishedCity" property="establishedCity"/>
+           <result column="regionId" property="regionId"/>
+           <association property="aaregionpriceimport" javaType="Aaregionpriceimport">
+                <result column="provinceId" property="provinceId"/>
+                <result column="provinceName" property="provinceName"/>
+                <result column="cityId" property="cityId"/>
+                <result column="cityName" property="cityName"/>
+                <result column="countyId" property="countyId"/>
+               <result column="countyName" property="countyName"/>
+           </association>
+          <association property="establishedPlace" javaType="Aaregionpriceimport">
+               <result column="aprovinceId" property="provinceId"/>
+               <result column="aprovinceName" property="provinceName"/>
+               <result column="acityId" property="cityId"/>
+               <result column="acityName" property="cityName"/>
+               <result column="acountyId" property="countyId"/>
+               <result column="acountyName" property="countyName"/>
+           </association>
+               <!--用户评分增加表-->
+           <association property="userScore" javaType="UserScore">
+               <id column="id" property="id" jdbcType="INTEGER"></id>
+               <result column="pid" property="pid" jdbcType="INTEGER"></result>     <!--关联Item_system_code id-->
+               <result column="score" property="score" jdbcType="DOUBLE"></result>    <!--实际的分数-->
+               <result column="status" property="status" jdbcType="INTEGER"></result>     <!--1代表客户 2代表供应商-->
+               <result column="inputScore" property="inputScore" jdbcType="VARCHAR"></result>   <!--输入的分数-->
+           </association>
+           <collection property="brandInfos" ofType="brandInfo">
+                <id column="bId" property="brandId"/>
+                <result column="bName" property="brandName"/>
+           </collection>
+       </resultMap>
+
+        <resultMap id="brand" type="brandInfo">
+            <id column="brandId" property="brandId"/>
+            <result column="brandName" property="brandName"/>
+        </resultMap>
+
+
+
+    <select id="selectAllBrand" resultMap="brand">
+        SELECT  brandId,brandName from b2c_shop_brands
+    </select>
+
+    <select id="selAllById" resultMap="SupplierInfoMap" parameterType="int">
+        SELECT SupplierId,Name
+        FROM b2c_shop_suppliers
+        WHERE Status = '1'AND SupplierId=#{id}
+    </select>
+    <select id="selectSupplierInfo" resultMap="SupplierInfoMap" parameterType="supplierInfo">
+        SELECT <include refid="all_column"/>,b.provinceId,b.provinceName,b.cityId,b.cityName,b.countyId,b.countyName,
+        a.provinceId as aprovinceId,a.provinceName as aprovinceName,a.cityId as acityId,a.cityName as acityName,
+        a.countyId as acountyId,a.countyName as acountyName,bb.brandId as bId,bb.brandName as bName
+        from b2c_shop_suppliers LEFT JOIN  aaregionpriceimport b ON
+        b.countyId=regionid LEFT join aaregionpriceimport a on a.countyId=establishedCity
+        LEFT JOIN b2c_shop_supplierBrands sb on sb.supplierId=b2c_shop_suppliers.supplierId
+        LEFT JOIN b2c_shop_brands bb on bb.brandId=sb.brandId
+        where b2c_shop_suppliers.supplierId=#{supplierId}
+    </select>
+
+    <sql id="all_column">b2c_shop_suppliers.supplierId as supplierId,name,userName,categoryId,companyType,establishedDate,createdDate,
+        status,artiPerson,registeredCapital,balance,telPhone,cellPhone,contactMail,address,contact,fax,postCode,homePage,
+        rank,taxNumber,accountBank,accountInfo,msn,introduction,reMark
+    </sql>
+
+    <insert id="saveSupplierInfo" parameterType="supplierInfo">
+        INSERT into b2c_shop_suppliers(name,userName,categoryId,companyType,establishedDate,
+        status,artiPerson,registeredCapital,balance,telPhone,cellPhone,contactMail,address,contact,fax,postCode,homePage,
+        rank,taxNumber,accountBank,accountInfo,msn,introduction,reMark,regionId,establishedCity,createdDate
+        )VALUES (#{name},#{userName},#{categoryId},#{companyType},#{establishedDate},#{status},#{artiPerson},
+        #{registeredCapital},#{balance},#{telPhone},#{cellPhone},#{contactMail},#{address},#{contact},#{fax},#{postCode},
+        #{homePage},#{rank},#{taxNumber},#{accountBank},#{accountInfo},#{msn},#{introduction},#{reMark},#{regionId},#{establishedCity},
+        #{createdDate}
+        )
+    </insert>
+
+ <!--   <delete id="deleteSupplierInfo" parameterType="supplierInfo">
+        DELETE  from shop_suppliers where supplierId=#{supplierId}
+    </delete>-->
+
+    <update id="deleteSupplierInfo" parameterType="supplierInfo">
+        UPDATE b2c_shop_suppliers SET status=3  WHERE supplierId=#{supplierId}
+    </update>
+
+    <delete id="deleteBrands" parameterType="Long">
+        DELETE from b2c_shop_supplierBrands where supplierId=#{id}
+    </delete>
+
+    <insert id="insertBrands" parameterType="java.util.List">
+        INSERT into b2c_shop_supplierBrands(supplierId,brandId) VALUES
+        <foreach collection="list" item="i" separator=",">
+            (#{i.supplierId},#{i.brandId})
+        </foreach>
+    </insert>
+
+
+      <select id="select" parameterType="supplierInfo" resultMap="SupplierInfoMap">
+          select supplierId,name,userName,categoryId,
+          companyType,establishedDate,createdDate,
+          a.status,artiPerson,sum(score) as score
+          from b2c_shop_suppliers a left join b2c_userScore b
+          ON a.supplierId=b.userId and b.status=2
+          <where>
+              a.status=1
+                <if test="name!=null">
+                    and name like '%' #{name} '%'
+                </if>
+           </where>
+          group by a.supplierId
+      </select>
+
+    <sql id="b2c_condition">
+        <if test="shopId != null">and SupplierId = #{shopId}</if>
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND pluteformid=#{pluteformid}
+        </if>
+    </sql>
+      <select id="selAllSupplierInfo" resultMap="SupplierInfoMap">
+            SELECT SupplierId,Name
+            FROM b2c_shop_suppliers
+            WHERE Status = '1'
+          <include refid="b2c_condition"/>
+      </select>
+
+      <update id="updateSupplierInfo" parameterType="supplierInfo">
+            UPDATE b2c_shop_suppliers set name=#{name},establishedDate=#{establishedDate},registeredCapital=#{registeredCapital},
+            balance=#{balance},telPhone=#{telPhone},cellPhone=#{cellPhone},contactMail=#{contactMail},establishedCity=#{establishedCity},
+            regionId=#{regionId},address=#{address},contact=#{contact},fax=#{fax},postCode=#{postCode},homePage=#{homePage},
+            artiPerson=#{artiPerson},rank=#{rank},categoryId=#{categoryId},companyType=#{companyType},taxNumber=#{taxNumber},
+            accountBank=#{accountBank},accountInfo=#{accountInfo},msn=#{msn},status=#{status},introduction=#{introduction},
+            reMark=#{reMark} WHERE supplierId=#{supplierId}
+      </update>
+
+
+</mapper>

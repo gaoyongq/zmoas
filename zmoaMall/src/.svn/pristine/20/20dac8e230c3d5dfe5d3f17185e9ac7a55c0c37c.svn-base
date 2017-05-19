@@ -1,0 +1,7 @@
+﻿#supplierShow{
+    width:10000px;
+    height:720px;
+}
+td {
+    text-align:center;
+}

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.appointment.AppointmentDao">
+    <!--订单基本信息查询结果集-->
+    <resultMap id="OrderInfoBaseMap" type="com.zm.mall.domain.business.orders.OrderInfo">
+        <result column="OrderId" property="orderId" jdbcType="VARCHAR" />
+        <result column="OrderCode" property="orderCode" jdbcType="VARCHAR"/>
+        <result column="OrderTotal" property="orderTotal" jdbcType="BIGINT"/>
+        <result column="CreatedDate" property="createdDate" jdbcType="TIMESTAMP"/>
+        <result column="BuyerID" property="buyerID" jdbcType="BIGINT"/>
+        <result column="BuyerName" property="buyerName" jdbcType="VARCHAR"/>
+        <result column="BuyerCellPhone" property="buyerCellPhone" jdbcType="VARCHAR"/>
+        <result column="BuyerEmail" property="buyerEmail" jdbcType="VARCHAR"/>
+        <result column="ShipName" property="shipName" jdbcType="VARCHAR"/>
+        <result column="ShipRegion" property="shipRegion" jdbcType="VARCHAR"/>
+        <result column="ShipAddress" property="shipAddress" jdbcType="VARCHAR"/>
+        <result column="ShipCellPhone" property="shipCellPhone" jdbcType="VARCHAR"/>
+        <result column="ShipZipCode" property="shipZipCode" jdbcType="VARCHAR"/>
+        <result column="ShippingStatus" property="shippingStatus" jdbcType="BIGINT"/>
+        <result column="Weight" property="weight" jdbcType="BIGINT"/>
+        <result column="RealShippingModeName" property="realShippingModeName" jdbcType="VARCHAR"/>
+        <result column="PaymentTypeName" property="paymentTypeName" jdbcType="VARCHAR"/>
+        <result column="OrderStatus" property="orderStatus" jdbcType="BIGINT"/>
+        <result column="Quantity" property="quantity" jdbcType="BIGINT"/>
+        <result column="Weight" property="weight" jdbcType="INTEGER"/>
+        <result column="OrderCheckStatus" property="orderCheckStatus" jdbcType="BIGINT"/>
+        <result column="ApplyVehicleStatus" property="applyVehicleStatus" jdbcType="BIGINT"/>
+        <result column="PurchasingStatus" property="purchasingStatus" jdbcType="BIGINT"/>
+        <result column="DepartmentName" property="departmentName" jdbcType="VARCHAR"/>
+        <result column="RealName" property="realName" jdbcType="VARCHAR"/>
+        <result column="DepartmentId" property="departmentId" jdbcType="BIGINT"/>
+        <result property="pluteformid" column="pluteformid" jdbcType="VARCHAR"/>
+        <collection property="orderItems" ofType="com.zm.mall.domain.business.orders.OrderItems">
+            <result column="ItemId" property="itemId" jdbcType="BIGINT"/>
+            <result column="ThumbnailsUrl" property="thumbnailsUrl" jdbcType="VARCHAR"/>
+            <result column="Name" property="name" jdbcType="VARCHAR"/>
+            <result column="SKU" property="sku" jdbcType="VARCHAR"/>
+            <result column="Attribute" property="attribute" jdbcType="VARCHAR"/>
+            <result column="ShipmentQuantity" property="shipmentQuantity" jdbcType="BIGINT"/>
+            <result column="SellPrice" property="sellPrice" jdbcType="BIGINT"/>
+            <result column="AdjustedPrice" property="adjustedPrice" jdbcType="BIGINT"/>
+            <result column="SupplierName" property="supplierName" jdbcType="VARCHAR"/>
+            <result column="BrandName" property="brandName" jdbcType="VARCHAR"/>
+            <result column="ProductId" property="productId" jdbcType="BIGINT"/>
+            <result column="ProductCode" property="productCode" jdbcType="VARCHAR"/>
+            <result column="Quantity" property="quantity" jdbcType="INTEGER"/>
+            <result column="Weight" property="weight" jdbcType="INTEGER"/>
+            <result column="GoodsType" property="goodsType" jdbcType="VARCHAR"/>
+            <collection property="orderItemsAttributes" ofType="orderItemsAttribute">
+                <id column="Id" property="id" jdbcType="BIGINT"/>
+                <result column="ItemId" property="itemId" jdbcType="BIGINT"/>
+                <result column="Name" property="name" jdbcType="VARCHAR"/>
+                <result column="Value" property="value" jdbcType="VARCHAR"/>
+            </collection>
+        </collection>
+    </resultMap>
+    <resultMap id="OrderInfo" type="com.zm.mall.domain.business.orders.OrderInfo">
+        <result column="OrderId" property="orderId" jdbcType="VARCHAR" />
+        <result column="OrderCode" property="orderCode" jdbcType="VARCHAR"/>
+        <result column="OrderTotal" property="orderTotal" jdbcType="BIGINT"/>
+        <result column="CreatedDate" property="createdDate" jdbcType="TIMESTAMP"/>
+        <result column="BuyerName" property="buyerName" jdbcType="VARCHAR"/>
+        <result column="BuyerCellPhone" property="buyerCellPhone" jdbcType="VARCHAR"/>
+        <result column="BuyerEmail" property="buyerEmail" jdbcType="VARCHAR"/>
+        <result column="ShipName" property="shipName" jdbcType="VARCHAR"/>
+        <result column="ShipRegion" property="shipRegion" jdbcType="VARCHAR"/>
+        <result column="ShipAddress" property="shipAddress" jdbcType="VARCHAR"/>
+        <result column="ShipCellPhone" property="shipCellPhone" jdbcType="VARCHAR"/>
+        <result column="ShipZipCode" property="shipZipCode" jdbcType="VARCHAR"/>
+        <result column="ShippingStatus" property="shippingStatus" jdbcType="BIGINT"/>
+        <result column="Weight" property="weight" jdbcType="BIGINT"/>
+        <result column="RealShippingModeName" property="realShippingModeName" jdbcType="VARCHAR"/>
+        <result column="PaymentTypeName" property="paymentTypeName" jdbcType="VARCHAR"/>
+        <result column="OrderStatus" property="orderStatus" jdbcType="BIGINT"/>
+        <result column="Quantity" property="quantity" jdbcType="BIGINT"/>
+        <result column="Weight" property="weight" jdbcType="INTEGER"/>
+        <result column="OrderCheckStatus" property="orderCheckStatus" jdbcType="BIGINT"/>
+        <result column="ApplyVehicleStatus" property="applyVehicleStatus" jdbcType="BIGINT"/>
+        <result column="DepartmentName" property="departmentName" jdbcType="VARCHAR"/>
+        <result column="RealName" property="realName" jdbcType="VARCHAR"/>
+        <result column="DepartmentId" property="departmentId" jdbcType="BIGINT"/>
+        <result property="pluteformid" column="pluteformid" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--判断平台Id-->
+    <sql id="b2c_condition">
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND pluteformid=#{pluteformid}
+        </if>
+    </sql>
+
+    <sql id="all_column">OrderId,OrderCode,OrderTotal,CreatedDate,BuyerName,BuyerCellPhone,ShipName,ShippingStatus,RealShippingModeName,PaymentTypeName,OrderStatus,OrderCheckStatus,DepartmentId</sql>
+    <!--分页-查询订单数量-->
+    <select id="selectCount" resultType="int" parameterType="orderByTip">
+        SELECT COUNT(DISTINCT OrderCode) FROM b2c_shop_orders
+        WHERE OrderCheckStatus = #{orderCheckStatus}
+        <if test="orderCode!='' and orderCode!=null">
+            AND  OrderCode = #{orderCode}
+        </if>
+        <if test="buyerName!='' and buyerName!=null">
+            AND BuyerName LIKE CONCAT(CONCAT('%', #{buyerName}), '%')
+        </if>
+        <if test="shipName!=''and shipName!=null">
+            AND ShipName LIKE CONCAT(CONCAT('%', #{shipName}), '%')
+        </if>
+        <if test="beginTime!='' and beginTime!=null or endTime !='' and endTime !=null" >
+            AND CreatedDate BETWEEN #{beginTime} AND #{endTime}
+        </if>
+        <if test="buyerCellPhone!=''and buyerCellPhone!=null">
+            AND BuyerCellPhone = #{buyerCellPhone}
+        </if>
+        <!--<if test="orderCheckStatus!='' and orderCheckStatus!=null">-->
+        AND DepartmentId = #{departmentId}
+    </select>
+    <!--全部查询展示到页面-->
+    <select id="selectAllOrders" resultMap="OrderInfoBaseMap" parameterType="orderInfo">
+        SELECT
+        <include refid="all_column"/>
+        FROM b2c_shop_orders
+        WHERE 1=1
+        <if test="departmentId!='' and departmentId!=null">
+            AND   DepartmentId = #{departmentId}
+        </if>
+        <if test="orderCode!='' and orderCode!=null">
+            AND  OrderCode = #{orderCode}
+        </if>
+        <if test="buyerName!='' and buyerName!=null">
+            AND BuyerName LIKE CONCAT(CONCAT('%', #{buyerName}), '%')
+        </if>
+        <if test="shipName!=''and shipName!=null">
+            AND ShipName LIKE CONCAT(CONCAT('%', #{shipName}), '%')
+        </if>
+        <if test="beginTime!='' and beginTime!=null or endTime !='' and endTime !=null" >
+            AND CreatedDate BETWEEN #{beginTime} AND #{endTime}
+        </if>
+        <if test="buyerCellPhone!=''and buyerCellPhone!=null">
+            AND BuyerCellPhone = #{buyerCellPhone}
+        </if>
+        <!--<if test="orderCheckStatus!='' and orderCheckStatus!=null">-->
+        AND OrderCheckStatus = #{orderCheckStatus}
+        <!--</if>-->
+        ORDER BY CreatedDate DESC
+        Limit #{begionNumber},#{pageSize}
+    </select>
+    <!--微信查询出最大的订单Id-->
+    <select id="selectOrderIdWX" resultType="String">
+        select OrderId from b2c_appointment_order where OrderId LIKE '%wxyy%' ORDER BY MID(OrderId,5,12)+1 DESC LIMIT 1;
+    </select>
+    <!--向主表中插入新增订单-->
+    <insert id="insertEntry" parameterType="orderinfo">
+        INSERT INTO b2c_appointment_order (OrderId,OrderCode,ParentOrderId,CreatedDate,BuyerID,BuyerName,BuyerEmail,BuyerCellPhone,RegionId,ShipRegion,ShipProvince,ShipCity,ShipCounty,ShipAddress,
+        ShipZipCode,ShipName,ShipTelPhone,ShipCellPhone,ShipEmail,Weight,OrderTotal,ApplyVehicleStatus,Freight,DepartmentId,RoleId,DepartmentName,RealName,OrderCheckStatus,pluteformid,OrderCostPrice,paymentTypeId,Remark,paymentTypeName) VALUES (#{orderId},#{orderCode},#{parentOrderId},
+        now(),#{buyerID},#{buyerName},#{buyerEmail},#{buyerCellPhone},#{regionId},#{shipRegion},#{shipProvince},#{shipCity},#{shipCounty},#{shipAddress},
+        #{shipZipCode},#{shipName},#{shipTelPhone},#{shipCellPhone},#{shipEmail},#{weight},#{orderTotal},#{applyVehicleStatus},#{freight},#{departmentId},#{roleId},#{departmentName},#{realName},#{orderCheckStatus},#{pluteformid},#{orderCostPrice},#{paymentTypeId},#{remark},#{paymentTypeName})
+    </insert>
+    <insert id="insertOrderItems" parameterType="orderInfo">
+        INSERT INTO b2c_shop_orderitems (OrderId,OrderCode,ProductId,ProductCode,SKU,Name,Quantity,ThumbnailsUrl,ShipmentQuantity,SellPrice,Weight,GoodsType,pluteformid,attribute,adjustedPrice)
+        VALUES
+        <foreach collection="orderItems" item="item" index="index" separator=",">
+            (#{orderId},#{orderCode},#{item.productId},#{item.productCode},#{item.sku},#{item.name},#{item.quantity},#{item.thumbnailsUrl},#{item.quantity},#{item.sellPrice},#{item.weight},#{item.goodsType},#{pluteformid},#{item.attribute},#{item.adjustedPrice})
+        </foreach>
+    </insert>
+    <insert id="insertOrderAction" parameterType="orderAction">
+        INSERT INTO b2c_shop_orderaction (OrderId,OrderCode,UserId,UserName,ActionCode,ActionDate,Remark)
+        VALUES (#{orderId},#{orderCode},#{userId},#{userName},#{actionCode},now(),remark )
+    </insert>
+    <!--将订单产品和对应的规格信息插入表中-->
+    <insert id="insertOrderItemsAttribute" parameterType="orderInfo">
+        INSERT INTO b2c_shop_orderitems_attribute(ItemId,Name,Value,pluteformid)
+        VALUES
+        (#{itemId},#{name},#{value},#{pluteformid})
+    </insert>
+    <!--修改微信端预约单付款状态-->
+    <update id="updateAppointmentStatusWX" parameterType="orderInfo">
+        UPDATE b2c_appointment_order o SET o.orderStatus =#{orderStatus}
+        WHERE o.OrderCode = #{orderCode} and BuyerName=#{buyerName}
+        <include refid="b2c_condition"/>
+    </update>
+    <select id="selectOneAppointment" parameterType="orderInfo" resultMap="OrderInfoBaseMap">
+        select  * from b2c_appointment_order orders
+        where orderCode=#{orderCode}
+        <if test="pluteformid!=null and pluteformid!=''">
+            AND pluteformid=#{pluteformid}
+        </if>
+        <if test="buyerName!=null and buyerName!=''">
+            AND BuyerName=#{buyerName}
+        </if>
+    </select>
+   </mapper>

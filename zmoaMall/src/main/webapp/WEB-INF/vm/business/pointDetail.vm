@@ -1,0 +1,84 @@
+#set($layout = "layout/decoration-layout.vm")
+<input type="hidden" value="$!type" id="typeOne">
+<input type="hidden" value="$!userId" id="userOne">
+<input type="hidden" value="$!text" id="text_01">
+<input type="hidden" value="$!activity" id="activityId"> #*是否激活*#
+<input type="hidden" value="$!keyWord" id="keyId"> #*关键字*#
+<input type="hidden" value="$!beforeTime" id="beforeTimeId">
+<input type="hidden" value="$!afterTime" id="afterTimeId">
+<input type="hidden" value="$!page" id="pageId">
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li><a>$nickName</a>的美豆明细</a></li>
+    </ul>
+</div>
+    <div class="divtbs">
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <select name="typePoints" id="typePoints">
+            <option value="0">
+                美豆获取
+            </option>
+            <option value="1">
+                美豆消费
+            </option>
+        </select>&nbsp;
+##        <input type="button" value="搜索" id="searchType" style="font-size: 20px;">
+        <button class="button border-yellow" id="searchType"><span class="icon-search"></span>搜索</button>&nbsp;
+    </div>
+<table class="table text-center">
+    <tr>
+        <th>美豆日期</th>
+        <th>美豆类型</th>
+        <th>美豆</th>
+        <th>说明</th>
+        <th>美豆详情</th>
+    </tr>
+    #foreach($info in $pointsDetail)
+        <tr class="top_01">
+
+            <td>$date.format('yyyy/MM/dd HH:mm:ss',$info.createdDate)</td>
+            <td>
+                #if($info.type!=0)
+                    美豆消费
+                #else
+                    美豆获取
+                #end
+            </td>
+            <td>$info.score</td>
+            <td>$info.pointsRule.name</td>
+            <td>$info.description</td>
+        #end
+</table>
+<div style="height: 10px"></div>
+<div style="width: 100%;text-align: center">
+    <input type="button" class="button border-blue input-button" value="返回"  onclick="history.back(-1);" />
+</div>
+<script>
+
+    $(function(){
+        $("#searchType").click(function(){
+            var pointsType=$("#typePoints option:selected").val();//美豆状态
+            var userId=$("#userOne").val();
+            var text=$("#text_01").val();
+            var activityId = $("#activityId").val();//是否激活
+            var keyId = $("#keyId").val();//关键字
+            var beforeTimeId = $("#beforeTimeId").val();//开始时间
+            var afterTimeId = $("#afterTimeId").val();//结束时间
+            var pageId = $("#pageId").val();
+            window.location.href="/business/PointDetail.action?page=" + pageId + "&keyWord=" + keyId + "&beforeTime=" + beforeTimeId + "&afterTime=" + afterTimeId + "&activity=" + activityId + "&text="+text+"&nickName=$!nickName&userId="+userId+"&type="+pointsType;
+        });
+        $("#returnIn").click(function(){
+            var activityId = $("#activityId").val();//是否激活
+            var keyId = $("#keyId").val();//关键字
+            var beforeTimeId = $("#beforeTimeId").val();//开始时间
+            var afterTimeId = $("#afterTimeId").val();//结束时间
+            var pageId = $("#pageId").val();
+            var text=$("#text_01").val();
+            window.location.href="/business/pageBeanUser.action?page=" + pageId + "&keyWord=" + keyId + "&beforeTime=" + beforeTimeId + "&afterTime=" + afterTimeId + "&activity=" + activityId + "&text="+text;
+        })
+    });
+    $(function(){
+        $("#typePoints option[value='$type']").attr("selected","selected");
+    })
+</script>

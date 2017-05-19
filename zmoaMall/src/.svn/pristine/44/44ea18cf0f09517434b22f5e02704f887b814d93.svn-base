@@ -1,0 +1,233 @@
+#set($layout = "layout/empty.vm")
+<html>
+    <head>
+        <!-- 导入jquery核心类库 -->
+        <script type="text/javascript"
+                src="../../js/jquery-1.8.3.js"></script>
+        <!-- 导入easyui类库 -->
+       <link id="easyuiTheme" rel="stylesheet" type="text/css"
+              href="../../js/easyui/themes/default/easyui.css">
+##        <link rel="stylesheet" type="text/css"
+##              href="../../css/default.css">
+        <script type="text/javascript"
+                src="../../js/easyui/jquery.easyui.min.js"></script>
+        <link rel="stylesheet" href="../../css/zmoaStyle.css">
+        <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+        <script type="text/javascript" src="../../My97DatePicker/WdatePicker.js"></script>
+        <script>
+            $(function(){
+                jQuery.post("/business/selectOperationCar.action", function (data) {
+                    var tbHtml = "";//定义HTML
+                    tbHtml += "<option></option>";
+
+                    for (var j = 0; j < data.length; j++) {
+                        tbHtml+="<option value="+data[j].number+">"+data[j].number+"</option>"//显示查询出来的结果内容
+                    }
+                    $('#car').html(tbHtml);//显示HTML
+                 })
+
+            });
+            function tijiao(){
+               var group= $("#group").val();
+               var person=$("#person").val();
+               var number=$("#car").val();
+               var money=$("#money").val();
+
+
+
+               if(group.trim()==""){
+                   alert("小组必填")
+                   return false;
+               }else if(person.trim()==""){
+                   alert("配送人必填")
+                   return false;
+               }else if(number.trim()==""){
+                   alert("车号必填")
+                   return false;
+               }else if(money.trim()==""){
+                   alert("预支费必填")
+                   return false;
+               }
+
+               $("#form1").submit();
+
+
+            }
+
+
+        </script>
+    </head>
+    <body>
+    <div class="place">
+        <span class="icon-reorder">&nbsp;位置：</span>
+        <ul class="placeul">
+            <li><a>添加</a></li>
+        </ul>
+    </div>
+        <div>
+
+             <div class="divtbs">
+##                 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<input type="submit" value="提交" onclick="tijiao()">
+                   &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<a class="button border-green" onclick="tijiao()"><span class="icon-check">提交</span></a>
+             </div>
+
+            <form action="/business/distributionSave.action" method="post" id="form1">
+                <div>
+                    <input type="hidden" name="departmentId" value="$!departmentId">
+                </div>
+
+                <table class="tableson" border="1px">
+                    <tr>
+                        <td colspan="2">
+                            小组：
+                            <input type="text" id="group" name="group" value="$!departmentName" readonly="readonly"/>
+                        </td>
+##                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td colspan="2">
+                            配送人员
+                            <input type="text" id="person" name="person" value=""/>
+                        </td>
+##                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td colspan="2">
+                            车号：
+                            <select id="car" name="number"></select>
+                        </td>
+##                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td colspan="2">
+                            起始时间：
+                            <input  type="text" id="startTime" name="startTime" value="" readonly="readonly"/>
+                        </td>
+##                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+
+                        <td colspan="2">
+                            截止时间：
+                            <input type="text" id="endTime" name="endTime" value="" readonly="readonly"/>
+                        </td>
+##                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    </tr>
+
+                    <tr>
+                        <td>采购单编号</td>
+                        <td>订单编号</td>
+                        <td>货物种类</td>
+                        <td>订单数量</td>
+                        <td>实际数量</td>
+                        <td>重量</td>
+                        <td>收货人地址</td>
+                        <td>电话</td>
+                        <td>公里数</td>
+                        <td>油耗/元/km</td>
+                        <td>备注</td>
+                    </tr>
+                    #foreach($PurchaseItems in $resultList)
+                        <tr>
+                           #* <td>$!PurchaseItems.orderCode</td>
+                            <td>$!PurchaseItems.kind</td>
+                            <td>$!PurchaseItems.orderNumber</td>
+                            <td>$!PurchaseItems.realNumber</td>
+                            <td>$!PurchaseItems.realWeigth</td>
+                            <td>$!PurchaseItems.shipAddress</td>
+                            <td>$!PurchaseItems.shipCellPhone</td>*#
+                            <td><input type="text" name="purchaseCode" value="$!PurchaseItems.purchaseCode" readonly="true"></td>
+                            <td><input type="text" name="orderCode" value="$!PurchaseItems.orderCode" readonly="true"></td>
+                            <td><input type="text" name="zhonglei" value="$!PurchaseItems.kind" readonly="true"></td>
+                            <td><input type="text" name="ddsl" value="$!PurchaseItems.orderNumber" readonly="true"></td>
+                            <td><input type="text" name="sjsl" value="$!PurchaseItems.realNumber" readonly="true"></td>
+                            <td><input type="text" name="sjzl" value="$!PurchaseItems.realWeigth" readonly="true"></td>
+                            <td><input type="text" name="shipAddress" value="$!PurchaseItems.shipAddress" readonly="true"></td>
+                            <td><input type="text" name="shipCellPhone" value="$!PurchaseItems.shipCellPhone" readonly="true"></td>
+                            <td><input type="text" class="kilometre" name="kilometre" value="" readonly="true"></td>
+                            <td><input type="text" class="consume" name="consume" value="" readonly="true"></td>
+                            <td><input type="text" name="remark" value="无" readonly="true"></td>
+
+
+                        </tr>
+
+                    #end
+                    <tr>
+                        <td>
+                            合计：
+
+                        </td>
+                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td>
+                            #*$!allOrderNumber*#
+                            <input type="text" name="allOrderNumber" value="$!allOrderNumber" readonly="true"/>
+                        </td>
+                        <td>
+                           #* $!allRealNumber*#
+                           <input type="text" name="allRealNumber" value="$!allRealNumber" readonly="true"/>
+                        </td>
+                        <td>
+                           #* $!allRealWeigth*#
+                            <input type="text" name="allRealWeigth" value="$!allRealWeigth" readonly="true"/>
+                        </td>
+
+                        <td colspan="2">
+                            预支差旅费：
+                            <input type="text" id="money"  name="money" value=""/>
+                        </td>
+##                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+
+                        <td colspan="2">
+                            装车完毕时间：
+                            <input type="text" id="truckFinishTime" name="truckFinishTime" value="" readonly="readonly"/>
+                        </td>
+##                        <td>&nbsp; &nbsp; &nbsp; &nbsp;</td>
+                    </tr>
+                   #* <tr>
+                        <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+                        <td> &nbsp; &nbsp; &nbsp; &nbsp;</td>
+
+                    </tr>*#
+                    #*<tr>
+                        <td>
+                            审批：
+                            <input type="text" id="approvePeople"  name="approvePeople" value="" readonly="readonly"/>
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            组长：
+                            <input type="text" id="groupLeader"  name="groupLeader" value=""/>
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+
+                        <td>
+                            制表人：
+                            <input type="text" id="ister"  name="ister" value=""/>
+                        </td>
+                        <td></td>
+                    </tr>*#
+                </table>
+            </form>
+        </div>
+
+
+    </body>
+
+</html>
+
+
+
+
+
+
+
+

@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="zmoaMall:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="zmoaMall.war">
+      <element id="artifact" artifact-name="zmoaMall:war exploded" />
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.product.ProductStationModesDao">
+    <resultMap id="productStationModesMap" type="com.zm.mall.domain.business.product.ProductStationModes">
+        <result property="stationId" column="stationId" jdbcType="BIGINT"></result>
+        <result property="productId" column="productId" jdbcType="BIGINT"></result>
+        <result property="displaySequence" column="displaySequence" jdbcType="BIGINT"></result>
+        <result property="type" column="type" jdbcType="BIGINT"></result>
+        <result property="pluteformid" column="pluteformid" jdbcType="VARCHAR"></result>
+    </resultMap>
+    <!--判断平台Id-->
+    <sql id="b2c_condition">
+        <choose>
+            <when test="shopId != null">and shopId = #{shopId}</when>
+            <otherwise>and shopId is null</otherwise>
+        </choose>
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND pluteformid=#{pluteformid}
+        </if>
+    </sql>
+    <!--添加商品属性-->
+    <insert id="AddStationModes" parameterType="productStationModes">
+        INSERT INTO b2c_shop_productstationmodes(productId,displaySequence,type,shopId,pluteformid)
+        VALUES (#{productId},#{displaySequence},#{type},#{shopId},#{pluteformid})
+    </insert>
+    <!--跟句产品查属性-->
+    <select id="selProductStationModesByProductId" parameterType="productInfo" resultMap="productStationModesMap">
+        SELECT  *
+        FROM b2c_shop_productstationmodes
+        WHERE productId=#{productId}
+        <include refid="b2c_condition"/>
+    </select>
+    <!--根据属性产品Id-->
+    <select id="selProductStationModesByStationId" parameterType="productStationModes" resultMap="productStationModesMap">
+        SELECT  *
+        FROM b2c_shop_productstationmodes
+        WHERE stationId=#{stationId}
+        <include refid="b2c_condition"/>
+    </select>
+    <!--根据ID删除-->
+    <delete id="delProductStationModesByProductId" parameterType="productInfo">
+        DELETE
+        FROM b2c_shop_productstationmodes
+        WHERE productId=#{productId}
+        <include refid="b2c_condition"/>
+    </delete>
+</mapper>

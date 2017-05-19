@@ -1,0 +1,50 @@
+#set($layout = "layout/decoration-layout.vm")
+<br/>
+$!user.platefromId
+<a href="/shopBase/index.action">左</a>
+<script type="text/javascript">
+    $(function(){
+
+        var setting = {
+            data : {
+                simpleData : {
+                    enable : true
+                }
+            }
+
+        };
+
+        // 基本功能菜单加载
+        jQuery.ajax({
+            url : '/shopBase/systemMenuList.action',
+            type : 'POST',
+            dataType : 'text',
+            async: 'true',
+            success : function(data) {
+
+                var zNodes = eval("(" + data + ")");
+
+                jQuery.fn.zTree.init($("#treeMenu"), setting, zNodes);
+            },
+            error : function(msg) {
+                alert('菜单加载异常!');
+            }
+        });
+
+    })
+
+</script>
+
+<div title="基本功能" >
+    <ul id="treeMenu" class="ztree"></ul>
+</div>
+#*<div data-options="title:'菜单导航'"
+     style="width:200px">
+    <div class="easyui-accordion" fit="true" border="false">
+        <div title="基本功能" data-options="iconCls:'icon-mini-add'" style="overflow:auto">
+            <ul id="treeMenu" class="ztree"></ul>
+        </div>
+    </div>
+</div>*#
+<br/>
+

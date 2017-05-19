@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.zm.mall.dao.system.AdDao">
+    <insert id="addAd">
+        insert into b2c_mall_config_image (
+            id,
+            name,
+            url,
+            imgUrl,
+            createDate,
+            updateDate,
+            createUserId,
+            updateUserId,
+            shopId,
+            platformId,
+            type,
+            status
+        ) values (
+            null,
+            #{name},
+            #{url},
+            #{imgUrl},
+            now(),
+            now(),
+            #{createUser.id},
+            #{updateUser.id},
+            #{shopId},
+            #{platformId},
+            #{type},
+            #{status}
+        )
+    </insert>
+
+    <select id="getAdList" resultType="com.zm.mall.domain.system.Ad">
+        select
+            id,
+            name,
+            url,
+            imgUrl,
+            createDate,
+            updateDate,
+            createUserId,
+            updateUserId,
+            shopId,
+            platformId,
+            type,
+            status
+        from b2c_mall_config_image
+        <where>
+            platformId = #{platformId} and status != -1
+            <choose>
+                <when test="shopId != null">and shopId = #{shopId}</when>
+                <otherwise>and shopId is null</otherwise>
+            </choose>
+        </where>
+        order by updateDate desc
+        limit #{mySqlLimitStart}, #{mySqlLimitSize}
+    </select>
+
+    <select id="getAdCount" resultType="long">
+        select count(*) from b2c_mall_config_image
+        <where>
+            platformId = #{platformId} and status != -1
+            <choose>
+                <when test="shopId != null">and shopId = #{shopId}</when>
+                <otherwise>and shopId is null</otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <resultMap id="adMap" type="com.zm.mall.domain.system.Ad">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="url" column="url" />
+        <result property="imgUrl" column="imgUrl" />
+        <result property="createDate" column="createDate" />
+        <result property="updateDate" column="updateDate" />
+        <result property="shopId" column="shopId" />
+        <result property="platformId" column="platformId" />
+        <result property="type" column="type" />
+        <result property="status" column="status" />
+        <association property="createUser" javaType="com.zm.mall.domain.system.User">
+            <id property="id" column="createUserId" />
+        </association>
+        <association property="updateUser" javaType="com.zm.mall.domain.system.User">
+            <id property="id" column="updateUserId" />
+        </association>
+    </resultMap>
+
+    <select id="getAdById" resultMap="adMap">
+        select
+            id,
+            name,
+            url,
+            imgUrl,
+            createDate,
+            updateDate,
+            createUserId,
+            updateUserId,
+            shopId,
+            platformId,
+            type,
+            status
+        from b2c_mall_config_image
+        <where>
+            id = #{id} and platformId = #{platformId}
+            <choose>
+                <when test="shopId != null">and shopId = #{shopId}</when>
+                <otherwise>and shopId is null</otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <update id="updateAd">
+        update b2c_mall_config_image
+        <set>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="url != null and url != ''">url = #{url},</if>
+            <if test="imgUrl != null and imgUrl != ''">imgUrl = #{imgUrl},</if>
+            <if test="updateUser != null">updateUserId = #{updateUser.id},</if>
+            type = #{type},
+            updateDate = now(),
+        </set>
+        <where>
+            id = #{id} and platformId = #{platformId}
+            <choose>
+                <when test="shopId != null">and shopId = #{shopId}</when>
+                <otherwise>and shopId is null</otherwise>
+            </choose>
+        </where>
+    </update>
+
+    <update id="updateAdStatus">
+        update b2c_mall_config_image set updateUserId = #{updateUser.id}, status = #{status}, updateDate = now()
+        <where>
+            id = #{id} and platformId = #{platformId}
+            <choose>
+                <when test="shopId != null">and shopId = #{shopId}</when>
+                <otherwise>and shopId is null</otherwise>
+            </choose>
+        </where>
+    </update>
+
+    <select id="getAds" resultType="com.zm.mall.domain.system.Ad">
+        select
+            id,
+            name,
+            url,
+            imgUrl,
+            createDate,
+            updateDate,
+            createUserId,
+            updateUserId,
+            shopId,
+            platformId,
+            type,
+            status
+        from b2c_mall_config_image
+        <where>
+            platformId = #{platformId} and status = 1
+            <choose>
+                <when test="shopId != null">and shopId = #{shopId}</when>
+                <otherwise>and shopId is null</otherwise>
+            </choose>
+        </where>
+        order by updateDate desc
+    </select>
+</mapper>

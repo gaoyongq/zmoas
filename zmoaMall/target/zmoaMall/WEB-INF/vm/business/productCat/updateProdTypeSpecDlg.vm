@@ -1,0 +1,62 @@
+#set($layout = "layout/empty.vm")
+
+<form id="updateProdTypeSpec-fm" method="post" novalidate style="margin:0;padding:20px 50px" enctype="multipart/form-data">
+    <input type="hidden" name="attributeId" value="$!attributeInfo.attributeId" >
+    <input type="hidden" name="useAttributeImage" value="$!attributeInfo.useAttributeImage" >
+    <div style="margin-bottom:10px">
+        <input name="attributeName" class="easyui-textbox" style="width:100%" data-options="
+                        labelPosition:'top',
+                        required:true,
+                        value: '$!attributeInfo.attributeName',
+                        label:'&bull; 规格名称:'
+                        ">
+    </div>
+
+    <!--EasyUI设置为disabled:true的表单不会被提交-->
+    <div style="margin-bottom:10px">
+        <input name="useAttributeImage" class="easyui-combobox" style="width:100%;" data-options="
+                valueField: 'value',
+                textField: 'label',
+                labelPosition: 'top',
+                required: true,
+                disabled: true,
+                value: '$!attributeInfo.useAttributeImage',
+                editable: false,
+                panelHeight: 'auto',
+                label: '&bull; 规格类型:',
+                data: [{
+                    label: '文字',
+                    value: '0'
+                },{
+                    label: '图片',
+                    value: '1'
+                }]" />
+    </div>
+
+    #if($attributeInfo.useAttributeImage == 0)
+        <div style="margin-bottom:10px">
+            <input name="valueStr" class="easyui-tagbox" style="width:100%" data-options="
+                        label:'&bull; 规格值:',
+                        value: '$!valueStr',
+                        labelPosition:'top',
+                        limitToList: true,
+                        editable:false,
+                        buttonIcon:'icon-add',
+                        onClickButton: function() {
+                            var values = $(this).tagbox('getValues');
+                            var tb = $(this);
+                            jQuery.messager.prompt('添加值', '添加值', function(r){
+                                if (r){
+                                    values.push(r);
+                                    tb.tagbox('setValues', values);
+                                }
+                            });
+                        }
+                        ">
+        </div>
+    #elseif($attributeInfo.useAttributeImage == 1)
+        <div style="margin-bottom:10px">
+            图片属性正在完善中。。。
+        </div>
+    #end
+</form>

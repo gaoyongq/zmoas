@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.bank.BankCardDao">
+    <!--订单基本信息查询结果集-->
+    <resultMap id="BankCardMap" type="bankCard">
+        <result column="journalNumber" property="journalNumber" jdbcType="BIGINT"/>
+        <result property="requestTime" column="requestTime" jdbcType="VARCHAR"/>
+        <result property="amount" column="amount" jdbcType="DOUBLE"/>
+        <result property="userId" column="userId" jdbcType="BIGINT"/>
+        <result property="trueName" column="trueName" jdbcType="VARCHAR"/>
+        <result property="bankName" column="bankName" jdbcType="VARCHAR"/>
+        <result property="bankCard" column="bankCard" jdbcType="VARCHAR"/>
+        <result property="cardTypeId" column="cardTypeId" jdbcType="INTEGER"/>
+        <result property="requestStatus" column="requestStatus" jdbcType="INTEGER"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="requestType" column="requestType" jdbcType="INTEGER"/>
+        <result property="targetId" column="targetId" jdbcType="INTEGER"/>
+        <result property="regionId" column="regionId" jdbcType="INTEGER"/>
+        <result property="address" column="address" jdbcType="VARCHAR"/>
+        <result property="province" column="province" jdbcType="VARCHAR"/>
+        <result property="payPassword" column="payPassword" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="all_column">journalNumber,requestTime,userId,trueName,bankName,bankCard,requestStatus,province,address,remark,payPassword</sql>
+    <!--增加微信端的银行卡-->
+    <insert id="insertBankCard" parameterType="bankCard">
+      INSERT  INTO pay_balancedrawrequest(requestTime,userId,trueName,bankName,bankCard,requestStatus,regionId,address,province,remark,payPassword) VALUES
+      (now(),#{userId},#{trueName},#{bankName},#{bankCard},#{requestStatus},#{regionId},#{address},#{province},#{remark},#{payPassword})
+    </insert>
+    <!--微信端银行卡的查询-->
+    <select id="selectAllBankCard" resultMap="BankCardMap" parameterType="bankCard">
+    SELECT <include refid="all_column"></include> from pay_balancedrawrequest where userId = #{userId}
+        ORDER BY requestTime DESC
+    </select>
+    <!--微信端银行卡号的设置默认-->
+    <update id="setDefaultBankCard" parameterType="bankCard">
+      update pay_balancedrawrequest set requestStatus=#{requestStatus}
+        where userId = #{userId}  and bankCard=#{bankCard}
+    </update>
+    <!--微信端银行卡的删除-->
+    <delete id="deleteBankCard" parameterType="bankCard">
+    DELETE from  pay_balancedrawrequest where userId = #{userId}  and bankCard=#{bankCard}
+    </delete>
+    <!--微信端单张银行卡查询-->
+    <select id="selectOneBankCard" parameterType="bankCard" resultMap="BankCardMap">
+        SELECT <include refid="all_column"></include> from pay_balancedrawrequest
+        where userId = #{userId}   and requestStatus=1
+        <if test="bankCard !=null and bankCard !=''">
+            and bankCard=#{bankCard}
+        </if>
+    </select>
+    <!--微信端单张银行卡查询-->
+    <select id="selectDefaultPayPassword" parameterType="bankCard" resultType="String">
+        SELECT payPassword from pay_balancedrawrequest
+        where userId = #{userId}   and requestStatus=1
+    </select>
+</mapper>

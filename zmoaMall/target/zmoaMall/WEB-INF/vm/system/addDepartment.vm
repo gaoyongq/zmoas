@@ -1,0 +1,56 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="../../css/zmoaStyle.css">
+    <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+    <script src="../../js/jquery.js"></script>
+</head>
+<body>
+<div class="place">
+    <span class="icon-reorder">&nbsp;位置：</span>
+    <ul class="placeul">
+        <li><a>添加部门</a></li>
+    </ul>
+</div>
+<form method="post" class="form-x" action="/department/insert.action">
+    <div class="form-group">
+        <div class="body-content">
+            <div class="label">
+                <label>上级部门：</label>
+            </div>
+            <div class="field">
+                <select name="department.id" class="input w50">
+                    <option value="0">无上级部门</option>
+                    #foreach($r in $departmentResults)
+                        <option value="$r.id">$r.name</option>
+                    #end
+                </select>
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <label>部门名称：</label>
+            </div>
+            <div class="field">
+                <input type="text" name="name" class="input w50">
+            </div>
+        </div>
+        <div class="body-content">
+            <div class="label">
+                <label>部门描述：</label>
+            </div>
+            <div class="field">
+                <textarea type="text" class="input" name="description" style="height:80px;width: 25%;"></textarea>
+            </div>
+        </div>
+        <div class="form-foot">
+            <button class="button border-green icon-check" type="submit"> 提交</button>&nbsp;
+            <input type="button" class="button border-blue" value="返回" class="input-button" onclick="history.back();" />
+        </div>
+    </div>
+##    <input class="button border-green" type="submit" value="添加新部门">
+</form>
+</body>
+</html>

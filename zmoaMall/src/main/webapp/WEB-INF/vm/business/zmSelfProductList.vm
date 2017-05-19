@@ -1,0 +1,131 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>兆美自营产品分配</title>
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/default/easyui.css">
+
+    <script type="text/javascript" src="/js/jeasyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-filter.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-detailview.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-cellediting.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="/js/date-zh-CN.js"></script>
+</head>
+<body>
+
+<table id="dg" class="easyui-datagrid" data-options="
+        url: '/business/getBusinessList',
+        queryParams:{filter:'$constants.shopVariableName()'},
+        toolbar:'#tb',
+        fitColumns:true,
+        title:'兆美自营产品分配',
+        border:false,
+        fit:true,
+        pagination: true,
+        pageSize:20,
+        singleSelect:true,
+        idField: 'id',
+        onLoadSuccess:function(data) {
+            $('.desc').linkbutton({text:'查看自营产品',plain:true,iconCls:'icon-search'});
+        }
+    ">
+    <thead>
+    <tr>
+        <th data-options="field:'id',align:'left'" width="10%">ID</th>
+        <th data-options="field:'name',align:'left'" width="50%">名称</th>
+        <th data-options="field:'_operate',formatter:operateFormatter" width="40%">操作</th>
+    </tr>
+    </thead>
+</table>
+
+<!-- toolbar -->
+<div id="tb" style="padding:2px 5px;">
+    查看所有:
+    <input class="easyui-combobox" data-options="
+		valueField: 'value',
+		textField: 'label',
+		onChange: function(newValue,oldValue){
+		    var shopDgOps = $('#dg').datagrid('options');
+            shopDgOps.url = '/business/getBusinessList';
+            shopDgOps.queryParams = {filter:newValue};
+            $('#dg').datagrid(shopDgOps);
+            $('#dg').datagrid('reload');
+		},
+		panelHeight: 'auto',
+		value: 'shop',
+		data: [{
+			label: '店铺',
+			value: '$constants.shopVariableName()'
+		},{
+			label: '商城',
+			value: '$constants.platformVariableName()'
+		}]" />
+</div>
+
+<div id="self-product-dlg" style="width:500px"></div>
+
+
+
+
+<script>
+
+    function search(record) {
+        var shopDgOps = $('#dg').datagrid('options');
+        console.log($('#dg'));
+        //shopDgOps.url = '/business/getBusinessList';
+        shopDgOps.queryParams = {filter:record};
+        $('#dg').datagrid(shopDgOps);
+        $('#dg').datagrid('reload');
+    }
+
+    function operateFormatter(value, row, index) {
+        var param = row.id + ",'" + row.type + "'";
+        var str = '<a href="#" onclick="selfProductDlg(' + param + ')" class="desc" class="easyui-linkbutton"></a>';
+        return str;
+    }
+
+
+    /**
+     * 时间格式化字符串
+     */
+    function dateFormatter(value, row, index) {
+        return new Date(value).toString("yyyy-MM-dd HH:mm:ss");
+    }
+
+    function descDlg(id, type) {
+        console.log(id + " " + type);
+        if (type == '$constants.shopVariableName()') {
+
+        }
+        if (type == '$constants.platformVariableName()') {
+
+        }
+    }
+
+    function selfProductDlg(id, type) {
+        console.log(id + " " + type);
+        $('#self-product-dlg').dialog({
+            title: '自营详情',
+            width: 700,
+            height: 400,
+            href: '/business/zmSelfProductDetailDlg?type='+type+'&id='+id,
+            buttons:[{
+                text:'取消',
+                iconCls:'icon-cancel',
+                handler:function(){
+                    $('#self-product-dlg').dialog('close');
+                }
+            }]
+        });
+    }
+
+
+</script>
+
+</body>
+</html>

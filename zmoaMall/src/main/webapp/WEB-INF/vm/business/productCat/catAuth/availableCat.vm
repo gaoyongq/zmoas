@@ -1,0 +1,94 @@
+#set($layout = "layout/empty.vm")
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>设置分类是否显示</title>
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/default/easyui.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <script type="text/javascript" src="/js/jeasyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-filter.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-detailview.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+
+
+<table id="tg" class="easyui-treegrid" data-options="
+        url: '/business/prodCat/getPageProdCatListByParentId.action',
+        fitColumns:true,
+        border:false,
+        toolbar:'#toolbar',
+        fit:true,
+        idField: 'categoryId',
+        treeField: 'name'
+    ">
+
+    <thead>
+    <tr>
+        <th data-options="field:'name',align:'left'" width="50%">分类名称</th>
+        <th data-options="field:'visible',align:'left',formatter:statusFormatter" width="50%">是否显示</th>
+    </tr>
+    </thead>
+</table>
+
+<div id="toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="updateVisible(1)">设置为可见</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="updateVisible(0)">设置为不可见</a>
+</div>
+
+<script>
+
+    function updateVisible(flag) {
+        var row = $('#tg').datagrid('getSelected');
+        if (row) {
+            var win = jQuery.messager.progress({
+                title:'请稍后',
+                msg:'正在操作...'
+            });
+            jQuery.ajax({
+                url: '/business/prodCat/catAuth/updateVisible',
+                type: 'post',
+                data: 'categoryId=' + row.categoryId + '&flag=' + flag,
+                dataType: 'json',
+                success: function(data) {
+                    if (data.success) {
+                        jQuery.messager.progress('close');
+                        $('#tg').treegrid('reload');
+                        jQuery.messager.show({
+                            title:'数据修改成功提示！',
+                            msg: '您在 ' + new Date().toLocaleString() + ' 成功更新数据成功',
+                            showType:'slide'
+                        });
+                    }
+                },
+                error: function(data) {
+                    alert("请求失败");
+                }
+            });
+        } else {
+            jQuery.messager.show({
+                title:'操作提示！',
+                msg: '<b>点击选中一条记录</b>',
+                showType:'slide'
+            });
+        }
+    }
+
+    function statusFormatter(value, row, index) {
+        if (value == true) {
+            return '<i style="color:limegreen;" class="fa fa-check-circle-o fa-lg"></i>';
+        } else {
+            return '<i style="color:red;" class="fa fa-ban fa-lg"></i>';
+        }
+    }
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,4 @@
+##<script type="text/javascript">
+##    if (top.location != location) top.location.href = location.href;
+##</script>
+$screen_content

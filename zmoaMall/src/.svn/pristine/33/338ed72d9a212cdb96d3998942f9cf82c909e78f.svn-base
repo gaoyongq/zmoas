@@ -1,0 +1,198 @@
+#set($layout = "layout/empty.vm")
+<html>
+    <head>
+        <!-- 导入jquery核心类库 -->
+        <script type="text/javascript"
+                src="../../js/jquery-1.8.3.js"></script>
+        <!-- 导入easyui类库 -->
+       <link id="easyuiTheme" rel="stylesheet" type="text/css"
+              href="../../js/easyui/themes/default/easyui.css">
+##        <link rel="stylesheet" type="text/css"
+##              href="../../css/default.css">
+        <script type="text/javascript"
+                src="../../js/easyui/jquery.easyui.min.js"></script>
+        <link rel="stylesheet" href="../../css/zmoaStyle.css">
+        <link rel="stylesheet" href="../../css/Font-Awesome-3.2.1/css/font-awesome.css">
+        <script>
+            $(function(){
+                var currentPage = "1";
+                var totalPages;
+                selData();
+                function selData(){
+                    var orderCode = $("#orderCode").val();
+                    var shipAddress = $("#shipAddress").val();
+
+                    jQuery.post("/business/indentList.action",{"currentPage":currentPage,"orderCode":orderCode,"shipAddress":shipAddress},function(data){
+
+                        if(data.resultPurchaseItems==null){
+                            $("#mytbody").html("<tr><td colspan='11' algin='center'>查无结果</td></tr>");
+                        }else {
+
+                            var resultData = "";
+                            for (var j = 0,i=1; j < data.resultPurchaseItems.length; j++,i++) {
+                                //alert(data.resultPurchaseItems[j].orderCode)
+                                resultData += "<tr class='aa' id='"+data.resultPurchaseItems[j].orderCode+"' ><td><input type='checkbox' class='skuattr' name='purchaseCheck' id='showproduct'value='"+data.resultPurchaseItems[j].orderCode+"' /></td>";
+                                resultData += "<td>" + i + "</td>";
+                                resultData += "<td>" + data.resultPurchaseItems[j].purchaseCode + "</td>";
+                                resultData += "<td>" + data.resultPurchaseItems[j].orderCode + "</td>";
+                                //resultData += "<td> <label  title='"+data.resultPurchaseItems[j].productName+"' style='cursor: pointer;'>" + cutstr(data.resultPurchaseItems[j].productName,10) + "</td>";
+                                resultData += "<td>" + data.resultPurchaseItems[j].kind + "</td>";
+                                resultData += "<td>" + data.resultPurchaseItems[j].orderNumber + "</td>";
+                                resultData += "<td>" + data.resultPurchaseItems[j].realNumber + "</td>";
+                                resultData += "<td>" + data.resultPurchaseItems[j].realWeigth+"</td>";
+                                resultData += "<td>" + data.resultPurchaseItems[j].shipAddress+ "</td>";
+                                resultData += "<td>" + data.resultPurchaseItems[j].shipCellPhone + "</td><tr>";
+                            }
+                            $("#mytbody").html(resultData);
+                            currentPage = data.currentPage;
+                            totalPages = data.totalPages;
+                            $("#page").html("" + currentPage + " / " + data.totalPages + "");
+                        }
+                    });
+                }
+                //点击查询
+                $("#query").click(function(){
+                    currentPage = "1";
+                    selData();
+                });
+
+               //上一页
+                $("#upPage").click(function(){
+                    if(currentPage==1){
+                        alert("当前已经是第一页")
+                    }else{
+                        currentPage = currentPage-1;
+                        selData();
+                    }
+                });
+
+                //下一页
+                $("#downPage").click(function () {
+                    if(currentPage==totalPages){
+                        alert("已经是最后一页")
+                    }else{
+                        currentPage=currentPage+1;
+                        selData();
+                    }
+                });
+
+            });
+            function contains(a, obj) {
+                for (var i = 0; i < a.length; i++) {
+                    if (a[i] === obj) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+            function addOrder(){
+
+                var purchaseorderCode="";
+                var pcs= new Array();
+                jQuery("input[name=purchaseCheck]").each(function() {
+
+                    if ($(this).prop("checked")) {
+                        purchaseorderCode += $(this).val()+",";
+                        var a = $(this).parent("td").parent("tr").find("td").eq(2).text();
+                        if(!contains(pcs,a)){
+                            pcs.push(a);
+                        }
+                    }
+                });
+
+                if(purchaseorderCode==""){
+                    alert("至少选中一个订单!!!")
+                    return false;
+                }
+               /*var pcs= purchaseorderCode.split(",");
+               for(var i=0;i<pcs.length;i++){
+                    alert(pcs[i]);
+               }*/
+
+                if(pcs.length>1){
+                    alert("添加的订单，不在同一个采购单中，是否确定")
+                    return false;
+                   /* like=window.confirm("添加的订单，不在同一个采购单中，是否确定");
+　                  if(like==true){
+                        window.location.href="/business/distributionListOne.action?purchaseorderCode="+purchaseorderCode;
+                    }else{
+                        return false;
+                    }*/
+                　　　　
+                }else{
+                    window.location.href="/business/distributionListOne.action?purchaseorderCode="+purchaseorderCode;
+                }
+
+
+
+            }
+           /* function toSelectNoConsent(){
+
+
+                window.location.href="/distribution/toSelectDistributionNoConsent.action";
+            }
+            function toSelectConsent(){
+
+
+                window.location.href="/distribution/toSelectDistributionConsent.action";
+            }*/
+
+
+
+        </script>
+    </head>
+    <body>
+    <div class="place">
+        <span class="icon-reorder">&nbsp;位置：</span>
+        <ul class="placeul">
+            <li><a>物流费用配送</a></li>
+        </ul>
+    </div>
+    <div class="divtbs">
+        &nbsp; &nbsp; &nbsp; &nbsp;
+        订单编号：
+        <input type="text" id="orderCode" value="">&nbsp;&nbsp;
+        收货人地址：
+        <input type="text" id="shipAddress" value="">&nbsp;
+##        <input type="submit" id="query" value="查询">
+##        <input type="submit"  value="物流添加订单" onclick="addOrder()"/>
+        <a class="button border-yellow" id="query"><span class="icon-search"></span>搜索</a>&nbsp;
+        <a class="button border-blue" onclick="addOrder()"><span class="icon-pencil"></span>物流添加订单</a>&nbsp;
+    </div>
+        <div>
+            <table class="table text-center" align="center" >
+                <thead>
+                <th width="5%"></th>
+                <th width="5%">序号</th>
+                <th>采购单编号</th>
+                <th>订单编号</th>
+                <th>货物种类</th>
+                <th>订单数量</th>
+                <th>实际数量</th>
+                <th>重量</th>
+                <th>收货人地址</th>
+                <th>电话</th>
+                </thead>
+                <tbody id="mytbody"></tbody>
+                #*<tr><td colspan="11" align="right"><font id="page"></font> &nbsp;&nbsp;<a href="#" id="upPage">上一页</a>&nbsp;&nbsp;<a href="#" id="downPage">下一页</a></td></tr>*#
+            </table>
+            <div>
+                <table width="100%">
+                    <tr><td colspan="11" align="right"><font id="page"></font> &nbsp;&nbsp;<a href="#" id="upPage">上一页</a>&nbsp;&nbsp;<a href="#" id="downPage">下一页</a></td></tr>
+                </table>
+            </div>
+     </div>
+
+
+    </body>
+
+</html>
+
+
+
+
+
+
+
+

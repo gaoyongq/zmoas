@@ -1,0 +1,240 @@
+#set($layout = "layout/empty.vm")
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>设置分类分区域显示</title>
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/default/easyui.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <script type="text/javascript" src="/js/jeasyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-filter.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-detailview.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/locale/easyui-lang-zh_CN.js"></script>
+    <script>
+        var url = '/business/prodCat/getProdCatListByRegionId.action';
+        var regionId = '';
+    </script>
+</head>
+<body>
+
+<div class="easyui-panel" title="设置分类分区域显示" style="padding:10px" data-options="
+        fit:true,
+        tools:'#tb',
+        iconCls:'fa fa-chain'
+        ">
+
+    <div style="margin-bottom: 10px;">
+        <b style="display: inline-block;width: 20%;text-align: center;">选择分类应用地址：</b>
+        <input id="province" class="easyui-combobox" name="province" style="width:25%;" data-options="
+                        url: '/business/selRegionInfo.action?depath=1',
+                        valueField: 'regionId',
+                        textField: 'regionName',
+                        panelHeight: '300',
+                        editable: false,
+                        onSelect: function(record) {
+                            console.log(record);
+                            $('#city').combobox('clear');
+                            var url = '/business/selRegionInfo.action?depath=2&fatherId='+record.regionId;
+                            $('#city').combobox('reload', url);
+
+                            $('#district').combobox('clear');
+                            $('#district').combobox('loadData', []);
+
+                            regionId = record.regionId;
+                            jQuery.messager.progress({
+                                title:'请稍后',
+                                msg:'正在加载地区数据...'
+                            });
+                            $('#tt').tree({
+                                url: '/business/prodCat/getProdCatListByRegionId.action?regionId='+regionId,
+                                method: 'get',
+                                lines: true,
+                                animate: true,
+                                checkbox: true,
+                                onLoadSuccess: function(node, data) {
+                                    jQuery.messager.progress('close');
+                                }
+                            });
+                        }
+                        ">
+        <input id="city" class="easyui-combobox" name="city" style="width:25%;" data-options="
+                        valueField: 'regionId',
+                        textField: 'regionName',
+                        panelHeight:'300',
+                        editable: false,
+                        onSelect: function(record) {
+                            console.log(record);
+                            $('#district').combobox('clear');
+                            var url = '/business/selRegionInfo.action?depath=3&fatherId='+record.regionId;
+                            $('#district').combobox('reload', url);
+
+                            regionId = record.regionId;
+                            jQuery.messager.progress({
+                                title:'请稍后',
+                                msg:'正在加载地区数据...'
+                            });
+                            $('#tt').tree({
+                                url: '/business/prodCat/getProdCatListByRegionId.action?regionId='+regionId,
+                                method: 'get',
+                                lines: true,
+                                animate: true,
+                                checkbox: true,
+                                onLoadSuccess: function(node, data) {
+                                    jQuery.messager.progress('close');
+                                }
+                            });
+                        }
+                        ">
+        <input id="district" class="easyui-combobox" name="district" style="width:25%;" data-options="
+                        valueField: 'regionId',
+                        textField: 'regionName',
+                        panelHeight:'300',
+                        editable: false,
+                        onSelect: function(record) {
+                            console.log(record);
+
+                            regionId = record.regionId;
+                            jQuery.messager.progress({
+                                title:'请稍后',
+                                msg:'正在加载地区数据...'
+                            });
+                            $('#tt').tree({
+                                url: '/business/prodCat/getProdCatListByRegionId.action?regionId='+regionId,
+                                method: 'get',
+                                lines: true,
+                                animate: true,
+                                checkbox: true,
+                                onLoadSuccess: function(node, data) {
+                                    jQuery.messager.progress('close');
+                                }
+                            });
+                        }
+                        ">
+    </div>
+
+    <div style="margin-bottom: 10px;">
+        <ul id="tt"></ul>
+        #*<ul id="tt" class="easyui-tree" data-options="
+                url: '/business/prodCat/getProdCatListByRegionId.action?regionId='+regionId,
+                method: 'get',
+                lines: true,
+                animate: true,
+                checkbox: true
+                ">
+        </ul>*#
+    </div>
+
+    <div style="margin-bottom: 10px;">
+        <a href="#" class="easyui-linkbutton c4" data-options="iconCls:'icon-save'" style="width:100%" onclick="save();">保存</a>
+    </div>
+</div>
+
+<select onchange="">
+
+</select>
+
+<!-- toolbar -->
+<div id="tb">
+    <a href="javascript:void(0)" class="icon-add" onclick="test()"></a>
+    <a href="javascript:void(0)" class="icon-edit" onclick="javascript:alert('edit')"></a>
+    <a href="javascript:void(0)" class="icon-cut" onclick="javascript:alert('cut')"></a>
+    <a href="javascript:void(0)" class="icon-help" onclick="javascript:alert('help')"></a>
+</div>
+
+
+<script>
+    $(function(){
+        jQuery.messager.progress({
+            title:'请稍后',
+            msg:'正在加载数据...'
+        });
+        $('#tt').tree({
+            url: '/business/prodCat/getPageProdCatListByParentId.action',
+            method: 'get',
+            lines: true,
+            animate: true,
+            checkbox: true,
+            onLoadSuccess: function(node, data) {
+                jQuery.messager.progress('close');
+            }
+        });
+    });
+
+    function test() {
+        $('#tt').tree('reload');
+        $('#province').combobox('clear');
+        $('#city').combobox('clear');
+        $('#district').combobox('clear');
+    }
+
+    function save() {
+        var win = jQuery.messager.progress({
+            title:'请稍后',
+            msg:'正在操作...'
+        });
+
+        //获取选中的分类节点对象数组
+        //var nodes = $('#tt').tree('getChecked', ['checked','indeterminate']);
+
+        // 如果是模糊的，只添加自身。
+        var indeterminateNodes = $('#tt').tree('getChecked', 'indeterminate');
+        // 如果是确定的，添加自身和子孙。
+        var checkedNodes = $('#tt').tree('getChecked');
+
+        //将对象数组转为对应Id数组
+        var indeterminateIds = indeterminateNodes.map(function(item) { return item.id });
+        var checkedIds = checkedNodes.map(function(item) { return item.id });
+
+        //获取省份Id
+        var province = $("#province").combobox('getValue');
+        //获取市县Id
+        var city = $("#city").combobox('getValue');
+        //获取区乡Id
+        var district = $("#district").combobox('getValue');
+        if (province == '') {
+            jQuery.messager.alert('提示','<b>请至少指定一个地区！</b>','info');
+            jQuery.messager.progress('close');
+            return;
+        }
+        //获取最精确的区域Id
+        var regionId = district == '' ? (city == '' ? province : city) : district;
+        jQuery.ajax({
+            url: '/business/prodCat/catAuth/addRegionCat',
+            type: 'post',
+            data: 'regionId='+regionId+'&indeterminateIds='+indeterminateIds+'&checkedIds='+checkedIds,
+            dataType: 'json',
+            success: function(data) {
+                $('#tt').tree({
+                    url: '/business/prodCat/getPageProdCatListByParentId.action',
+                    method: 'get',
+                    lines: true,
+                    animate: true,
+                    checkbox: true,
+                    onLoadSuccess: function(node, data) {
+                        jQuery.messager.progress('close');
+                    }
+                });
+                $('#province').combobox('clear');
+                $('#city').combobox('clear');
+                $('#district').combobox('clear');
+                jQuery.messager.show({
+                    title:'数据修改成功提示！',
+                    msg: '您在 ' + new Date().toLocaleString() + ' 更新数据成功',
+                    showType:'slide'
+                });
+            },
+            error: function(data) {
+                jQuery.messager.alert('提示','<b>请求失败！</b>','error');
+            }
+        });
+
+    }
+</script>
+
+</body>
+</html>

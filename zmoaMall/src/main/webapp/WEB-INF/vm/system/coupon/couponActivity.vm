@@ -1,0 +1,228 @@
+#set($layout = "layout/empty.vm")
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>优惠活动管理</title>
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="/js/jeasyui/themes/default/easyui.css">
+
+    <script type="text/javascript" src="/js/jeasyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-filter.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/plugins/datagrid-detailview.js"></script>
+    <script type="text/javascript" src="/js/jeasyui/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+
+<table id="tg" class="easyui-datagrid" data-options="
+        url: '/coupon/getCouponActivities.action',
+        toolbar:'#tb',
+        fitColumns:true,
+        title:'活动管理',
+        border:false,
+        fit:true,
+        rownumbers: true,
+        pagination: true,
+        singleSelect:true,
+        idField: 'id',
+        treeField: 'name'
+    ">
+
+    <thead>
+    <tr>
+        <th data-options="field:'ck',checkbox:true" width="5%"></th>
+        <th data-options="field:'id',align:'left'" width="5%">活动id</th>
+        <th data-options="field:'name',align:'left'" width="20%">活动名称</th>
+        <th data-options="field:'categoryName',align:'left'" width="15%">活动所属分类</th>
+        <th data-options="field:'startTime',align:'left',formatter:dateFormatter" width="15%">活动开始时间</th>
+        <th data-options="field:'endTime',align:'left',formatter:dateFormatter" width="15%">活动结束时间</th>
+        <th data-options="field:'createUserName',align:'left'" width="5%">活动创建人</th>
+        <th data-options="field:'createTime',align:'left',formatter:dateFormatter" width="15%">活动创建时间</th>
+        <th data-options="field:'status',align:'left',formatter:statusFormatter" width="5%">活动状态</th>
+    </tr>
+    </thead>
+</table>
+
+<!-- toolbar -->
+<div id="tb" style="padding:2px 5px;">
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="addCouponActivityDlg();">添加活动</a>
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-reload'" onclick="updateActivityStatus(1);">启用活动</a>
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-remove'" onclick="updateActivityStatus(0);">禁用活动</a>
+    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" onclick="deleteActivityStatus();">删除活动</a>
+</div>
+
+
+<div id="dlg" class="easyui-dialog" style="width:500px;height:400px;" closed="true" buttons="#dlg-buttons">
+    <div class="easyui-panel">
+    <form id="fm" method="post" novalidate style="margin:0;padding:20px 50px" enctype="multipart/form-data">
+        <input name="createUser.id" type="hidden" value="$userId">
+        <div style="margin-bottom:20px;font-size:14px;border-bottom:1px solid #ccc">请填写活动信息</div>
+        <div style="margin-bottom:10px">
+            <input name="category.id" class="easyui-combobox" style="width:100%;" data-options="
+                url: '/coupon/getCouponActivityCategoryList',
+                valueField: 'id',
+                textField: 'name',
+                label: '&bull; 活动分类:',
+                editable: false,
+                required:true,
+                labelPosition: 'top'
+                ">
+        </div>
+        <div style="margin-bottom:10px">
+            <input name="name" class="easyui-textbox" data-options="label:'&bull; 活动名称',labelPosition:'top',required:true" style="width:100%">
+        </div>
+        <div style="margin-bottom:10px">
+            <input name="startTime" class="easyui-datetimebox" style="width:100%;" data-options="label:'&bull; 活动开始时间',editable:false,labelPosition:'top',required:true">
+        </div>
+        <div style="margin-bottom:10px">
+            <input name="endTime" class="easyui-datetimebox" style="width:100%;" data-options="label:'&bull; 活动开始时间',editable:false,labelPosition:'top',required:true">
+        </div>
+        <div style="margin-bottom:10px">
+            <input name="introduction" class="easyui-textbox" style="width:100%;height:100px" data-options="label:'&bull; 活动介绍:',multiline:true,labelPosition:'top'">
+        </div>
+        <div style="margin-bottom:10px">
+            <input name="file" class="easyui-filebox" style="width:100%" data-options="
+                prompt:'选择图片',
+                labelPosition:'top',
+                required:true,
+                label:'&bull; 活动宣传图片:'
+                ">
+        </div>
+        <div style="margin-bottom:10px">
+            <p>&bull; 是否启用：</p>
+            <input name="status" class="easyui-switchbutton" data-options="onText:'开启',offText:'关闭',checked:true,value:1,required:true">
+        </div>
+    </form>
+    </div>
+</div>
+
+<!-- 对话框按钮 -->
+<div id="dlg-buttons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="addCouponActivity();" style="width:90px">添加</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">取消</a>
+</div>
+
+
+<script>
+    function deleteActivityStatus() {
+        jQuery.messager.confirm('删除', '你确定删除吗？', function(r){
+            if (r){
+                updateActivityStatus(-1);
+            }
+        });
+    }
+
+    function updateActivityStatus(status) {
+        var row = $('#tg').datagrid('getSelected');
+        if (row) {
+            jQuery.ajax({
+                url: "/coupon/updateActivityStatus",
+                type: "post",
+                data: "activityId="+row.id+"&status=" + status,
+                dataType: "json",
+                success: function(data){
+                    $('#tg').datagrid('reload');
+                }
+            });
+        } else {
+            jQuery.messager.show({
+                title:'提示！',
+                msg:'请先选中一条记录！',
+                showType:'show',
+                style:{
+                    left:'',
+                    right:0,
+                    top:document.body.scrollTop+document.documentElement.scrollTop,
+                    bottom:''
+                }
+            });
+        }
+    }
+
+    function dateFormatter(value,row,index){
+        return new Date(value).toLocaleString();
+    }
+
+    //活动状态。-2代表活动已删除，-1代表活动已过期，0代表活动未启用，1代表活动已启用
+    function statusFormatter(value,row,index){
+        if (row.status == -1) {
+            return '<span style="color:grey;">[已过期]</span>';
+        } else if (row.status == 0) {
+            return '<span style="color:blue;">[未开启]</span>';
+        } else if (row.status == 1) {
+            return '<span style="color:green;">[已开启]</span>';
+        }
+    }
+
+    function addCouponActivityDlg() {
+        $('#dlg').dialog('open').dialog('center').dialog('setTitle','活动新增');
+    }
+
+    function addCouponActivity() {
+        //提交form表单
+        $('#fm').form('submit', {
+            url:'/coupon/addCouponActivity.action',
+            success: function(data) {
+                var data = eval('(' + data + ')');  // change the JSON string to javascript object
+                if (data.success) {
+                    $('#dlg').dialog('close');
+                    $('#tg').datagrid('reload');
+                    jQuery.messager.show({
+                        title:'数据修改成功提示！',
+                        msg: '您在 ' + new Date().toLocaleString() + ' 成功更新了一条数据',
+                        showType:'show'
+                    });
+                }
+
+            },
+            error: function() {
+                jQuery.messager.show({
+                    title:'请求失败！',
+                    msg: new Date().toLocaleString() + ' 请求服务器失败',
+                    showType:'show'
+                });
+            }
+        });
+    }
+
+    $(function(){
+        //添加详情查看
+        $('#tg').datagrid({
+            view: detailview,
+            detailFormatter:function(index,row){
+                return '<div class="ddv" style="padding:5px 0;"></div>';
+            },
+            onExpandRow: function(index,row){
+                console.log(row);
+                var ddv = $(this).datagrid('getRowDetail',index).find('div.ddv');
+                ddv.panel({
+                    height:80,
+                    border:false,
+                    cache:false,
+                    href:'/coupon/couponActivityDetail.action?id=' + row.id,
+                    onLoad:function(){
+                        $('#tg').datagrid('fixDetailRowHeight',index);
+                    }
+                });
+                $('#tg').datagrid('fixDetailRowHeight',index);
+            }
+        });
+    })
+
+    //筛选开关
+    var i = 1;
+    function searchCode() {
+        if (i == 1) {
+            $("#tg").treegrid('enableFilter');
+            i = 0;
+        } else {
+            $("#tg").treegrid('disableFilter');
+            i = 1;
+        }
+    }
+</script>
+
+</body>
+</html>

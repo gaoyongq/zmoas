@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.system.RegisterDao">
+    <!--查询一页签到信息-->
+    <select id="selectAllRegisterByPage" parameterType="pageofregister" resultMap="Register">
+        SELECT *
+        FROM register
+        WHERE DATE_FORMAT( createtime, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' )   ORDER BY userid,createTime DESC
+        Limit #{beginNumber},#{pageSize}
+    </select>
+
+    <!--查询总条数-->
+    <select id="selectAllCount" parameterType="pageofregister" resultType="int">
+        SELECT count(*)
+        FROM register
+        WHERE DATE_FORMAT( createtime, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' )
+    </select>
+    <!--查询所有人本月记录-->
+    <select id="selectAllRegister" parameterType="register" resultMap="Register">
+        SELECT  *
+         FROM register
+        WHERE  DATE_FORMAT( createtime, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' )   ORDER BY userid,createTime DESC
+    </select>
+   <!--查询当前用户本月记录-->
+    <select id="selectRegisterAll" parameterType="register" resultMap="Register">
+        SELECT  *
+        FROM register
+        WHERE userid=#{userid} AND DATE_FORMAT( createtime, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' ) ORDER BY createtime DESC
+    </select>
+    <!--更新当前用户下班时间-->
+    <update id="updateRegister">
+        UPDATE register
+        SET updatetime=#{updatetime},estatus=#{estatus}
+        WHERE userid=#{userid} AND createtime=#{createtime}
+    </update>
+    <!--新增当前用户上班时间-->
+    <insert id="insertRegister"  parameterType="register" >
+        INSERT INTO register(username,userid,createtime,mstatus) VALUES (#{username},#{userid},#{createtime},#{mstatus})
+    </insert>
+    <!--查询当前用户今天是否已经打卡-->
+    <select id="selectRegister" resultMap="Register" parameterType="register">
+        SELECT
+        *
+        FROM register
+        WHERE userid=#{userid} AND createtime BETWEEN #{flagtime1} AND #{flagtime2}
+    </select>
+    <resultMap id="Register" type="com.zm.mall.domain.system.Register">
+        <!--<id column="id" property="id" jdbcType="BIGINT"></id>-->
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="username" property="username" jdbcType="VARCHAR"/>
+        <result column="userid" property="userid" jdbcType="BIGINT"/>
+        <result column="createtime" property="createtime" />
+        <result column="updatetime" property="updatetime" />
+
+        <result column="mstatus" property="mstatus" jdbcType="VARCHAR"/>
+        <result column="estatus" property="estatus" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+
+    <sql id="condition">
+        <if test="userid != null  and userid >0">
+            AND name = #{userid}
+        </if>
+        <if test="createTime != null  and createTime !='' ">
+            AND createTime BETWEEN #{createTime}-1 AND #{createTime}+1
+        </if>
+    </sql>
+
+    <!--<select id="selectMoneyItem" resultType="moneyItem">-->
+        <!--SELECT-->
+        <!--*-->
+        <!--FROM money_item-->
+        <!--<where>-->
+            <!--<include refid="condition"></include>-->
+        <!--</where>-->
+        <!--WHERE money_manager_id=#{id}-->
+    <!--</select>-->
+</mapper>

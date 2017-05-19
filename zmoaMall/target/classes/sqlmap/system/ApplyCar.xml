@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.system.ApplyCarDao">
+
+    <resultMap id="ApplyCarMap" type="com.zm.mall.domain.system.ApplyCar">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="applyCarCode" property="applyCarCode" jdbcType="VARCHAR"/>
+        <result column="smallgroup" property="smallgroup" jdbcType="VARCHAR"/>
+        <result column="transactor" property="transactor" jdbcType="VARCHAR"/>
+        <result column="number" property="number" jdbcType="VARCHAR"/>
+        <result column="state" property="state" jdbcType="VARCHAR"/>
+        <result column="showState" property="showState" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="all_column">id, applyCarCode,smallgroup ,transactor ,number , state,showState</sql>
+
+    <sql id="update_set">
+        <set>
+
+            <if test="applyCarCode != null">applyCarCode = #{applyCarCode},</if>
+            <if test="smallgroup != null">smallgroup = #{smallgroup},</if>
+            <if test="transactor != null">transactor = #{transactor},</if>
+            <if test="number != null">number = #{number},</if>
+            <if test="state != null">state = #{state},</if>
+            <if test="showState != null">showState = #{showState},</if>
+
+        </set>
+    </sql>
+
+    <!-- 插入记录 -->
+    <insert id="saveApplyCar" parameterType="applyCar" >
+        INSERT INTO wl_applycar
+        (applyCarCode,smallgroup, transactor,state,showState) VALUES
+        (#{applyCarCode},#{smallgroup},#{transactor},#{state},#{showState})
+    </insert>
+
+    <!--分页查询-->
+    <!-- 分页 -->
+    <select id="selectByLimit" resultMap="ApplyCarMap" parameterType="page">
+        SELECT
+        <include refid="all_column"/>
+        FROM wl_applycar
+        WHERE state="1" AND showState="1"
+        <if test="applyCar.smallgroup!='' and applyCar.smallgroup!=null">
+            AND smallgroup LIKE '%${applyCar.smallgroup}%'ORDER BY applyCarCode ASC
+        </if>
+        <!--AND smallgroup LIKE '%${applyCar.smallgroup}%'ORDER BY applyCarCode ASC-->
+        Limit #{beginNumber},#{pageSize}
+    </select>
+
+    <select id="selectAllCount" resultType="int" parameterType="page">
+        SELECT count(*)
+        FROM wl_applycar
+        WHERE state="1" AND showState="1"
+        <if test="applyCar.smallgroup!='' and applyCar.smallgroup!=null">
+            AND smallgroup LIKE '%${applyCar.smallgroup}%'ORDER BY applyCarCode ASC
+        </if>
+    </select>
+    <!--真正添加车辆-->
+    <update id="applyCarAddCar" parameterType="applyCar">
+        update wl_applycar
+        <include refid="update_set"/>
+        WHERE applyCarCode = #{applyCarCode}
+    </update>
+
+    <select id="selectOneAppCar" resultMap="ApplyCarMap" parameterType="String">
+        SELECT
+        <include refid="all_column"/>
+        FROM wl_applycar
+        WHERE applyCarCode =#{applyCarCode}
+
+    </select>
+    <!--白洋洋-订单添加时将申请车辆的订单插入表中-->
+    <insert id="insertApplyCar" parameterType="applyCar">
+        INSERT INTO wl_applycar
+        (applyCarCode,smallgroup, transactor,state,showState) VALUES
+        (#{applyCarCode},#{smallgroup},#{transactor},1,1)
+    </insert>
+    <!--修改车辆显示状态-->
+    <update id="updateShowState" parameterType="String">
+        update wl_applycar
+        SET showState="2"
+        WHERE number = #{carNumber} AND showState="1"
+    </update>
+</mapper>

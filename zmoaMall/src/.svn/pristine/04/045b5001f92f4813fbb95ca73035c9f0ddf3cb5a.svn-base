@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.mall.dao.business.product.AttributeInfoDao">
+    <resultMap id="AttributeInfoMap" type="com.zm.mall.domain.business.product.AttributeInfo">
+        <result column="AttributeId" property="attributeId" jdbcType="BIGINT"></result>
+        <result column="AttributeName" property="attributeName" jdbcType="VARCHAR"></result>
+        <result column="DisplaySequence" property="displaySequence" jdbcType="BIGINT"></result>
+        <result column="TypeId" property="typeId" jdbcType="BIGINT"></result>
+        <result column="UsageMode" property="usageMode" jdbcType="BIGINT"></result>
+        <result column="UseAttributeImage" property="useAttributeImage" jdbcType="BOOLEAN"></result>
+        <collection property="listAttributeValues" ofType="com.zm.mall.domain.business.product.AttributeValue">
+            <result property="valueId" column="ValueId" jdbcType="BIGINT"></result>
+            <result property="attributeId" column="AttributeId" jdbcType="BIGINT"></result>
+            <result property="displaySequence" column="DisplaySequence" jdbcType="BIGINT"></result>
+            <result property="valueStr" column="ValueStr" jdbcType="VARCHAR"></result>
+        </collection>
+    </resultMap>
+    <!--判断平台Id-->
+    <sql id="b2c_condition">
+        <if test="pluteformid !=null  and  pluteformid  !='' ">
+            AND pluteformid=#{pluteformid}
+        </if>
+    </sql>
+
+    <select id="selProperty" resultMap="AttributeInfoMap" parameterType="attributeInfo">
+        SELECT *
+        FROM b2c_shop_attributes a
+        JOIN b2c_shop_attributevalues v ON a.AttributeId = v.AttributeId
+        WHERE a.UsageMode != 3 AND a.TypeId=#{typeId}
+        <!--<if test="pluteformid !=null  and  pluteformid  !='' ">-->
+            <!--AND a.pluteformid=#{pluteformid}-->
+        <!--</if>-->
+    </select>
+
+    <select id="selSpec" resultMap="AttributeInfoMap" parameterType="attributeInfo">
+        SELECT *
+        FROM b2c_shop_attributes a
+        JOIN b2c_shop_attributevalues v ON a.AttributeId = v.AttributeId
+        WHERE a.UsageMode = 3 AND a.TypeId=#{typeId}
+        <!--<if test="pluteformid !=null  and  pluteformid  !='' ">-->
+            <!--AND a.pluteformid=#{pluteformid}-->
+        <!--</if>-->
+    </select>
+    <!--���ݲ�Ʒ����-->
+    <select id="selSkuById" resultMap="AttributeInfoMap" parameterType="productInfo">
+        SELECT a.*,v.valueId,v.valueStr
+        FROM b2c_shop_attributes a,b2c_shop_attributevalues v,b2c_shop_skuitems r
+        where a.AttributeId = v.AttributeId
+        and a.AttributeId=r.AttributeId
+        and r.ValueId = v.ValueId
+        AND r.ProductId= #{productId}
+        <!--<if test="pluteformid !=null  and  pluteformid  !='' ">-->
+            <!--AND a.pluteformid=#{pluteformid}-->
+        <!--</if>-->
+    </select>
+    <!--���ݲ�Ʒ������-->
+    <select id="selSpecById" resultMap="AttributeInfoMap" parameterType="productInfo">
+        select  a.*,v.valueId,v.valueStr
+        from b2c_shop_attributes a,b2c_shop_attributevalues v,b2c_shop_productattributes p
+        WHERE a.AttributeId = p.AttributeId and v.ValueId = p.ValueId AND a.AttributeId = v.AttributeId AND p.ProductId =#{productId}
+        <!--<if test="pluteformid !=null  and  pluteformid  !='' ">-->
+            <!--AND a.pluteformid=#{pluteformid}-->
+        <!--</if>-->
+    </select>
+    <!--������  ��������Id�͹��������ȷ������Id,AttributeId,��ѯ����Ӧ��ValueStr-->
+    <select id="selectValueStr" resultMap="AttributeInfoMap" parameterType="attributeInfo">
+        SELECT v.AttributeId,v.ValueId,v.ValueStr
+        FROM b2c_shop_attributes a,b2c_shop_attributevalues v
+        WHERE a.AttributeId = v.AttributeId
+        AND a.TypeId = #{typeId}
+        AND a.AttributeName LIKE '%${attributeName}%'
+        AND a.UsageMode = 3
+        <!--<if test="pluteformid !=null  and  pluteformid  !='' ">-->
+            <!--AND a.pluteformid=#{pluteformid}-->
+        <!--</if>-->
+    </select>
+</mapper>
