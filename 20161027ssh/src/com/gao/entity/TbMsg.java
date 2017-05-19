@@ -15,7 +15,7 @@ public class TbMsg implements java.io.Serializable {
 	private String title;
 	private String content;
 	private Date bdate;
-	private Boolean state;
+	
 
 	// Constructors
 
